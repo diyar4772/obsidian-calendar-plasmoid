@@ -1,0 +1,710 @@
+# Turkish translation of Calendar for Obsidian.
+# SPDX-FileCopyrightText: 2026 Samed Yolcu
+# SPDX-License-Identifier: GPL-2.0-or-later
+msgid ""
+msgstr ""
+"Project-Id-Version: io.github.diyar4772.obsidiancalendar\n"
+"Report-Msgid-Bugs-To: https://github.com/diyar4772/obsidian-calendar-plasmoid/issues\n"
+"PO-Revision-Date: 2026-09-30 16:00+0300\n"
+"Last-Translator: Samed Yolcu\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#, kde-format
+msgctxt "@title"
+msgid "General"
+msgstr "Genel"
+
+#, kde-format
+msgctxt "@title"
+msgid "Notes"
+msgstr "Notlar"
+
+#, kde-format
+msgctxt "@title"
+msgid "Calendar"
+msgstr "Takvim"
+
+#, kde-format
+msgctxt "@title"
+msgid "Appearance"
+msgstr "Görünüm"
+
+#, kde-format
+msgctxt "@info accessible name, %1 month %2 year"
+msgid "Calendar, %1 %2"
+msgstr "Takvim, %1 %2"
+
+#, kde-format
+msgctxt "@title month and year, e.g. March 2025"
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#, kde-format
+msgctxt "@info notes in the visible month"
+msgid "%1 note"
+msgid_plural "%1 notes"
+msgstr[0] "%1 not"
+msgstr[1] "%1 not"
+
+#, kde-format
+msgctxt "@info current streak of consecutive days"
+msgid "%1-day streak"
+msgid_plural "%1-day streak"
+msgstr[0] "%1 günlük seri"
+msgstr[1] "%1 günlük seri"
+
+#, kde-format
+msgctxt "@info"
+msgid "No streak yet"
+msgstr "Henüz seri yok"
+
+#, kde-format
+msgctxt "@info notes in the visible month"
+msgid "%1 note this month"
+msgid_plural "%1 notes this month"
+msgstr[0] "Bu ay %1 not"
+msgstr[1] "Bu ay %1 not"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Previous Month"
+msgstr "Önceki Ay"
+
+#, kde-format
+msgctxt "@action:button reset calendar to today"
+msgid "Today"
+msgstr "Bugün"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Next Month"
+msgstr "Sonraki Ay"
+
+#, kde-format
+msgctxt "@label"
+msgid "Design:"
+msgstr "Tasarım:"
+
+#, kde-format
+msgctxt "@option:radio design"
+msgid "Plasma Native"
+msgstr "Plasma Yerel"
+
+#, kde-format
+msgctxt "@info"
+msgid "Like Plasma's calendar, with word-count dots like the Calendar plugin"
+msgstr "Plasma takvimi gibi; Calendar eklentisindeki gibi kelime sayısı noktalarıyla"
+
+#, kde-format
+msgctxt "@option:radio design"
+msgid "Journal"
+msgstr "Günce"
+
+#, kde-format
+msgctxt "@info"
+msgid "Tiles tinted by note length, like an activity heatmap"
+msgstr "Not uzunluğuna göre renklenen kutucuklar, etkinlik ısı haritası gibi"
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Colors"
+msgstr "Renkler"
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Color scheme:"
+msgstr "Renk şeması:"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Same as Plasma"
+msgstr "Plasma ile aynı"
+
+#, kde-format
+msgctxt "@item:inlistbox %1 is a file name"
+msgid "%1 (not found)"
+msgstr "%1 (bulunamadı)"
+
+#, kde-format
+msgctxt "@label"
+msgid "Accent color:"
+msgstr "Vurgu rengi:"
+
+#, kde-format
+msgctxt "@item:inlistbox accent color"
+msgid "Automatic"
+msgstr "Otomatik"
+
+#, kde-format
+msgctxt "@item:inlistbox accent color"
+msgid "Custom"
+msgstr "Özel"
+
+#, kde-format
+msgctxt "@title:window"
+msgid "Choose Accent Color"
+msgstr "Vurgu Rengi Seç"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"A color too close to the background is made lighter or darker so it stays "
+"visible."
+msgstr "Arka plana çok yakın bir renk, görünür kalması için açılır ya da koyulaştırılır."
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Background:"
+msgstr "Arka plan:"
+
+#, kde-format
+msgctxt "@item:inlistbox background"
+msgid "Plasma standard"
+msgstr "Plasma standart"
+
+#, kde-format
+msgctxt "@item:inlistbox background"
+msgid "Plasma translucent"
+msgstr "Plasma yarı saydam"
+
+#, kde-format
+msgctxt "@item:inlistbox background"
+msgid "Solid color, adjustable opacity"
+msgstr "Düz renk, ayarlanabilir saydamlık"
+
+#, kde-format
+msgctxt "@item:inlistbox background"
+msgid "None"
+msgstr "Yok"
+
+#, kde-format
+msgctxt "@label:slider"
+msgid "Background opacity:"
+msgstr "Arka plan matlığı:"
+
+#, kde-format
+msgctxt "@item percentage"
+msgid "%1%"
+msgstr "%%1"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"With its own color scheme, the widget draws a background in that scheme's "
+"colors."
+msgstr "Kendi renk şeması seçildiğinde widget, arka planı o şemanın renkleriyle çizer."
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Size"
+msgstr "Boyut"
+
+#, kde-format
+msgctxt "@label:slider"
+msgid "Text size:"
+msgstr "Yazı boyutu:"
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Spacing:"
+msgstr "Boşluk:"
+
+#, kde-format
+msgctxt "@item:inlistbox spacing"
+msgid "Compact"
+msgstr "Sıkı"
+
+#, kde-format
+msgctxt "@item:inlistbox spacing"
+msgid "Normal"
+msgstr "Normal"
+
+#, kde-format
+msgctxt "@item:inlistbox spacing"
+msgid "Comfortable"
+msgstr "Ferah"
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Day shape:"
+msgstr "Gün şekli:"
+
+#, kde-format
+msgctxt "@item:inlistbox shape"
+msgid "Rounded"
+msgstr "Yuvarlatılmış"
+
+#, kde-format
+msgctxt "@item:inlistbox shape"
+msgid "Circle"
+msgstr "Daire"
+
+#, kde-format
+msgctxt "@item:inlistbox shape"
+msgid "Square"
+msgstr "Kare"
+
+#, kde-format
+msgctxt "@info"
+msgid "Resize the widget on the desktop by dragging its edges in edit mode."
+msgstr "Widget'ı masaüstünde düzenleme kipinde kenarlarından sürükleyerek yeniden boyutlandırın."
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Week starts on:"
+msgstr "Hafta başlangıcı:"
+
+#, kde-format
+msgctxt "@item:inlistbox week start"
+msgid "Automatic"
+msgstr "Otomatik"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Automatic uses the Calendar plugin's setting, or the desktop's first day of "
+"the week."
+msgstr "Otomatik, Calendar eklentisinin ayarını ya da masaüstünün haftanın ilk gününü kullanır."
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Week numbers:"
+msgstr "Hafta numaraları:"
+
+#, kde-format
+msgctxt "@item:inlistbox week numbers"
+msgid "Automatic"
+msgstr "Otomatik"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Show"
+msgstr "Göster"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Hide"
+msgstr "Gizle"
+
+#, kde-format
+msgctxt "@option:check"
+msgid "Use ISO 8601 week numbers"
+msgstr "ISO 8601 hafta numaralarını kullan"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Automatic shows week numbers when “Show week number” is on in the Calendar "
+"plugin."
+msgstr "Otomatik, Calendar eklentisinde “Show week number” açıksa hafta numaralarını gösterir."
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Notes on the calendar"
+msgstr "Takvimdeki notlar"
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Note length shown by:"
+msgstr "Not uzunluğu gösterimi:"
+
+#, kde-format
+msgctxt "@item:inlistbox note length"
+msgid "Word count"
+msgstr "Kelime sayısı"
+
+#, kde-format
+msgctxt "@item:inlistbox note length"
+msgid "File size"
+msgstr "Dosya boyutu"
+
+#, kde-format
+msgctxt "@item:inlistbox note length"
+msgid "Not shown"
+msgstr "Gösterilmez"
+
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Words per dot:"
+msgstr "Nokta başına kelime:"
+
+#, kde-format
+msgctxt "@option:check"
+msgid "From the Calendar plugin"
+msgstr "Calendar eklentisinden"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Like the Calendar plugin: one dot per this many words, up to five. Counts "
+"are approximate: frontmatter is skipped and only the beginning of very long "
+"notes is read."
+msgstr "Calendar eklentisindeki gibi: bu kadar kelime başına bir nokta, en fazla beş. Sayılar yaklaşıktır: ön bilgi (frontmatter) atlanır ve çok uzun notların yalnızca başı okunur."
+
+#, kde-format
+msgctxt "@label"
+msgid "Show:"
+msgstr "Göster:"
+
+#, kde-format
+msgctxt "@option:check"
+msgid "Notes this month and current streak"
+msgstr "Bu ayki notlar ve güncel seri"
+
+#, kde-format
+msgctxt "@option:check"
+msgid "Today's date next to the panel icon"
+msgstr "Panel simgesinin yanında bugünün tarihi"
+
+#, kde-format
+msgctxt "@label:textbox"
+msgid "Vault folder:"
+msgstr "Kasa klasörü:"
+
+#, kde-format
+msgctxt "@info:placeholder"
+msgid "Folder that contains .obsidian"
+msgstr ".obsidian klasörünü içeren klasör"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Browse…"
+msgstr "Göz At…"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Enter a path that starts with / or ~/, or use Browse… to choose the folder."
+msgstr "/ ya da ~/ ile başlayan bir yol girin veya klasörü seçmek için Göz At… düğmesini kullanın."
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"The widget only reads the vault. Daily and weekly note settings are taken "
+"from Obsidian (core Daily notes, Periodic Notes and Calendar plugins); you "
+"can change them on the Notes page."
+msgstr "Widget kasayı yalnızca okur. Günlük ve haftalık not ayarları Obsidian'dan alınır (çekirdek Daily notes, Periodic Notes ve Calendar eklentileri); bunları Notlar sayfasından değiştirebilirsiniz."
+
+#, kde-format
+msgctxt "@label:spinbox"
+msgid "Check for new notes every:"
+msgstr "Yeni notları denetleme sıklığı:"
+
+#, kde-format
+msgctxt "@item:valuesuffix"
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] "%1 saniye"
+msgstr[1] "%1 saniye"
+
+#, kde-format
+msgctxt "@title:window"
+msgid "Choose Obsidian Vault"
+msgstr "Obsidian Kasası Seç"
+
+#, kde-format
+msgctxt "@info settings source"
+msgid "Periodic Notes plugin"
+msgstr "Periodic Notes eklentisi"
+
+#, kde-format
+msgctxt "@info settings source"
+msgid "core Daily notes plugin"
+msgstr "çekirdek Daily notes eklentisi"
+
+#, kde-format
+msgctxt "@info settings source"
+msgid "Calendar plugin"
+msgstr "Calendar eklentisi"
+
+#, kde-format
+msgctxt "@info settings source"
+msgid "Obsidian defaults"
+msgstr "Obsidian varsayılanları"
+
+#, kde-format
+msgctxt "@info"
+msgid "Choose a vault on the General page first."
+msgstr "Önce Genel sayfasında bir kasa seçin."
+
+#, kde-format
+msgctxt "@info"
+msgid "Reading vault…"
+msgstr "Kasa okunuyor…"
+
+#, kde-format
+msgctxt "@info"
+msgid "The vault couldn't be read."
+msgstr "Kasa okunamadı."
+
+#, kde-format
+msgctxt "@info"
+msgid "No weekly notes are configured in Obsidian."
+msgstr "Obsidian'da haftalık not ayarı yok."
+
+#, kde-format
+msgctxt "@info the top folder of the vault"
+msgid "vault root"
+msgstr "kasa kökü"
+
+#, kde-format
+msgctxt "@info %1 folder, %2 format, %3 plugin name"
+msgid "Folder “%1”, format %2, from the %3."
+msgstr "Klasör “%1”, biçim %2 (kaynak: %3)."
+
+#, kde-format
+msgctxt "@info"
+msgid "The folder must be inside the vault."
+msgstr "Klasör kasanın içinde olmalı."
+
+#, kde-format
+msgctxt "@info %1 lists tokens"
+msgid "Unsupported tokens: %1"
+msgstr "Desteklenmeyen öğeler: %1"
+
+#, kde-format
+msgctxt "@info"
+msgid "This format doesn't give a valid file name inside the folder."
+msgstr "Bu biçim, klasör içinde geçerli bir dosya adı vermiyor."
+
+#, kde-format
+msgctxt "@info %1 is a file path"
+msgid "Example: %1"
+msgstr "Örnek: %1"
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Daily notes"
+msgstr "Günlük notlar"
+
+#, kde-format
+msgctxt "@label"
+msgid "Detected:"
+msgstr "Algılanan:"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Read from the vault saved on the General page. After choosing another vault, "
+"apply the change to update this."
+msgstr "Genel sayfasında kaydedilen kasadan okunur. Başka bir kasa seçtikten sonra güncellemek için değişikliği uygulayın."
+
+#, kde-format
+msgctxt "@option:check"
+msgid "Use a different folder and format"
+msgstr "Farklı klasör ve biçim kullan"
+
+#, kde-format
+msgctxt "@label:textbox"
+msgid "Folder:"
+msgstr "Klasör:"
+
+#, kde-format
+msgctxt "@info:placeholder"
+msgid "Vault root"
+msgstr "Kasa kökü"
+
+#, kde-format
+msgctxt "@label:textbox"
+msgid "Format:"
+msgstr "Biçim:"
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Weekly notes"
+msgstr "Haftalık notlar"
+
+#, kde-format
+msgctxt "@title:group"
+msgid "Names and clicks"
+msgstr "Adlar ve tıklamalar"
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Language of note names:"
+msgstr "Not adlarının dili:"
+
+#, kde-format
+msgctxt "@item:inlistbox note name language"
+msgid "Automatic"
+msgstr "Otomatik"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Automatic follows the Calendar plugin or the desktop language. Only matters "
+"for formats with month or day names (MMMM, dddd…); the week start isn't "
+"affected. Other languages use English names, like Obsidian's default."
+msgstr "Otomatik, Calendar eklentisini ya da masaüstü dilini izler. Yalnızca ay ya da gün adı içeren biçimlerde (MMMM, dddd…) önemlidir; hafta başlangıcını etkilemez. Diğer diller, Obsidian'ın varsayılanı gibi İngilizce adları kullanır."
+
+#, kde-format
+msgctxt "@label:listbox"
+msgid "Clicking a day without a note:"
+msgstr "Notu olmayan bir güne tıklamak:"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Does nothing"
+msgstr "Hiçbir şey yapmaz"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Creates the note"
+msgstr "Notu oluşturur"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Today always opens or creates today's note with your template. Notes created "
+"for other days start empty: Obsidian doesn't apply templates to them."
+msgstr "Bugün her zaman bugünün notunu şablonunuzla açar ya da oluşturur. Diğer günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "No note yet"
+msgstr "Henüz not yok"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "No note"
+msgstr "Not yok"
+
+#, kde-format
+msgctxt "@info:tooltip note path and word count"
+msgid "%2, %1 word"
+msgid_plural "%2, %1 words"
+msgstr[0] "%2, %1 kelime"
+msgstr[1] "%2, %1 kelime"
+
+#, kde-format
+msgctxt "@info"
+msgid "Vault path isn't absolute"
+msgstr "Kasa yolu mutlak değil"
+
+#, kde-format
+msgctxt "@info"
+msgid "No vault selected"
+msgstr "Kasa seçilmedi"
+
+#, kde-format
+msgctxt "@info"
+msgid "Vault folder not found"
+msgstr "Kasa klasörü bulunamadı"
+
+#, kde-format
+msgctxt "@info"
+msgid "Not an Obsidian vault"
+msgstr "Bir Obsidian kasası değil"
+
+#, kde-format
+msgctxt "@info"
+msgid "Couldn't read the vault"
+msgstr "Kasa okunamadı"
+
+#, kde-format
+msgctxt "@info"
+msgid "Choose the folder of your Obsidian vault to see your daily notes."
+msgstr "Günlük notlarınızı görmek için Obsidian kasanızın klasörünü seçin."
+
+#, kde-format
+msgctxt "@info %1 is a folder path"
+msgid "%1 doesn't exist or can't be opened."
+msgstr "%1 yok ya da açılamıyor."
+
+#, kde-format
+msgctxt "@info %1 is a folder path"
+msgid "%1 has no .obsidian folder. Choose the vault's top folder."
+msgstr "%1 içinde .obsidian klasörü yok. Kasanın en üst klasörünü seçin."
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Choose Vault…"
+msgstr "Kasa Seç…"
+
+#, kde-format
+msgctxt "@info %1 is a folder inside the vault"
+msgid "The daily notes folder “%1” doesn't exist yet."
+msgstr "Günlük notlar klasörü “%1” henüz yok."
+
+#, kde-format
+msgctxt "@info %1 is a file name"
+msgid "%1 isn't valid JSON, so it was ignored."
+msgstr "%1 geçerli bir JSON değil, bu yüzden yok sayıldı."
+
+#, kde-format
+msgctxt "@info %1 is a file name"
+msgid "%1 has an unexpected structure, so it was ignored."
+msgstr "%1 beklenmeyen bir yapıda, bu yüzden yok sayıldı."
+
+#, kde-format
+msgctxt "@info %1 lists date format tokens"
+msgid "The weekly note format uses tokens this widget doesn't support: %1"
+msgstr "Haftalık not biçimi, bu widget'ın desteklemediği öğeler kullanıyor: %1"
+
+#, kde-format
+msgctxt "@info %1 lists date format tokens"
+msgid "The daily note format uses tokens this widget doesn't support: %1"
+msgstr "Günlük not biçimi, bu widget'ın desteklemediği öğeler kullanıyor: %1"
+
+#, kde-format
+msgctxt "@info %1 is a folder"
+msgid "The folder “%1” is outside the vault."
+msgstr "“%1” klasörü kasanın dışında."
+
+#, kde-format
+msgctxt "@info %1 is a date format"
+msgid "The note format “%1” doesn't produce a valid file name."
+msgstr "“%1” not biçimi geçerli bir dosya adı üretmiyor."
+
+#, kde-format
+msgctxt "@info week number"
+msgid "Week %1"
+msgstr "%1. hafta"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "No weekly note"
+msgstr "Haftalık not yok"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "Calendar for Obsidian"
+msgstr "Obsidian için Takvim"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "Today's note is written"
+msgstr "Bugünün notu yazıldı"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "No note for today yet"
+msgstr "Bugün için henüz not yok"
+
+#, kde-format
+msgctxt "@info:tooltip"
+msgid "%1-day streak"
+msgid_plural "%1-day streak"
+msgstr[0] "%1 günlük seri"
+msgstr[1] "%1 günlük seri"
+
+#, kde-format
+msgctxt "@action"
+msgid "Open Today's Note"
+msgstr "Bugünün Notunu Aç"
+
+#, kde-format
+msgctxt "@action"
+msgid "Open Vault in Obsidian"
+msgstr "Kasayı Obsidian'da Aç"
+
+#, kde-format
+msgctxt "@action"
+msgid "Rescan Vault"
+
+msgstr "Kasayı Yeniden Tara"
