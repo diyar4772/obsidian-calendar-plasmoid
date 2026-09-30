@@ -42,6 +42,8 @@ Item {
 
     readonly property bool ownColors: schemeColors !== null || customAccent
 
+    readonly property Translator tr: Translator {}
+
     Layout.minimumWidth: Kirigami.Units.gridUnit * 7
     Layout.minimumHeight: Kirigami.Units.gridUnit * 7
     Layout.preferredWidth: Kirigami.Units.gridUnit * 20
@@ -187,34 +189,34 @@ Item {
                     : (full.scanner.status === "error" || full.pathInvalid) ? "dialog-warning" : "view-calendar-day"
                 text: {
                     if (full.pathInvalid) {
-                        return i18nc("@info", "Vault path isn't absolute");
+                        return full.tr.ui18nc("@info", "Vault path isn't absolute");
                     }
                     switch (full.scanner.status) {
-                    case "unconfigured": return i18nc("@info", "No vault selected");
-                    case "loading": return i18nc("@info", "Reading vault…");
+                    case "unconfigured": return full.tr.ui18nc("@info", "No vault selected");
+                    case "loading": return full.tr.ui18nc("@info", "Reading vault…");
                     }
                     switch (full.scanner.errorCode) {
-                    case "no-vault": return i18nc("@info", "Vault folder not found");
-                    case "not-a-vault": return i18nc("@info", "Not an Obsidian vault");
-                    case "timeout": return i18nc("@info", "The vault didn't respond");
-                    default: return i18nc("@info", "Couldn't read the vault");
+                    case "no-vault": return full.tr.ui18nc("@info", "Vault folder not found");
+                    case "not-a-vault": return full.tr.ui18nc("@info", "Not an Obsidian vault");
+                    case "timeout": return full.tr.ui18nc("@info", "The vault didn't respond");
+                    default: return full.tr.ui18nc("@info", "Couldn't read the vault");
                     }
                 }
                 explanation: {
                     if (full.pathInvalid) {
-                        return i18nc("@info", "Enter a path that starts with / or ~/, or use Browse… to choose the folder.");
+                        return full.tr.ui18nc("@info", "Enter a path that starts with / or ~/, or use Browse… to choose the folder.");
                     }
                     if (full.height < Kirigami.Units.gridUnit * 11) {
                         return "";
                     }
                     switch (full.scanner.status) {
-                    case "unconfigured": return i18nc("@info", "Choose the folder of your Obsidian vault to see your daily notes.");
+                    case "unconfigured": return full.tr.ui18nc("@info", "Choose the folder of your Obsidian vault to see your daily notes.");
                     case "loading": return "";
                     }
                     switch (full.scanner.errorCode) {
-                    case "no-vault": return i18nc("@info %1 is a folder path", "%1 doesn't exist or can't be opened.", Paths.plainText(full.scanner.errorDetail));
-                    case "not-a-vault": return i18nc("@info %1 is a folder path", "%1 has no .obsidian folder. Choose the vault's top folder.", Paths.plainText(full.scanner.errorDetail));
-                    case "timeout": return i18nc("@info %1 is a folder path", "Reading %1 took too long. If it's on a network or external drive, check that it's available.", Paths.plainText(full.scanner.errorDetail));
+                    case "no-vault": return full.tr.ui18nc("@info %1 is a folder path", "%1 doesn't exist or can't be opened.", Paths.plainText(full.scanner.errorDetail));
+                    case "not-a-vault": return full.tr.ui18nc("@info %1 is a folder path", "%1 has no .obsidian folder. Choose the vault's top folder.", Paths.plainText(full.scanner.errorDetail));
+                    case "timeout": return full.tr.ui18nc("@info %1 is a folder path", "Reading %1 took too long. If it's on a network or external drive, check that it's available.", Paths.plainText(full.scanner.errorDetail));
                     default: return Paths.plainText(full.scanner.errorDetail);
                     }
                 }
@@ -223,7 +225,7 @@ Item {
                 Kirigami.Action {
                     id: configureAction
                     icon.name: "configure"
-                    text: i18nc("@action:button", "Choose Vault…")
+                    text: full.tr.ui18nc("@action:button", "Choose Vault…")
                     onTriggered: Plasmoid.internalAction("configure").trigger()
                 }
             }

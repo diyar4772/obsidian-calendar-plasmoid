@@ -15,6 +15,10 @@
       <min>10</min>
       <max>3600</max>
     </entry>
+    <entry name="uiLanguage" type="String">
+      <label>Language of the calendar: empty for the desktop language, or "en" / "tr".</label>
+      <default></default>
+    </entry>
   </group>
 
   <!-- Overrides: when a "custom" flag is off, the value detected from the vault is used. -->

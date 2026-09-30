@@ -15,6 +15,7 @@ Kirigami.InlineMessage {
     id: message
 
     property VaultScanner scanner
+    readonly property Translator tr: Translator {}
 
     readonly property var lines: {
         const out = [];
@@ -25,7 +26,7 @@ Kirigami.InlineMessage {
             out.push(problemText(scanner.problems[i]));
         }
         if (scanner.dailyFolderMissing) {
-            out.push(i18nc("@info %1 is a folder inside the vault", "The daily notes folder “%1” doesn't exist yet.",
+            out.push(message.tr.ui18nc("@info %1 is a folder inside the vault", "The daily notes folder “%1” doesn't exist yet.",
                            Paths.plainText(scanner.settings.daily.folder)));
         }
         return out;
@@ -38,23 +39,23 @@ Kirigami.InlineMessage {
         const file = Paths.plainText(p.file);
         switch (p.code) {
         case "malformed-json":
-            return i18nc("@info %1 is a file name", "%1 isn't valid JSON, so it was ignored.", ".obsidian/" + file);
+            return message.tr.ui18nc("@info %1 is a file name", "%1 isn't valid JSON, so it was ignored.", ".obsidian/" + file);
         case "invalid-config":
-            return i18nc("@info %1 is a file name", "%1 has an unexpected structure, so it was ignored.", ".obsidian/" + file);
+            return message.tr.ui18nc("@info %1 is a file name", "%1 has an unexpected structure, so it was ignored.", ".obsidian/" + file);
         case "unsupported-token":
             return p.file === "weekly"
-                ? i18nc("@info %1 lists date format tokens", "The weekly note format uses tokens this widget doesn't support: %1", detail)
-                : i18nc("@info %1 lists date format tokens", "The daily note format uses tokens this widget doesn't support: %1", detail);
+                ? message.tr.ui18nc("@info %1 lists date format tokens", "The weekly note format uses tokens this widget doesn't support: %1", detail)
+                : message.tr.ui18nc("@info %1 lists date format tokens", "The daily note format uses tokens this widget doesn't support: %1", detail);
         case "invalid-folder":
-            return i18nc("@info %1 is a folder", "The folder “%1” is outside the vault.", detail);
+            return message.tr.ui18nc("@info %1 is a folder", "The folder “%1” is outside the vault.", detail);
         case "invalid-format":
-            return i18nc("@info %1 is a date format", "The note format “%1” doesn't produce a valid file name.", detail);
+            return message.tr.ui18nc("@info %1 is a date format", "The note format “%1” doesn't produce a valid file name.", detail);
         case "folder-outside-vault":
             return p.file === "weekly"
-                ? i18nc("@info", "The weekly notes folder links to a place outside the vault, so it isn't read.")
-                : i18nc("@info", "The daily notes folder links to a place outside the vault, so it isn't read.");
+                ? message.tr.ui18nc("@info", "The weekly notes folder links to a place outside the vault, so it isn't read.")
+                : message.tr.ui18nc("@info", "The daily notes folder links to a place outside the vault, so it isn't read.");
         case "list-incomplete":
-            return i18nc("@info %1 is an error message", "Some notes couldn't be listed: %1", detail);
+            return message.tr.ui18nc("@info %1 is an error message", "Some notes couldn't be listed: %1", detail);
         default:
             return Paths.plainText(p.code);
         }

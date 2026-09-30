@@ -62,16 +62,19 @@ PlasmoidItem {
         }
     }
 
-    toolTipMainText: Dates.toJsDate(today).toLocaleDateString(Qt.locale(), Locale.LongFormat)
+    // Strings and dates in the language chosen in the settings.
+    readonly property Translator tr: Translator {}
+
+    toolTipMainText: tr.longDate(Dates.toJsDate(today))
     toolTipSubText: {
         if (scanner.status !== "ready") {
-            return i18nc("@info:tooltip", "Calendar for Obsidian");
+            return tr.ui18nc("@info:tooltip", "Calendar for Obsidian");
         }
         const hasToday = scanner.revision >= 0 && scanner.hasNote(today);
         const streak = scanner.streak(today).length;
-        const noteLine = hasToday ? i18nc("@info:tooltip", "Today's note is written") : i18nc("@info:tooltip", "No note for today yet");
+        const noteLine = hasToday ? tr.ui18nc("@info:tooltip", "Today's note is written") : tr.ui18nc("@info:tooltip", "No note for today yet");
         return streak > 0
-            ? noteLine + "\n" + i18ncp("@info:tooltip", "%1-day streak", "%1-day streak", streak)
+            ? noteLine + "\n" + tr.ui18ncp("@info:tooltip", "%1-day streak", "%1-day streak", streak)
             : noteLine;
     }
 
@@ -116,25 +119,25 @@ PlasmoidItem {
 
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
-            text: i18nc("@action", "Open Today's Note")
+            text: root.tr.ui18nc("@action", "Open Today's Note")
             icon.name: "go-jump-today"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openDay(root.today)
         },
         PlasmaCore.Action {
-            text: i18nc("@action", "Open Vault in Obsidian")
+            text: root.tr.ui18nc("@action", "Open Vault in Obsidian")
             icon.name: "document-open-folder"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openUri(Paths.vaultUri(root.scanner.vaultName))
         },
         PlasmaCore.Action {
-            text: i18nc("@action", "Year Overview")
+            text: root.tr.ui18nc("@action", "Year Overview")
             icon.name: "office-chart-bar"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openYearOverview()
         },
         PlasmaCore.Action {
-            text: i18nc("@action", "Rescan Vault")
+            text: root.tr.ui18nc("@action", "Rescan Vault")
             icon.name: "view-refresh"
             enabled: root.scanner.vaultPath !== ""
             onTriggered: root.scanner.refresh()
@@ -144,11 +147,28 @@ PlasmoidItem {
     // Shown in the calendar when an obsidian:// link couldn't be opened.
     property string actionError: ""
 
+    // Runs the KWin script that brings Obsidian to the front.
+    readonly property CommandRunner runner: CommandRunner {}
+    property int activations: 0
+
     function openUri(uri) {
         if (Qt.openUrlExternally(uri)) {
             actionError = "";
+            activateObsidian();
         } else {
-            actionError = i18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
+            actionError = tr.ui18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
+        }
+    }
+
+    // Obsidian can't raise its own window after a click here (focus stealing
+    // prevention), so KWin is asked to activate it. Without KWin nothing
+    // happens and Obsidian opens the note in the background as before.
+    function activateObsidian() {
+        const script = Paths.localPath(Qt.resolvedUrl("../kwin/activate-obsidian.js").toString(), "");
+        const command = Paths.activateCommand(script,
+            "io.github.diyar4772.obsidiancalendar.activate-" + Date.now() + "-" + (++activations), 20);
+        if (command !== null) {
+            runner.run(command, () => {});
         }
     }
 

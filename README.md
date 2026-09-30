@@ -61,7 +61,8 @@ open its note in Obsidian, or click today to start today's note from your templa
   scans the whole vault and never uses the network.
 - **Clear errors.** A wrong path, a missing folder or a broken config file gets
   a message that tells you what to do. The widget is never just blank.
-- **Translated.** Available in English and Turkish.
+- **Translated.** Available in English and Turkish. The calendar follows the
+  desktop language, or the language you choose for the widget.
 
 ![Designs and colors](docs/screenshots/tour.gif)
 
@@ -165,8 +166,11 @@ the way of moving the widget. On older Qt, dragging with the mouse also scrolls.
 ![Plasma Native design with the Breeze Dark color scheme on a light desktop](docs/screenshots/native-scheme.png)
 
 - **General:** the vault (type a path, browse, or pick one of the vaults listed in
-  Obsidian's own settings), and how often to look for new notes (default: every
-  60 seconds; the widget also rescans whenever it's shown).
+  Obsidian's own settings), how often to look for new notes (default: every
+  60 seconds; the widget also rescans whenever it's shown), and the language of
+  the calendar: *System default*, *English* or *Türkçe*. It changes the month
+  and day names, the dates in tooltips and the widget's texts, without touching
+  other widgets. The settings window itself always follows the desktop language.
 - **Notes:** what was detected in the vault and where it came from, an optional
   different folder and format for daily and weekly notes (with a live preview
   of today's file name), the language of month and day names in note names,
@@ -228,6 +232,16 @@ single-quoted, so they can't run code:
 
 To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.
+
+Links are opened with Plasma's default handler for `obsidian://`. Plasma
+doesn't let an application in the background bring itself to the front, so
+right after opening a link the widget asks KWin to activate Obsidian's window:
+it loads the small KWin script
+[`contents/kwin/activate-obsidian.js`](package/contents/kwin/activate-obsidian.js)
+with `dbus-send` (KWin's `org.kde.KWin /Scripting` interface), runs it once and
+unloads it 20 seconds later. The script only activates the Obsidian window
+(the native and the Flatpak build); if Obsidian is still starting, it waits for
+its first window. Without KWin this step does nothing.
 
 Nothing is written, nothing is sent anywhere, and the rest of your vault is
 never read. Symbolic links to notes and to folders below the notes folder aren't
@@ -293,6 +307,14 @@ Obsidian is installed and that `xdg-open "obsidian://open"` opens it.
 </details>
 
 <details>
+<summary><b>The note opens, but Obsidian stays in the background</b></summary>
+
+The widget asks KWin to bring Obsidian to the front with a short KWin script
+(see [Privacy and how it works](#privacy-and-how-it-works)). This needs KWin
+and `dbus-send` (Fedora: `dbus-tools`, Debian and Ubuntu: `dbus-bin`).
+</details>
+
+<details>
 <summary><b>Today's note doesn't use my template</b></summary>
 
 `obsidian://daily` belongs to the core Daily notes plugin. Enable it in Obsidian
@@ -325,6 +347,14 @@ msginit -i po/plasma_applet_io.github.diyar4772.obsidiancalendar.pot -o po/<lang
 # translate po/<lang>.po, then:
 scripts/i18n.sh compile
 ```
+
+`compile` also turns the `.po` files into
+[`contents/code/catalogs.js`](package/contents/code/catalogs.js), which the
+widget uses when its language setting differs from the desktop's (Plasma loads
+one language for all widgets). To offer the new language there, add it to
+`LANGUAGES` in [`contents/code/translate.js`](package/contents/code/translate.js).
+Strings in the calendar itself use `tr.ui18nc()` / `tr.ui18ncp()` (from
+`Translator.qml`) instead of `i18nc()` / `i18ncp()`.
 
 Pull requests with new languages are very welcome.
 

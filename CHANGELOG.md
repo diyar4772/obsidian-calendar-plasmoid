@@ -6,15 +6,7 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Added
-
-- Year Overview window: the year's daily notes as a GitHub-style heatmap
-  (following the week start and the dot setting), notes or words per month
-  and per ISO week, totals and streaks, previous/next year, and a click on a
-  day opens its note. Opens with a double-click on the month title or around
-  the days, a header button or the context menu.
-
-## [0.1.0] - 2026-09-30
+## [0.1.0] - 2026-10-01
 
 First release.
 
@@ -30,7 +22,8 @@ First release.
 - Click a day to open its note; today without a note goes through
   `obsidian://daily` so Obsidian applies the template (when the widget uses
   Obsidian's daily folder and format); creating empty notes for other days is
-  optional.
+  optional. Obsidian is brought to the front (KWin is asked to activate its
+  window).
 - Two designs: Plasma Native and Journal (heatmap tiles).
 - Appearance settings: any installed KDE color scheme for the widget, custom
   accent color with automatic contrast, Plasma/translucent/solid/no background
@@ -43,6 +36,17 @@ First release.
   path, a vault that doesn't respond, links Obsidian couldn't open, broken
   config files and unsupported formats.
 - English and Turkish translations.
+- Year Overview window: the year's daily notes as a GitHub-style heatmap
+  (following the week start and the dot setting), notes or words per month
+  and per ISO week, totals and streaks, previous/next year, and a click on a
+  day opens its note. Opens with a double-click on the month title or around
+  the days, a header button or the context menu.
+- Language setting (*General → Language*): System default, English or Türkçe
+  for month and day names, dates and the calendar's texts.
+- Subtle animations: jumping to today slides and fades the month in, the
+  month title fades, days and week numbers react to hover and press, new
+  word-count dots and heatmap tints fade in, and today's marker settles in
+  when first shown. They follow Plasma's animation speed.
 
 [Unreleased]: https://github.com/diyar4772/obsidian-calendar-plasmoid/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/diyar4772/obsidian-calendar-plasmoid/releases/tag/v0.1.0

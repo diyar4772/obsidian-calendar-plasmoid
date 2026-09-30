@@ -60,7 +60,7 @@ FocusScope {
     signal yearOverviewRequested()
 
     Accessible.role: Accessible.Pane
-    Accessible.name: i18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
+    Accessible.name: view.tr.ui18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
 
     // Follow the date at midnight when showing the current month.
     property var lastToday: today
@@ -73,9 +73,7 @@ FocusScope {
 
     // Keyboard focus moved past the grid: show that month and focus the day.
     function focusDate(date) {
-        if (date.y !== month.y || date.m !== month.m) {
-            month = { y: date.y, m: date.m };
-        }
+        jumpTo(date.y, date.m);
         Qt.callLater(() => {
             const page = pages.currentItem as MonthPage;
             if (page) {
@@ -93,7 +91,18 @@ FocusScope {
         pages.incrementCurrentIndex();
     }
     function goToToday() {
-        month = { y: today.y, m: today.m };
+        jumpTo(today.y, today.m);
+    }
+    // Months that aren't reached by scrolling slide in from the direction
+    // they're in and fade in (Previous/Next scroll the list instead).
+    function jumpTo(y, m) {
+        if (y === month.y && m === month.m) {
+            return;
+        }
+        const later = y * 12 + m > month.y * 12 + month.m;
+        month = { y: y, m: m };
+        jumpAnimation.distance = (later ? 1 : -1) * Kirigami.Units.gridUnit * 1.5;
+        jumpAnimation.restart();
     }
     function shiftMonth(delta) {
         const d = Dates.addMonths(Dates.make(month.y, month.m, 1), delta);
@@ -116,11 +125,12 @@ FocusScope {
         }
     }
 
-    // Localized names follow the desktop language, like Plasma's calendar.
-    readonly property var uiLocale: Qt.locale(Qt.locale().uiLanguages[0])
+    // Names follow the widget's language setting; by default the desktop
+    // language, like Plasma's calendar.
+    readonly property Translator tr: Translator {}
 
     function monthTitle(y, m) {
-        return uiLocale.standaloneMonthName(m - 1, Locale.LongFormat);
+        return tr.nameLocale.standaloneMonthName(m - 1, Locale.LongFormat);
     }
 
     ColumnLayout {
@@ -153,8 +163,8 @@ FocusScope {
                     horizontalAlignment: Text.AlignHCenter
                     // Short names ("Pzt") when they fit; one letter is ambiguous in some languages.
                     text: pages.cellWidth < Kirigami.Units.gridUnit * 2
-                        ? view.uiLocale.dayName(modelData, Locale.NarrowFormat)
-                        : view.uiLocale.dayName(modelData, Locale.ShortFormat)
+                        ? view.tr.nameLocale.dayName(modelData, Locale.NarrowFormat)
+                        : view.tr.nameLocale.dayName(modelData, Locale.ShortFormat)
                     textFormat: Text.PlainText
                     elide: Text.ElideRight
                     font.pointSize: view.points(view.variant === "journal" ? 0.85 : 1)
@@ -173,6 +183,10 @@ FocusScope {
 
             readonly property real cellWidth: width / (7 + (view.showWeekNumbers ? 1 : 0))
             property bool dragHandled: false
+
+            // Offset and opacity of the pages while jumping to a month
+            property real jumpOffset: 0
+            property real jumpOpacity: 1
 
             clip: true
             model: 3
@@ -200,6 +214,8 @@ FocusScope {
 
                 width: pages.width
                 height: pages.height
+                transform: Translate { y: pages.jumpOffset }
+                opacity: pages.jumpOpacity
                 scanner: view.scanner
                 today: view.today
                 variant: view.variant
@@ -266,6 +282,36 @@ FocusScope {
         }
     }
 
+    ParallelAnimation {
+        id: jumpAnimation
+        property real distance: 0
+        NumberAnimation {
+            target: pages
+            property: "jumpOffset"
+            from: jumpAnimation.distance
+            to: 0
+            duration: Kirigami.Units.longDuration
+            easing.type: Easing.OutCubic
+        }
+        NumberAnimation {
+            target: pages
+            property: "jumpOpacity"
+            from: 0.2
+            to: 1
+            duration: Kirigami.Units.longDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    // The month title fades in when it changes.
+    component FadingTitle: NumberAnimation {
+        property: "opacity"
+        from: 0.25
+        to: 1
+        duration: Kirigami.Units.longDuration
+        easing.type: Easing.OutCubic
+    }
+
     // --- Plasma Native ------------------------------------------------------
 
     Component {
@@ -275,13 +321,19 @@ FocusScope {
             spacing: 0
 
             Kirigami.Heading {
+                id: nativeTitle
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 level: 2
+                onTextChanged: nativeFade.restart()
+                FadingTitle {
+                    id: nativeFade
+                    target: nativeTitle
+                }
                 font.pointSize: view.points(view.tiny ? 1 : 1.2)
                 text: view.month.y === view.today.y
                     ? view.monthTitle(view.month.y, view.month.m)
-                    : i18nc("@title month and year, e.g. March 2025", "%1 %2", view.monthTitle(view.month.y, view.month.m), view.month.y)
+                    : view.tr.ui18nc("@title month and year, e.g. March 2025", "%1 %2", view.monthTitle(view.month.y, view.month.m), view.month.y)
                 textFormat: Text.PlainText
                 font.capitalization: Font.Capitalize
                 elide: Text.ElideRight
@@ -315,9 +367,17 @@ FocusScope {
             spacing: Kirigami.Units.smallSpacing
 
             ColumnLayout {
+                id: journalTitle
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 spacing: 0
+
+                readonly property string title: view.monthTitle(view.month.y, view.month.m) + " " + view.month.y
+                onTitleChanged: journalFade.restart()
+                FadingTitle {
+                    id: journalFade
+                    target: journalTitle
+                }
 
                 PlasmaComponents.Label {
                     Layout.fillWidth: true
@@ -355,7 +415,7 @@ FocusScope {
             Item { Layout.fillWidth: true }
             FooterStat {
                 icon: "view-calendar-day"
-                text: i18ncp("@info notes in the visible month", "%1 note", "%1 notes",
+                text: view.tr.ui18ncp("@info notes in the visible month", "%1 note", "%1 notes",
                              view.scanner.revision >= 0 ? view.scanner.countInMonth(view.month.y, view.month.m) : 0)
             }
             FooterStat {
@@ -363,8 +423,8 @@ FocusScope {
                 text: {
                     const s = view.scanner.revision >= 0 ? view.scanner.streak(view.today) : { length: 0 };
                     return s.length > 0
-                        ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
-                        : i18nc("@info", "No streak yet");
+                        ? view.tr.ui18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                        : view.tr.ui18nc("@info", "No streak yet");
                 }
             }
             Item { Layout.fillWidth: true }
@@ -377,10 +437,10 @@ FocusScope {
         }
         const count = scanner.countInMonth(month.y, month.m);
         const s = scanner.streak(today);
-        return i18ncp("@info notes in the visible month", "%1 note this month", "%1 notes this month", count)
+        return view.tr.ui18ncp("@info notes in the visible month", "%1 note this month", "%1 notes this month", count)
             + " · " + (s.length > 0
-                ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
-                : i18nc("@info", "No streak yet"));
+                ? view.tr.ui18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                : view.tr.ui18nc("@info", "No streak yet"));
     }
 
     component FooterStat: RowLayout {
@@ -409,7 +469,7 @@ FocusScope {
 
         PlasmaComponents.ToolButton {
             visible: !view.narrow
-            text: i18nc("@action:button", "Year Overview")
+            text: view.tr.ui18nc("@action:button", "Year Overview")
             icon.name: "office-chart-bar"
             display: PlasmaComponents.AbstractButton.IconOnly
             onClicked: view.yearOverviewRequested()
@@ -420,7 +480,7 @@ FocusScope {
 
         PlasmaComponents.ToolButton {
             id: previousButton
-            text: i18nc("@action:button", "Previous Month")
+            text: view.tr.ui18nc("@action:button", "Previous Month")
             icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-next" : "go-previous"
             display: PlasmaComponents.AbstractButton.IconOnly
             onClicked: view.previousMonth()
@@ -429,7 +489,7 @@ FocusScope {
             PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
         }
         PlasmaComponents.ToolButton {
-            text: i18nc("@action:button reset calendar to today", "Today")
+            text: view.tr.ui18nc("@action:button reset calendar to today", "Today")
             icon.name: parent.showTodayText ? "" : "go-jump-today"
             display: parent.showTodayText ? PlasmaComponents.AbstractButton.TextOnly : PlasmaComponents.AbstractButton.IconOnly
             enabled: !view.isCurrentMonth
@@ -439,7 +499,7 @@ FocusScope {
             PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
         }
         PlasmaComponents.ToolButton {
-            text: i18nc("@action:button", "Next Month")
+            text: view.tr.ui18nc("@action:button", "Next Month")
             icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-previous" : "go-next"
             display: PlasmaComponents.AbstractButton.IconOnly
             onClicked: view.nextMonth()

@@ -26,7 +26,7 @@ Window {
 
     signal dayActivated(var date)
 
-    title: i18nc("@title:window", "Year Overview")
+    title: win.tr.ui18nc("@title:window", "Year Overview")
     // A normal top-level window, not tied to the desktop or panel.
     transientParent: null
     flags: Qt.Window
@@ -51,7 +51,8 @@ Window {
 
     readonly property bool ready: scanner.status === "ready" && scanner.settings !== null
     readonly property int weekStart: ready ? scanner.settings.locale.dow : scanner.systemLocale.dow
-    readonly property var uiLocale: Qt.locale(Qt.locale().uiLanguages[0])
+    readonly property Translator tr: Translator {}
+    readonly property var uiLocale: win.tr.nameLocale
 
     readonly property var entries: {
         const revision = scanner.revision; // re-evaluate when the vault changes
@@ -81,27 +82,27 @@ Window {
     }
 
     function number(n) {
-        return Number(n).toLocaleString(Qt.locale(), "f", 0);
+        return Number(n).toLocaleString(win.tr.formatLocale, "f", 0);
     }
     function wordsText(n) {
-        return i18ncp("@info %2 is the formatted number", "%2 word", "%2 words", n, number(n));
+        return win.tr.ui18ncp("@info %2 is the formatted number", "%2 word", "%2 words", n, number(n));
     }
     function notesText(n) {
-        return i18ncp("@info", "%1 note", "%1 notes", n);
+        return win.tr.ui18ncp("@info", "%1 note", "%1 notes", n);
     }
     function longDate(date) {
-        return Dates.toJsDate(date).toLocaleDateString(Qt.locale(), Locale.LongFormat);
+        return Dates.toJsDate(date).toLocaleDateString(win.tr.formatLocale, Locale.LongFormat);
     }
 
     readonly property string summaryText: {
         const parts = [notesText(summary.notes)];
         if (summary.notes > 0) {
-            parts.push(summary.counted < summary.notes ? i18nc("@info year summary", "counting words…") : wordsText(summary.words));
+            parts.push(summary.counted < summary.notes ? win.tr.ui18nc("@info year summary", "counting words…") : wordsText(summary.words));
         }
         if (year === today.y) {
-            parts.push(i18ncp("@info", "Current streak: %1 day", "Current streak: %1 days", currentStreak));
+            parts.push(win.tr.ui18ncp("@info", "Current streak: %1 day", "Current streak: %1 days", currentStreak));
         }
-        parts.push(i18ncp("@info", "Longest streak: %1 day", "Longest streak: %1 days", summary.longest));
+        parts.push(win.tr.ui18ncp("@info", "Longest streak: %1 day", "Longest streak: %1 days", summary.longest));
         return parts.join("  ·  ");
     }
 
@@ -147,7 +148,7 @@ Window {
                     textFormat: Text.PlainText
                 }
                 PlasmaComponents.ToolButton {
-                    text: i18nc("@action:button", "Previous Year")
+                    text: win.tr.ui18nc("@action:button", "Previous Year")
                     icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-next" : "go-previous"
                     display: PlasmaComponents.AbstractButton.IconOnly
                     onClicked: win.year--
@@ -156,12 +157,12 @@ Window {
                     PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 PlasmaComponents.ToolButton {
-                    text: i18nc("@action:button", "This Year")
+                    text: win.tr.ui18nc("@action:button", "This Year")
                     enabled: win.year !== win.today.y
                     onClicked: win.year = win.today.y
                 }
                 PlasmaComponents.ToolButton {
-                    text: i18nc("@action:button", "Next Year")
+                    text: win.tr.ui18nc("@action:button", "Next Year")
                     icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-previous" : "go-next"
                     display: PlasmaComponents.AbstractButton.IconOnly
                     onClicked: win.year++
@@ -184,7 +185,7 @@ Window {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 visible: !win.ready
-                text: win.scanner.status === "loading" ? i18nc("@info", "Reading vault…") : i18nc("@info", "Couldn't read the vault")
+                text: win.scanner.status === "loading" ? win.tr.ui18nc("@info", "Reading vault…") : win.tr.ui18nc("@info", "Couldn't read the vault")
             }
 
             // Heatmap
@@ -307,9 +308,9 @@ Window {
                                         }
                                         const e = day.entry;
                                         win.showTip(day, win.longDate(day.modelData.date) + "\n"
-                                            + (!e || !e.hasNote ? i18nc("@info:tooltip", "No note")
+                                            + (!e || !e.hasNote ? win.tr.ui18nc("@info:tooltip", "No note")
                                                : e.words >= 0 ? win.wordsText(e.words)
-                                               : i18nc("@info:tooltip a note whose words aren't counted yet", "Note")));
+                                               : win.tr.ui18nc("@info:tooltip a note whose words aren't counted yet", "Note")));
                                     }
                                 }
                             }
@@ -328,7 +329,7 @@ Window {
                     PlasmaComponents.Label {
                         anchors.verticalCenter: parent.verticalCenter
                         rightPadding: Kirigami.Units.smallSpacing
-                        text: i18nc("@info heatmap legend: shorter notes", "Less")
+                        text: win.tr.ui18nc("@info heatmap legend: shorter notes", "Less")
                         textFormat: Text.PlainText
                         font.pointSize: Kirigami.Theme.smallFont.pointSize
                         opacity: 0.75
@@ -347,7 +348,7 @@ Window {
                     PlasmaComponents.Label {
                         anchors.verticalCenter: parent.verticalCenter
                         leftPadding: Kirigami.Units.smallSpacing
-                        text: i18nc("@info heatmap legend: longer notes", "More")
+                        text: win.tr.ui18nc("@info heatmap legend: longer notes", "More")
                         textFormat: Text.PlainText
                         font.pointSize: Kirigami.Theme.smallFont.pointSize
                         opacity: 0.75
@@ -369,17 +370,17 @@ Window {
                 Kirigami.Heading {
                     Layout.fillWidth: true
                     level: 3
-                    text: win.showWords ? i18nc("@title", "Words per Month and Week") : i18nc("@title", "Notes per Month and Week")
+                    text: win.showWords ? win.tr.ui18nc("@title", "Words per Month and Week") : win.tr.ui18nc("@title", "Notes per Month and Week")
                     textFormat: Text.PlainText
                 }
                 PlasmaComponents.ToolButton {
-                    text: i18nc("@option:radio chart values", "Notes")
+                    text: win.tr.ui18nc("@option:radio chart values", "Notes")
                     checkable: true
                     checked: !win.showWords
                     onClicked: win.showWords = false
                 }
                 PlasmaComponents.ToolButton {
-                    text: i18nc("@option:radio chart values", "Words")
+                    text: win.tr.ui18nc("@option:radio chart values", "Words")
                     checkable: true
                     checked: win.showWords
                     onClicked: win.showWords = true
@@ -397,7 +398,7 @@ Window {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 1
                     Layout.fillWidth: true
-                    title: i18nc("@title chart", "Per month")
+                    title: win.tr.ui18nc("@title chart", "Per month")
                     values: win.months.map(t => win.showWords ? t.words : t.notes)
                     labels: win.months.map(t => win.uiLocale.standaloneMonthName(t.m - 1, Locale.NarrowFormat))
                     highlighted: win.year === win.today.y ? win.today.m - 1 : -1
@@ -411,7 +412,7 @@ Window {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 2
                     Layout.fillWidth: true
-                    title: i18nc("@title chart", "Per ISO week")
+                    title: win.tr.ui18nc("@title chart", "Per ISO week")
                     values: win.weeks.map(t => win.showWords ? t.words : t.notes)
                     // Label every tenth week, and the first.
                     labels: win.weeks.map(t => t.week === 1 || t.week % 10 === 0 ? String(t.week) : "")
@@ -427,8 +428,8 @@ Window {
                     }
                     tipFor: i => {
                         const t = win.weeks[i];
-                        return i18nc("@info:tooltip %1 week number, %2 date the week starts", "Week %1, from %2", t.week,
-                                     Dates.toJsDate(t.start).toLocaleDateString(Qt.locale(), Locale.ShortFormat)) + "\n"
+                        return win.tr.ui18nc("@info:tooltip %1 week number, %2 date the week starts", "Week %1, from %2", t.week,
+                                     Dates.toJsDate(t.start).toLocaleDateString(win.tr.formatLocale, Locale.ShortFormat)) + "\n"
                             + win.notesText(t.notes) + "\n" + win.wordsText(t.words);
                     }
                 }
@@ -461,7 +462,7 @@ Window {
                 opacity: 0.85
             }
             PlasmaComponents.Label {
-                text: i18nc("@info largest value in a chart", "max %1", win.number(chart.max))
+                text: win.tr.ui18nc("@info largest value in a chart", "max %1", win.number(chart.max))
                 textFormat: Text.PlainText
                 font.pointSize: Kirigami.Theme.smallFont.pointSize
                 opacity: 0.6

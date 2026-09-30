@@ -39,17 +39,20 @@ DayCell {
             anchors.fill: parent
             hovered: true
             visible: !cell.ownHighlight && opacity > 0
-            opacity: cell.cellData.isToday ? 1 : cell.hovered ? 0.3 : cell.activeFocus ? 0.1 : 0
+            opacity: cell.cellData.isToday ? Math.min(1, cell.todayIntro) : cell.hovered ? 0.3 : cell.activeFocus ? 0.1 : 0
+            scale: cell.todayScale
             Behavior on opacity {
+                enabled: cell.todayIntro === 1
                 NumberAnimation { duration: Kirigami.Units.shortDuration }
             }
         }
         Rectangle {
             anchors.fill: parent
-            visible: cell.ownHighlight && (cell.cellData.isToday || cell.hovered || cell.activeFocus)
+            visible: cell.ownHighlight
             radius: (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
             color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b,
-                           cell.cellData.isToday ? 0.3 : cell.hovered ? 0.18 : 0.08)
+                           cell.cellData.isToday ? 0.3 : cell.hovered ? 0.18 : cell.activeFocus ? 0.08 : 0)
+            scale: cell.todayScale
             Behavior on color {
                 ColorAnimation { duration: Kirigami.Units.shortDuration }
             }
@@ -57,6 +60,9 @@ DayCell {
             border.color: Kirigami.Theme.highlightColor
         }
     }
+
+    // Today's highlight grows in the first time the page shows it.
+    readonly property real todayScale: cellData.isToday ? 0.6 + 0.4 * todayIntro : 1
 
     readonly property bool showDots: cellData.dots > 0
     readonly property bool tinyDots: dotSize < 2
@@ -92,7 +98,7 @@ DayCell {
                 height: 2
                 radius: 1
                 color: Kirigami.Theme.highlightColor
-                opacity: label.opacity
+                opacity: label.opacity * cell.reveal
             }
 
             Row {
@@ -100,7 +106,8 @@ DayCell {
                 visible: cell.showDots && !cell.tinyDots
                 height: cell.dotsHeight
                 spacing: Math.max(1, Math.round(cell.dotSize / 2))
-                opacity: label.opacity
+                opacity: label.opacity * cell.reveal
+                scale: 0.5 + 0.5 * cell.reveal
 
                 Repeater {
                     model: cell.cellData.dots

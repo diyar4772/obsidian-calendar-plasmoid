@@ -25,21 +25,57 @@ PlasmaComponents.AbstractButton {
     // Arrow keys: -1/+1 for left/right, -7/+7 for up/down.
     signal moveFocus(int step)
 
-    readonly property string longDate: Dates.toJsDate(cellData.date).toLocaleDateString(Qt.locale(), Locale.LongFormat)
+    // Strings and dates in the widget's language (from MonthPage).
+    property Translator tr
+
+    readonly property string longDate: tr.longDate(Dates.toJsDate(cellData.date))
 
     hoverEnabled: true
     focusPolicy: Qt.StrongFocus
     text: String(cellData.date.d)
 
+    // Animations follow Plasma's animation speed: Kirigami's durations
+    // are 0 when animations are turned off.
+
+    // Press feedback
+    scale: down ? 0.92 : 1
+    Behavior on scale {
+        NumberAnimation {
+            duration: Kirigami.Units.shortDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    // Goes from 0 to 1 when the note's dots changed since the page last
+    // showed this day (a scan or word count arrived), so they fade in.
+    property real reveal: 1
+    NumberAnimation on reveal {
+        running: cell.cellData.fresh === true
+        from: 0
+        to: 1
+        duration: Kirigami.Units.veryLongDuration
+        easing.type: Easing.OutCubic
+    }
+
+    // Goes from 0 to 1 the first time the page shows today.
+    property real todayIntro: 1
+    NumberAnimation on todayIntro {
+        running: cell.cellData.todayFresh === true
+        from: 0
+        to: 1
+        duration: Kirigami.Units.veryLongDuration
+        easing.type: Easing.OutBack
+    }
+
     Accessible.name: longDate
     Accessible.description: {
         if (!cellData.hasNote) {
-            return cellData.isToday ? i18nc("@info:tooltip", "No note yet") : i18nc("@info:tooltip", "No note");
+            return cellData.isToday ? cell.tr.ui18nc("@info:tooltip", "No note yet") : cell.tr.ui18nc("@info:tooltip", "No note");
         }
         // File names come from the vault: keep them from being read as markup.
         const path = Paths.plainText(cellData.path);
         return cellData.words >= 0
-            ? i18ncp("@info:tooltip note path and word count", "%2, %1 word", "%2, %1 words", cellData.words, path)
+            ? cell.tr.ui18ncp("@info:tooltip note path and word count", "%2, %1 word", "%2, %1 words", cellData.words, path)
             : path;
     }
 

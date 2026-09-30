@@ -20,14 +20,25 @@ PlasmaComponents.AbstractButton {
     property string variant: "native"
     property real textScale: 1
     property bool ownHighlight: false
+    // Strings in the widget's language (from MonthPage).
+    property Translator tr
 
     enabled: cellData.clickable
     hoverEnabled: true
     focusPolicy: Qt.NoFocus
     text: String(cellData.week)
 
-    Accessible.name: i18nc("@info week number", "Week %1", cellData.week)
-    Accessible.description: cellData.hasNote ? Paths.plainText(cellData.path) : (cellData.clickable ? i18nc("@info:tooltip", "No weekly note") : "")
+    // Press feedback, at Plasma's animation speed
+    scale: down ? 0.92 : 1
+    Behavior on scale {
+        NumberAnimation {
+            duration: Kirigami.Units.shortDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    Accessible.name: cell.tr.ui18nc("@info week number", "Week %1", cellData.week)
+    Accessible.description: cellData.hasNote ? Paths.plainText(cellData.path) : (cellData.clickable ? cell.tr.ui18nc("@info:tooltip", "No weekly note") : "")
 
     PlasmaComponents.ToolTip.text: Accessible.name + (Accessible.description ? "\n" + Accessible.description : "")
     PlasmaComponents.ToolTip.visible: hovered && cellData.clickable
@@ -39,15 +50,26 @@ PlasmaComponents.AbstractButton {
             visible: cell.variant === "native" && !cell.ownHighlight && opacity > 0
             hovered: true
             opacity: cell.hovered ? 0.3 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: Kirigami.Units.shortDuration }
+            }
         }
         Rectangle {
             anchors.fill: parent
-            visible: cell.variant === "native" && cell.ownHighlight && cell.hovered
+            visible: cell.variant === "native" && cell.ownHighlight && opacity > 0
             radius: (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
             color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
+            opacity: cell.hovered ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: Kirigami.Units.shortDuration }
+            }
         }
         Rectangle {
-            visible: cell.variant === "journal" && (cell.cellData.hasNote || cell.hovered)
+            visible: cell.variant === "journal" && opacity > 0
+            opacity: cell.cellData.hasNote || cell.hovered ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: Kirigami.Units.shortDuration }
+            }
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.8
             height: width
