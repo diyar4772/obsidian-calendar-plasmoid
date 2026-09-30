@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { load } from "./qmljs.mjs";
@@ -239,4 +239,55 @@ test("builders refuse NUL in paths and clamp depth", () => {
     assert.equal(P.readCommand("/a", []), null);
     assert.match(P.listCommand("/a", 99), /-maxdepth 8 /);
     assert.match(P.listCommand("/a", 0), /-maxdepth 1 /);
+});
+
+// A stand-in dbus-send that logs its arguments (one per line, calls
+// separated by "--") and answers loadScript like KWin does.
+function fakeDbusSend(root, loadReply) {
+    const bin = join(root, "bin");
+    mkdirSync(bin);
+    const log = join(root, "calls.log");
+    writeFileSync(join(bin, "dbus-send"),
+        "#!/bin/sh\nfor a in \"$@\"; do printf '%s\\n' \"$a\" >> \"$LOG\"; done; echo -- >> \"$LOG\"\n"
+        + "case \"$*\" in *loadScript*) printf '   int32 %s\\n' \"$REPLY\" ;; esac\n");
+    chmodSync(join(bin, "dbus-send"), 0o755);
+    return {
+        run: (command) => spawnSync("/bin/sh", ["-c", command], {
+            encoding: "utf8",
+            cwd: root,
+            env: { ...process.env, PATH: bin + ":" + process.env.PATH, LOG: log, REPLY: loadReply }
+        }),
+        calls: () => existsSync(log)
+            ? readFileSync(log, "utf8").split("--\n").filter(Boolean).map((c) => c.split("\n").filter(Boolean))
+            : []
+    };
+}
+
+test("activateCommand() loads, runs and unloads the KWin script with any path", (t) => {
+    for (const nasty of NASTY.filter((s) => !s.includes("\n"))) {
+        const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
+        t.after(() => rmSync(root, { recursive: true, force: true }));
+        const fake = fakeDbusSend(root, "7");
+        const script = join(root, nasty, "activate-obsidian.js");
+        const out = fake.run(P.activateCommand(script, "calendar-activate-1", 0));
+        assert.equal(out.status, 0, JSON.stringify(nasty));
+        const common = ["--session", "--print-reply=literal", "--dest=org.kde.KWin"];
+        assert.deepEqual(fake.calls(), [
+            [...common, "/Scripting", "org.kde.kwin.Scripting.loadScript", "string:" + script, "string:calendar-activate-1"],
+            [...common, "/Scripting/Script7", "org.kde.kwin.Script.run"],
+            [...common, "/Scripting", "org.kde.kwin.Scripting.unloadScript", "string:calendar-activate-1"]
+        ], JSON.stringify(nasty));
+        assert.equal(existsSync(join(root, "PWNED")), false);
+    }
+});
+
+test("activateCommand() stops when KWin refuses the script", (t) => {
+    const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const fake = fakeDbusSend(root, "-1");
+    const out = fake.run(P.activateCommand("/x.js", "calendar-activate-1", 0));
+    assert.equal(out.status, 1);
+    assert.equal(fake.calls().length, 1);
+    assert.equal(P.activateCommand("/a\0b.js", "n", 0), null);
+    assert.match(P.activateCommand("/x.js", "n", 999), /sleep 60;/);
 });

@@ -137,11 +137,28 @@ PlasmoidItem {
     // Shown in the calendar when an obsidian:// link couldn't be opened.
     property string actionError: ""
 
+    // Runs the KWin script that brings Obsidian to the front.
+    readonly property CommandRunner runner: CommandRunner {}
+    property int activations: 0
+
     function openUri(uri) {
         if (Qt.openUrlExternally(uri)) {
             actionError = "";
+            activateObsidian();
         } else {
             actionError = i18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
+        }
+    }
+
+    // Obsidian can't raise its own window after a click here (focus stealing
+    // prevention), so KWin is asked to activate it. Without KWin nothing
+    // happens and Obsidian opens the note in the background as before.
+    function activateObsidian() {
+        const script = Paths.localPath(Qt.resolvedUrl("../kwin/activate-obsidian.js").toString(), "");
+        const command = Paths.activateCommand(script,
+            "io.github.diyar4772.obsidiancalendar.activate-" + Date.now() + "-" + (++activations), 20);
+        if (command !== null) {
+            runner.run(command, () => {});
         }
     }
 

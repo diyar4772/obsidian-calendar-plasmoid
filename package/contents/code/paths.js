@@ -231,6 +231,25 @@ function parsePairs(text) {
     return result;
 }
 
+// Runs the KWin script at `scriptPath` (kwin/activate-obsidian.js) once
+// through KWin's D-Bus scripting interface, which brings Obsidian's window
+// to the front, then unloads it after `seconds` (time for a starting
+// Obsidian to open its window). Without KWin it exits with 1 and does nothing.
+function activateCommand(scriptPath, pluginName, seconds) {
+    const script = shellQuote("string:" + scriptPath);
+    const name = shellQuote("string:" + pluginName);
+    if (script === null || name === null) {
+        return null;
+    }
+    const call = "dbus-send --session --print-reply=literal --dest=org.kde.KWin ";
+    const wait = Math.max(0, Math.min(60, Math.floor(seconds) || 0));
+    return "id=$(" + call + "/Scripting org.kde.kwin.Scripting.loadScript " + script + " " + name + " 2>/dev/null) || exit 1; "
+        + "id=${id##* }; case $id in ''|*[!0-9]*) exit 1 ;; esac; "
+        + call + "\"/Scripting/Script$id\" org.kde.kwin.Script.run >/dev/null 2>&1; "
+        + "sleep " + wait + "; "
+        + call + "/Scripting org.kde.kwin.Scripting.unloadScript " + name + " >/dev/null 2>&1; exit 0";
+}
+
 // Obsidian wants every reserved character percent-encoded, including "/"
 // (%2F) and spaces (%20); encodeURIComponent does exactly that.
 function openUri(absolutePath) {

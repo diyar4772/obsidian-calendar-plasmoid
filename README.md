@@ -222,6 +222,16 @@ single-quoted, so they can't run code:
 To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.
 
+Links are opened with Plasma's default handler for `obsidian://`. Plasma
+doesn't let an application in the background bring itself to the front, so
+right after opening a link the widget asks KWin to activate Obsidian's window:
+it loads the small KWin script
+[`contents/kwin/activate-obsidian.js`](package/contents/kwin/activate-obsidian.js)
+with `dbus-send` (KWin's `org.kde.KWin /Scripting` interface), runs it once and
+unloads it 20 seconds later. The script only activates the Obsidian window
+(the native and the Flatpak build); if Obsidian is still starting, it waits for
+its first window. Without KWin this step does nothing.
+
 Nothing is written, nothing is sent anywhere, and the rest of your vault is
 never read. Symbolic links to notes and to folders below the notes folder aren't
 followed. The notes folder itself may be a link, but only to a place inside the
@@ -283,6 +293,14 @@ at the next rescan, or right-click → **Rescan Vault**.
 Days without a note do nothing by default; see *Clicking a day without a note*
 under **Notes**. If a link can't be opened, the widget says so. Check that
 Obsidian is installed and that `xdg-open "obsidian://open"` opens it.
+</details>
+
+<details>
+<summary><b>The note opens, but Obsidian stays in the background</b></summary>
+
+The widget asks KWin to bring Obsidian to the front with a short KWin script
+(see [Privacy and how it works](#privacy-and-how-it-works)). This needs KWin
+and `dbus-send` (Fedora: `dbus-tools`, Debian and Ubuntu: `dbus-bin`).
 </details>
 
 <details>

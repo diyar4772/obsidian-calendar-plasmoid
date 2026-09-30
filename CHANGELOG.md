@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Obsidian comes to the front when a day is clicked instead of opening the
+  note in the background (KWin is asked to activate its window).
+
 ## [0.1.0] - 2026-09-30
 
 First release.
