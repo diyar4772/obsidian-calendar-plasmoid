@@ -108,11 +108,13 @@ export function catalogFor(text) {
 }
 
 export function generate(files) {
+    // REUSE-IgnoreStart
     const lines = [
         ".pragma library",
         "",
         "// SPDX-FileCopyrightText: 2026 Samed Yolcu",
         "// SPDX-License-Identifier: GPL-2.0-or-later",
+        // REUSE-IgnoreEnd
         "",
         "// Generated from po/*.po by scripts/i18n.sh (scripts/po2js.mjs); don't edit.",
         "// Translations used when the widget's language differs from the desktop's.",
