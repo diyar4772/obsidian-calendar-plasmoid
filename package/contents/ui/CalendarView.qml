@@ -39,9 +39,12 @@ FocusScope {
     // Very small: no navigation buttons (wheel and touchpad still work).
     readonly property bool tiny: width < Kirigami.Units.gridUnit * 11 || height < Kirigami.Units.gridUnit * 11
 
+    // Header, weekday and footer text grow a little on large widgets.
+    readonly property real sizeBoost: Math.max(1, Math.min(1.6, Math.min(width, height) / (Kirigami.Units.gridUnit * 24)))
+
     // Point sizes relative to the desktop font, times the text-size setting.
     function points(factor) {
-        return Math.max(1, Kirigami.Theme.defaultFont.pointSize * factor * textScale);
+        return Math.max(1, Kirigami.Theme.defaultFont.pointSize * factor * textScale * sizeBoost);
     }
 
     // Month on screen, { y, m }

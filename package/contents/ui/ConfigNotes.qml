@@ -86,14 +86,18 @@ KCM.SimpleKCM {
             return "";
         }
         const problems = Config.formatProblems(format);
+        const messages = [];
+        if (Config.normalizeFolder(folder) === null) {
+            messages.push(i18nc("@info", "The folder must be inside the vault."));
+        }
         if (problems.indexOf("unsupported-token") !== -1) {
-            return i18nc("@info %1 lists tokens", "Unsupported tokens: %1", DateFormat.compile(format).unsupported.join(", "));
+            messages.push(i18nc("@info %1 lists tokens", "Unsupported tokens: %1", DateFormat.compile(format).unsupported.join(", ")));
         }
         if (problems.indexOf("invalid-format") !== -1) {
-            return i18nc("@info", "This format doesn't give a valid file name inside the folder.");
+            messages.push(i18nc("@info", "This format doesn't give a valid file name inside the folder."));
         }
-        if (Config.normalizeFolder(folder) === null) {
-            return i18nc("@info", "The folder must be inside the vault.");
+        if (messages.length > 0) {
+            return messages.join("\n");
         }
         return i18nc("@info %1 is a file path", "Example: %1",
                      Paths.notePath(Config.normalizeFolder(folder), DateFormat.format(date, format, previewLocale)));

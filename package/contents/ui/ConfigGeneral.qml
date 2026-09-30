@@ -41,6 +41,13 @@ KCM.SimpleKCM {
             }
         }
 
+        Kirigami.InlineMessage {
+            Layout.fillWidth: true
+            type: Kirigami.MessageType.Warning
+            visible: page.cfg_vaultPath.trim() !== "" && Paths.localPath(page.cfg_vaultPath, page.homePath) === ""
+            text: i18nc("@info", "Enter a path that starts with / or ~/, or use Browse… to choose the folder.")
+        }
+
         QQC2.Label {
             Layout.maximumWidth: Kirigami.Units.gridUnit * 24
             wrapMode: Text.Wrap

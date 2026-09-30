@@ -83,6 +83,10 @@ KCM.SimpleKCM {
         QQC2.ComboBox {
             id: schemeBox
             Kirigami.FormData.label: i18nc("@label:listbox", "Color scheme:")
+            Layout.minimumWidth: Kirigami.Units.gridUnit * 14
+            QQC2.ToolTip.text: currentText
+            QQC2.ToolTip.visible: hovered && currentText.length > 0
+            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
             textRole: "text"
             valueRole: "value"
             model: {
@@ -119,6 +123,14 @@ KCM.SimpleKCM {
                 showAlphaChannel: false
                 dialogTitle: i18nc("@title:window", "Choose Accent Color")
             }
+        }
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            visible: page.cfg_accentMode === "custom"
+            text: i18nc("@info", "A color too close to the background is made lighter or darker so it stays visible.")
         }
 
         QQC2.ComboBox {

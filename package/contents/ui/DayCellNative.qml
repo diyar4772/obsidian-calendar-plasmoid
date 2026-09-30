@@ -18,7 +18,8 @@ DayCell {
     // Draw the highlight ourselves (custom colors) instead of with Plasma's theme.
     property bool ownHighlight: false
 
-    readonly property real dotSize: Math.max(1.5, Math.min(Kirigami.Units.smallSpacing * 1.25, height / 9))
+    // Five dots plus gaps must fit the cell width too.
+    readonly property real dotSize: Math.max(1.5, Math.min(Kirigami.Units.smallSpacing * 1.25, height / 9, width / 9))
 
     background: Item {
         // Keyboard focus frame, as in Plasma's DayDelegate

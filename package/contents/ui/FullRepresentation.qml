@@ -69,9 +69,23 @@ Item {
             if (!full.customAccent) {
                 return s ? s.highlightColor : full.Kirigami.Theme.highlightColor;
             }
-            return contrast(full.accentColor, backgroundColor) < 1.8
-                ? Kirigami.ColorUtils.linearInterpolation(full.accentColor, textColor, 0.5)
-                : full.accentColor;
+            return readableAccent(full.accentColor, backgroundColor);
+        }
+
+        // Same hue and saturation, lightness moved away from the background
+        // until the accent stands out (yellow stays yellow, only darker).
+        function readableAccent(accent, background) {
+            if (contrast(accent, background) >= 1.8) {
+                return accent;
+            }
+            const darker = luminance(background) > 0.18;
+            let lightness = accent.hslLightness;
+            let color = accent;
+            for (let i = 0; i < 20 && contrast(color, background) < 2.2; i++) {
+                lightness = Math.max(0, Math.min(1, lightness + (darker ? -0.04 : 0.04)));
+                color = Qt.hsla(accent.hslHue, accent.hslSaturation, lightness, 1);
+            }
+            return color;
         }
 
         // WCAG contrast ratio of two colors (1 to 21).
