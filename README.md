@@ -48,6 +48,11 @@ open its note in Obsidian, or click today to start today's note from your templa
   background, a larger text size and different spacing.
 - **Streaks.** The footer shows how many notes you wrote this month and your
   current streak of consecutive days.
+- **Year Overview.** Double-click the month title or the space around the
+  days (or use the chart button or the right-click menu) to open a window with
+  the whole year as a heatmap, like GitHub contributions, plus notes or words
+  per month and per ISO week, your note and word totals and your longest
+  streak. Click a day in it to open its note.
 - **Scrolls like Plasma's calendar.** Use two-finger scrolling on a touchpad
   (natural scrolling is respected), the mouse wheel, the keyboard or the buttons.
 - **Any size.** Resize it on the desktop from about 160 px upward, or put it in a
@@ -147,6 +152,7 @@ To remove it: `kpackagetool6 -t Plasma/Applet -r io.github.diyar4772.obsidiancal
 | Back to today | **Today** button or <kbd>Ctrl</kbd>+<kbd>Home</kbd> |
 | Move between days | Arrow keys (they cross into the next or previous month), <kbd>Enter</kbd> / <kbd>Space</kbd> to open |
 | See a note's path and word count | Hover over the day |
+| Year Overview | Double-click the month title or around the days, the chart button in the header, or right-click → **Year Overview** |
 | Open today's note, open the vault, rescan | Right-click the widget |
 | Settings | Right-click → **Configure Calendar for Obsidian…** |
 | Move or resize on the desktop | Press and hold the widget, or use edit mode (right-click the desktop → **Enter Edit Mode**) |
@@ -217,7 +223,8 @@ single-quoted, so they can't run code:
    format can go and skipping hidden folders such as `.obsidian` and `.trash`,
    printing NUL-separated names so any file name is safe,
 3. read the start of the notes in the month on screen, to count words
-   (frontmatter is skipped; results are cached until a file changes).
+   (frontmatter is skipped; results are cached until a file changes), and,
+   while the Year Overview is open, of the notes in the year it shows.
 
 To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.

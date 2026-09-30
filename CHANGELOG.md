@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Year Overview window: the year's daily notes as a GitHub-style heatmap
+  (following the week start and the dot setting), notes or words per month
+  and per ISO week, totals and streaks, previous/next year, and a click on a
+  day opens its note. Opens with a double-click on the month title or around
+  the days, a header button or the context menu.
+
 ## [0.1.0] - 2026-09-30
 
 First release.
