@@ -50,7 +50,7 @@ open its note in Obsidian, or click today to start today's note from your templa
   current streak of consecutive days.
 - **Scrolls like Plasma's calendar.** Use two-finger scrolling on a touchpad
   (natural scrolling is respected), the mouse wheel, the keyboard or the buttons.
-- **Any size.** Resize it on the desktop from about 130 px upward, or put it in a
+- **Any size.** Resize it on the desktop from about 160 px upward, or put it in a
   panel as an icon with today's date.
 - **Safe and light.** It only reads files. It never changes your vault, never
   scans the whole vault and never uses the network.
@@ -95,8 +95,8 @@ What clicking does:
 ## Installation
 
 - **KDE Plasma 6.** Developed and tested on Plasma 6.7 with Qt 6.11 on Fedora 44.
-  It should work on any Plasma 6 release; on Plasma 6.0 and 6.1 (KDE Frameworks
-  older than 6.2) some corners are square instead of rounded.
+  It should work on any Plasma 6 release. With KDE Frameworks older than 6.2
+  (Plasma 6.0) some corners are square instead of rounded.
 - **Obsidian** with its `obsidian://` link handler, which the Flatpak, RPM,
   AppImage and `.deb` builds all register. The Flatpak build works as long as the
   vault is in a folder the Flatpak can see (your home folder is fine).
@@ -150,8 +150,8 @@ To remove it: `kpackagetool6 -t Plasma/Applet -r io.github.diyar4772.obsidiancal
 | Settings | Right-click → **Configure Calendar for Obsidian…** |
 | Move or resize on the desktop | Press and hold the widget, or use edit mode (right-click the desktop → **Enter Edit Mode**) |
 
-Mouse drags don't change the month, so they don't get in the way of moving the
-widget.
+With Qt 6.9 or newer, mouse drags don't change the month, so they don't get in
+the way of moving the widget. On older Qt, dragging with the mouse also scrolls.
 
 ## Settings
 
@@ -222,7 +222,10 @@ To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.
 
 Nothing is written, nothing is sent anywhere, and the rest of your vault is never
-read. Word counts follow the Calendar plugin's rules, so the dots are usually the
+read. Symbolic links aren't followed, and a notes folder that links to a place
+outside the vault is refused, so the widget never reads outside the vault you
+chose. Text from your vault is always shown as plain text. Word counting runs in
+a background thread, so long notes don't slow the desktop down. Word counts follow the Calendar plugin's rules, so the dots are usually the
 same as in Obsidian. They can differ a little, because frontmatter isn't counted
 and only the beginning of very long notes is read.
 
@@ -253,6 +256,14 @@ Obsidian's language, which is English by default (weeks starting on Sunday); the
 widget takes it from the Calendar plugin or from your desktop. If they differ,
 set **Configure → Calendar → Week starts on** to match Obsidian. Formats with
 ISO weeks (`GGGG-[W]WW`) always match.
+</details>
+
+<details>
+<summary><b>"The daily notes folder links to a place outside the vault"</b></summary>
+
+The notes folder is a symbolic link to somewhere outside the vault. The widget
+only reads inside the vault you chose. Choose the real folder as the vault, or
+move the notes into the vault.
 </details>
 
 <details>
