@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Tests (Node)
@@ -25,7 +29,7 @@ jobs:
   lint:
     name: qmllint and translations
     runs-on: ubuntu-latest
-    container: fedora:latest
+    container: fedora:44
     steps:
       - name: Install Qt, KDE QML modules and gettext
         run: >
@@ -39,10 +43,11 @@ jobs:
     name: Build .plasmoid
     needs: [test, lint]
     runs-on: ubuntu-latest
-    container: fedora:latest
+    container: fedora:44
     steps:
       - name: Install build tools
-        run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage
+        # libplasma provides the Plasma/Applet package structure for kpackagetool6.
+        run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage libplasma
       - uses: actions/checkout@v4
       - run: scripts/build-plasmoid.sh
       - name: Check that the package installs
