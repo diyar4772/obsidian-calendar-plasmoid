@@ -1,0 +1,20 @@
+name: Feature request
+description: An idea for the widget
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: The problem or workflow, in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could the widget help?
+  - type: textarea
+    id: obsidian
+    attributes:
+      label: Related Obsidian plugins or settings
+      description: For example, how the Calendar or Periodic Notes plugin handles it.

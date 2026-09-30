@@ -87,23 +87,31 @@ What clicking does:
 | A week number | Opens that week's note, when weekly notes are set up |
 
 > [!TIP]
-> `obsidian://daily` needs the **core Daily notes** plugin to be enabled in
-> Obsidian. If you only use Periodic Notes, clicking today creates the note at the
+> `obsidian://daily` needs a recent Obsidian version and the **core Daily
+> notes** plugin enabled in Obsidian. If you only use Periodic Notes, clicking today creates the note at the
 > right path, but without the template. Enabling the core plugin as well fixes
 > that; its own settings don't matter while Periodic Notes is active.
 
 ## Installation
 
-Requires **KDE Plasma 6.0 or newer** (developed and tested on Plasma 6.7 with Qt 6.11
-on Fedora 44) and Obsidian installed with its `obsidian://` URL handler (the
-Flatpak, RPM, AppImage and `.deb` builds all register it).
+- **KDE Plasma 6.** Developed and tested on Plasma 6.7 with Qt 6.11 on Fedora 44.
+  It should work on any Plasma 6 release; on Plasma 6.0 and 6.1 (KDE Frameworks
+  older than 6.2) some corners are square instead of rounded.
+- **Obsidian** with its `obsidian://` link handler, which the Flatpak, RPM,
+  AppImage and `.deb` builds all register. The Flatpak build works as long as the
+  vault is in a folder the Flatpak can see (your home folder is fine).
 
 ### From Discover or the KDE Store
 
 *Coming soon.* Once published, open **Discover → Plasma Addons → Plasma
 Widgets** and search for *Calendar for Obsidian*. You can also right-click the
 desktop, choose **Add or Manage Widgets… → Get New Widgets… → Download New
-Plasma Widgets** and search there. On Fedora this uses the same KDE Store.
+Plasma Widgets** and search there. On Fedora and other distributions this uses
+the same [KDE Store](https://store.kde.org).
+
+Discover shows a warning that the widget "runs executables". It does, but only
+the read-only commands listed under
+[Privacy and how it works](#privacy-and-how-it-works).
 
 ### From a release file
 
@@ -120,12 +128,13 @@ kpackagetool6 -t Plasma/Applet -u obsidian-calendar-<version>.plasmoid   # upgra
 ```bash
 git clone https://github.com/diyar4772/obsidian-calendar-plasmoid.git
 cd obsidian-calendar-plasmoid
-scripts/i18n.sh compile                              # translations (needs gettext)
+scripts/i18n.sh compile                              # translations (needs gettext and Node.js)
 kpackagetool6 -t Plasma/Applet -i package            # or -u to upgrade
 ```
 
 Then right-click the desktop or a panel, choose **Add or Manage Widgets…** and
-add **Calendar for Obsidian**. Pick your vault folder when the widget asks for it.
+add **Calendar for Obsidian**. Pick your vault when the widget asks for it: the
+settings list the vaults Obsidian already knows, or you can browse for the folder.
 
 To remove it: `kpackagetool6 -t Plasma/Applet -r io.github.diyar4772.obsidiancalendar`.
 
@@ -148,7 +157,8 @@ widget.
 
 ![Plasma Native design with the Breeze Dark color scheme on a light desktop](docs/screenshots/native-scheme.png)
 
-- **General:** the vault folder, and how often to look for new notes (default: every
+- **General:** the vault (type a path, browse, or pick one of the vaults listed in
+  Obsidian's own settings), and how often to look for new notes (default: every
   60 seconds; the widget also rescans whenever it's shown).
 - **Notes:** what was detected in the vault and where it came from, an optional
   different folder and format for daily and weekly notes (with a live preview
@@ -203,14 +213,18 @@ single-quoted, so they can't run code:
 
 1. `cat` the few JSON files it needs from `.obsidian`,
 2. `find` the Markdown files under the daily notes folder, only as deep as your
-   format can go, printing NUL-separated names so any file name is safe,
+   format can go and skipping hidden folders such as `.obsidian` and `.trash`,
+   printing NUL-separated names so any file name is safe,
 3. read the start of the notes in the month on screen, to count words
    (frontmatter is skipped; results are cached until a file changes).
 
+To offer your vaults in the settings, it also reads Obsidian's own vault list
+(`obsidian.json`) when you open them.
+
 Nothing is written, nothing is sent anywhere, and the rest of your vault is never
-read. Word counts use the Calendar plugin's rules, so the dots match what you see
-in Obsidian. The counts are approximate, because only the beginning of very long
-notes is read.
+read. Word counts follow the Calendar plugin's rules, so the dots are usually the
+same as in Obsidian. They can differ a little, because frontmatter isn't counted
+and only the beginning of very long notes is read.
 
 ## Troubleshooting
 
@@ -231,11 +245,30 @@ looks for today.
 </details>
 
 <details>
+<summary><b>Weekly notes aren't highlighted</b></summary>
+
+Week numbers in note names (`ww`, `gggg`) depend on the first day of the week.
+Obsidian takes it from the Calendar plugin's *Start week on* setting or from
+Obsidian's language, which is English by default (weeks starting on Sunday); the
+widget takes it from the Calendar plugin or from your desktop. If they differ,
+set **Configure → Calendar → Week starts on** to match Obsidian. Formats with
+ISO weeks (`GGGG-[W]WW`) always match.
+</details>
+
+<details>
+<summary><b>"The vault didn't respond"</b></summary>
+
+Reading the vault took more than 20 seconds, usually because it's on a network
+share or an external drive that is asleep or disconnected. The widget tries again
+at the next rescan, or right-click → **Rescan Vault**.
+</details>
+
+<details>
 <summary><b>Clicking a day does nothing</b></summary>
 
 Days without a note do nothing by default; see *Clicking a day without a note*
-under **Notes**. For days with a note, check that Obsidian is installed and that
-`xdg-open "obsidian://open"` opens it.
+under **Notes**. If a link can't be opened, the widget says so. Check that
+Obsidian is installed and that `xdg-open "obsidian://open"` opens it.
 </details>
 
 <details>
@@ -296,6 +329,7 @@ Requirements: Node.js 22+ (tests only, no dependencies), `qmllint` (Fedora:
 ```bash
 npm test                               # unit and end-to-end tests
 npm run lint                           # qmllint (zero warnings) + translation template check
+scripts/smoke-test.sh                  # load the installed widget offscreen, fail on QML errors
 npm run fixtures                       # fictional demo vaults in tests/fixtures/
 plasmoidviewer -a package              # try it (no translations; no right-click menu)
 scripts/screenshots.sh                 # regenerate docs/screenshots (offscreen)

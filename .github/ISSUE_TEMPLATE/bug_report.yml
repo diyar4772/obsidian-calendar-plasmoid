@@ -1,0 +1,63 @@
+name: Bug report
+description: Something doesn't work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please don't attach your vault or real notes; describe file names by their pattern.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: widget
+    attributes:
+      label: Widget version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: plasma
+    attributes:
+      label: Plasma, Frameworks and Qt versions
+      description: From `plasmashell --version`, `kinfo`, or System Settings → About this System.
+      placeholder: "Plasma 6.7.5, Frameworks 6.30, Qt 6.11.2"
+    validations:
+      required: true
+  - type: input
+    id: distro
+    attributes:
+      label: Distribution
+      placeholder: "Fedora 44"
+  - type: dropdown
+    id: plugins
+    attributes:
+      label: Which Obsidian plugins manage your daily notes?
+      multiple: true
+      options:
+        - Core Daily notes
+        - Periodic Notes
+        - Calendar
+        - Other / none
+  - type: input
+    id: format
+    attributes:
+      label: Daily note folder and format
+      description: What Configure → Notes → Detected shows, e.g. `Journal/Daily`, `YYYY/MM/YYYY-MM-DD`.
+  - type: dropdown
+    id: design
+    attributes:
+      label: Where is the widget?
+      options:
+        - Desktop
+        - Panel
+  - type: textarea
+    id: logs
+    attributes:
+      label: Messages from the widget
+      description: Output of `journalctl --user -b | grep -i obsidiancalendar`, if any.
+      render: text
