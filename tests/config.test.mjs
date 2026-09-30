@@ -229,12 +229,13 @@ test("unsupported tokens are reported", () => {
     assert.deepEqual(res.errors, [{ code: "unsupported-token", file: "daily", detail: "HH, mm" }]);
 });
 
-test("unknown locale names fall back to the system locale", () => {
+test("unknown locale names fall back to English names without an error", () => {
     const det = C.detect({ calendar: json({ localeOverride: "de" }) });
     const res = C.resolve(det, {}, L.TR);
-    assert.equal(res.locale.name, "tr");
-    assert.equal(res.sources.locale, "system");
-    assert.deepEqual(res.errors, [{ code: "unknown-locale", file: "plugins/calendar/data.json", detail: "de" }]);
+    assert.equal(res.locale.months[0], "January");
+    assert.equal(res.locale.dow, 1); // week start still follows the desktop
+    assert.equal(res.sources.locale, "fallback");
+    assert.deepEqual(res.errors, []);
 });
 
 test("normalizeFolder()", () => {

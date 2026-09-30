@@ -81,6 +81,28 @@ function make(spec) {
     });
 }
 
+// Locale data for the desktop's language: the bundled locale when there is
+// one, otherwise English names (moment's default). The week starts on the
+// desktop's first day of the week (0 = Sunday); when that differs from the
+// bundled rules, the first-week rule follows it too (en_GB: Monday, ISO-like).
+function forSystem(name, firstDayOfWeek) {
+    const base = bundled(name) || EN;
+    const dow = Number.isInteger(firstDayOfWeek) ? ((firstDayOfWeek % 7) + 7) % 7 : base.dow;
+    if (dow === base.dow) {
+        return base;
+    }
+    return make({
+        name: base.name,
+        months: base.months,
+        monthsShort: base.monthsShort,
+        weekdays: base.weekdays,
+        weekdaysShort: base.weekdaysShort,
+        dow: dow,
+        doy: defaultDoy(dow),
+        ordinal: base.ordinal
+    });
+}
+
 // Same as the Calendar plugin's week-start override: moment merges
 // `{week: {dow}}` into the locale, so `doy` is kept as is.
 function withWeekStart(locale, dow) {

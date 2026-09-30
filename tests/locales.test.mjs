@@ -37,3 +37,21 @@ test("withWeekStart() keeps doy, like moment.updateLocale", () => {
     assert.equal(L.withWeekStart(L.EN, 0), L.EN);
     assert.equal(L.withWeekStart(L.EN, null), L.EN);
 });
+
+test("forSystem() uses the desktop language when bundled, English otherwise", () => {
+    assert.equal(L.forSystem("tr_TR", 1), L.TR);
+    assert.equal(L.forSystem("en_US", 0), L.EN);
+    assert.equal(L.forSystem("tr_TR"), L.TR);
+    // en_GB: English names, Monday start, ISO-like first week (moment's en-gb)
+    const gb = L.forSystem("en_GB", 1);
+    assert.equal(gb.months[0], "January");
+    assert.deepEqual([gb.dow, gb.doy], [1, 4]);
+    assert.equal(gb.ordinal(2), "2nd");
+    // Unsupported language: English names, desktop week start
+    const de = L.forSystem("de_DE", 1);
+    assert.equal(de.name, "en");
+    assert.equal(de.weekdays[1], "Monday");
+    assert.equal(de.dow, 1);
+    assert.equal(L.forSystem("ar_SA", 6).doy, 12);
+    assert.equal(L.forSystem("C", 7).dow, 0);
+});

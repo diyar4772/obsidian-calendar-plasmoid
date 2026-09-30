@@ -235,8 +235,8 @@ function isSet(value) {
 //   dailyFolder, dailyFormat, weeklyFolder, weeklyFormat (strings),
 //   weekStart (0-6), wordsPerDot (number), showWeekNumbers (bool),
 //   locale (moment locale name, e.g. "en" or "tr").
-// `systemLocale` is locale data (locales.js) for the desktop's language,
-// used when neither the overrides nor the Calendar plugin name a locale.
+// `systemLocale` is locale data for the desktop (Locales.forSystem()), used
+// when neither the overrides nor the Calendar plugin name a locale.
 function resolve(detected, overrides, systemLocale) {
     const o = overrides || {};
     const errors = detected.errors.slice();
@@ -293,13 +293,12 @@ function resolve(detected, overrides, systemLocale) {
         sources.locale = "override";
     }
     if (localeName !== null) {
+        // Only bundled languages can be matched exactly; anything else uses
+        // English names, moment's default, with the current week start.
         const bundled = Locales.bundled(localeName);
-        if (bundled) {
-            base = bundled;
-        } else {
-            errors.push({ code: "unknown-locale", file: sources.locale === "override" ? "widget" : FILES.calendar,
-                          detail: localeName });
-            sources.locale = "system";
+        base = bundled || Locales.make({ name: "en", dow: base.dow, ordinal: Locales.EN.ordinal });
+        if (!bundled) {
+            sources.locale = "fallback";
         }
     }
 
