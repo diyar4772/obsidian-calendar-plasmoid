@@ -5,8 +5,6 @@
 
 import QtQuick
 
-import org.kde.plasma.plasma5support as Plasma5Support
-
 import "../code/dateformat.js" as DateFormat
 import "../code/dates.js" as Dates
 import "../code/obsidianconfig.js" as Config
@@ -269,29 +267,11 @@ QtObject {
         return Stats.countInMonth(date => hasNote(date), y, m);
     }
 
-    // Command runner: each call gets a unique source name (a trailing shell
-    // comment), so identical commands never share a cached result.
-    property int sequence: 0
-    property var callbacks: ({})
-
     function run(command, callback) {
-        const source = command + " # " + (++sequence);
-        callbacks[source] = callback;
-        executable.connectSource(source);
+        runner.run(command, callback);
     }
 
-    property Plasma5Support.DataSource executable: Plasma5Support.DataSource {
-        engine: "executable"
-        connectedSources: []
-        onNewData: (sourceName, data) => {
-            disconnectSource(sourceName);
-            const callback = scanner.callbacks[sourceName];
-            delete scanner.callbacks[sourceName];
-            if (callback) {
-                callback(data["exit code"], data["stdout"], data["stderr"]);
-            }
-        }
-    }
+    property CommandRunner runner: CommandRunner {}
 
     property Timer debounce: Timer {
         interval: 250
