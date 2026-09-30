@@ -119,6 +119,12 @@ PlasmoidItem {
             onTriggered: root.openDay(root.today)
         },
         PlasmaCore.Action {
+            text: i18nc("@action", "Open Vault in Obsidian")
+            icon.name: "document-open-folder"
+            enabled: root.scanner.status === "ready"
+            onTriggered: Qt.openUrlExternally(Paths.vaultUri(root.scanner.vaultName))
+        },
+        PlasmaCore.Action {
             text: i18nc("@action", "Rescan Vault")
             icon.name: "view-refresh"
             enabled: root.scanner.vaultPath !== ""

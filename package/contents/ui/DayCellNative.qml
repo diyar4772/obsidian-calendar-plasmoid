@@ -40,6 +40,9 @@ DayCell {
             hovered: true
             visible: !cell.ownHighlight && opacity > 0
             opacity: cell.cellData.isToday ? 1 : cell.hovered ? 0.3 : cell.activeFocus ? 0.1 : 0
+            Behavior on opacity {
+                NumberAnimation { duration: Kirigami.Units.shortDuration }
+            }
         }
         Rectangle {
             anchors.fill: parent
@@ -47,6 +50,9 @@ DayCell {
             radius: Kirigami.Units.cornerRadius
             color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b,
                            cell.cellData.isToday ? 0.3 : cell.hovered ? 0.18 : 0.08)
+            Behavior on color {
+                ColorAnimation { duration: Kirigami.Units.shortDuration }
+            }
             border.width: cell.cellData.isToday ? 1 : 0
             border.color: Kirigami.Theme.highlightColor
         }

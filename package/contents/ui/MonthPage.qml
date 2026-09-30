@@ -31,6 +31,8 @@ Item {
 
     signal dayActivated(var date)
     signal weekActivated(var weekStart)
+    // Keyboard navigation left the grid; `date` is the day to focus.
+    signal focusBeyond(var date)
 
     readonly property int columns: 7 + (showWeekNumbers ? 1 : 0)
     readonly property real spacing: {
@@ -98,14 +100,23 @@ Item {
         focusCell(showWeekNumbers ? 1 : 0);
     }
 
-    // Moves focus from cell `index` by `step` cells, skipping week cells.
-    function moveFocus(index, step) {
-        let target = index + step;
-        if (target >= 0 && target < cells.length && cells[target].isWeek) {
-            target += step > 0 ? 1 : -1;
+    function focusDate(date) {
+        for (let i = 0; i < cells.length; i++) {
+            if (!cells[i].isWeek && Dates.equals(cells[i].date, date)) {
+                focusCell(i);
+                return;
+            }
         }
-        if (target >= 0 && target < cells.length) {
-            focusCell(target);
+    }
+
+    // Moves focus from day cell `index` by `step` days (±1 or ±7), moving
+    // to another month when the target isn't a day of this one.
+    function moveFocus(index, step) {
+        const date = Dates.addDays(cells[index].date, step);
+        if (date.y === year && date.m === month) {
+            focusDate(date);
+        } else {
+            focusBeyond(date);
         }
     }
 

@@ -58,6 +58,31 @@ FocusScope {
     signal dayActivated(var date)
     signal weekActivated(var weekStart)
 
+    Accessible.role: Accessible.Pane
+    Accessible.name: i18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
+
+    // Follow the date at midnight when showing the current month.
+    property var lastToday: today
+    onTodayChanged: {
+        if (month.y === lastToday.y && month.m === lastToday.m) {
+            month = { y: today.y, m: today.m };
+        }
+        lastToday = today;
+    }
+
+    // Keyboard focus moved past the grid: show that month and focus the day.
+    function focusDate(date) {
+        if (date.y !== month.y || date.m !== month.m) {
+            month = { y: date.y, m: date.m };
+        }
+        Qt.callLater(() => {
+            const page = pages.currentItem as MonthPage;
+            if (page) {
+                page.focusDate(date);
+            }
+        });
+    }
+
     function previousMonth() {
         pages.finishChangeIfNeeded();
         pages.decrementCurrentIndex();
@@ -160,6 +185,15 @@ FocusScope {
             keyNavigationEnabled: false
             focus: true
 
+            // Mouse drags are left to Plasma (press and hold moves the
+            // widget); touchpads, touch screens, the wheel, buttons and keys
+            // change months. acceptedButtons exists since Qt 6.9.
+            Component.onCompleted: {
+                if ("acceptedButtons" in pages) {
+                    pages["acceptedButtons"] = Qt.NoButton;
+                }
+            }
+
             delegate: MonthPage {
                 required property int index
 
@@ -177,6 +211,7 @@ FocusScope {
                 active: index === 1
                 onDayActivated: date => view.dayActivated(date)
                 onWeekActivated: weekStart => view.weekActivated(weekStart)
+                onFocusBeyond: date => view.focusDate(date)
             }
 
             // Same approach as Plasma's InfiniteList.qml.
@@ -326,7 +361,9 @@ FocusScope {
                 icon: "games-achievements"
                 text: {
                     const s = view.scanner.revision >= 0 ? view.scanner.streak(view.today) : { length: 0 };
-                    return i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length);
+                    return s.length > 0
+                        ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                        : i18nc("@info", "No streak yet");
                 }
             }
             Item { Layout.fillWidth: true }
@@ -340,7 +377,9 @@ FocusScope {
         const count = scanner.countInMonth(month.y, month.m);
         const s = scanner.streak(today);
         return i18ncp("@info notes in the visible month", "%1 note this month", "%1 notes this month", count)
-            + " · " + i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length);
+            + " · " + (s.length > 0
+                ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                : i18nc("@info", "No streak yet"));
     }
 
     component FooterStat: RowLayout {
