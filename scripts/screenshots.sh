@@ -15,15 +15,24 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT=$PWD
 OUT_DIR=docs/screenshots
+# Rendered at twice the size so they stay sharp on HiDPI screens.
+SCALE=${SCALE:-2}
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-node scripts/make-fixtures.mjs --out "$WORK/vaults" >/dev/null
+# A fixed "today" late in a month keeps the shots reproducible and full.
+export TODAY=${TODAY:-2026-09-24}
+node scripts/make-fixtures.mjs --out "$WORK/vaults" --today "$TODAY" >/dev/null
 
 # One screenshot. $6: config overrides as "key=value;key=value" (keys from main.xml).
 shot() {
     local scheme=$1 variant=$2 lang=$3 size=$4 out=$5 overrides=${6:-}
-    local run
+    local run target=applet
+    # "@year" in the overrides grabs the Year Overview window instead.
+    if [[ $overrides == *@year* ]]; then
+        target=year
+        overrides=${overrides//@year/}
+    fi
     run=$(mktemp -d "$WORK/run.XXXX")
     mkdir -p "$run/cfg" "$run/data"
     cp -r package "$run/pkg"
@@ -44,15 +53,27 @@ JS
 
     # Grab the applet container once it has been resized and has settled.
     local w=${size%x*} h=${size#*x}
-    node - "$run/pkg/contents/ui/main.qml" "$out" "$w" "$h" <<'JS'
+    node - "$run/pkg/contents/ui/main.qml" "$out" "$w" "$h" "$target" <<'JS'
 const fs = require("fs");
-const [file, out, w, h] = process.argv.slice(2);
+const [file, out, w, h, target] = process.argv.slice(2);
 let qml = fs.readFileSync(file, "utf8").trimEnd();
+const [ty, tm, td] = process.env.TODAY.split("-").map(Number);
+const todayLine = "property var today: Dates.fromJsDate(new Date())";
+if (!qml.includes(todayLine)) throw new Error("main.qml: today property not found");
+qml = qml.replace(todayLine, `property var today: ({ y: ${ty}, m: ${tm}, d: ${td} })`);
 qml = qml.slice(0, qml.lastIndexOf("}")) + `
     Timer {
         interval: 2500
         running: true
         onTriggered: {
+            if (${JSON.stringify(target)} === "year") {
+                root.openYearOverview();
+                const win = yearOverview.item;
+                win.width = ${w}; win.height = ${h};
+                screenshotTimer.target = win.contentItem;
+                screenshotTimer.start();
+                return;
+            }
             let item = root;
             while (item && !String(item).startsWith("BasicAppletContainer")) {
                 item = item.parent;
@@ -81,7 +102,7 @@ JS
 
     XDG_DATA_HOME="$run/data" kpackagetool6 -t Plasma/Applet -i "$run/pkg" >/dev/null
     LANG=$lang LC_ALL=$lang LANGUAGE=${lang%%_*} XDG_DATA_HOME="$run/data" XDG_CONFIG_HOME="$run/cfg" \
-        QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+        QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QT_SCALE_FACTOR=$SCALE \
         timeout 30 plasmoidviewer -a io.github.diyar4772.obsidiancalendar -f planar -s 1200x1000 >/dev/null 2>&1 || true
     [ -f "$out" ] || { echo "failed: $out" >&2; return 1; }
 }
@@ -91,8 +112,8 @@ frame() {
     local in=$1 out=$2 top=$3 bottom=$4
     local w h
     w=$(magick identify -format '%w' "$in"); h=$(magick identify -format '%h' "$in")
-    magick -size $((w + 96))x$((h + 96)) xc: -sparse-color barycentric "0,0 $top 0,%h $bottom" \
-        \( "$in" \( +clone -background '#00000055' -shadow 60x10+0+6 \) +swap -background none -layers merge +repage \) \
+    magick -size $((w + 96 * SCALE))x$((h + 96 * SCALE)) xc: -sparse-color barycentric "0,0 $top 0,%h $bottom" \
+        \( "$in" \( +clone -background '#00000055' -shadow 60x$((10 * SCALE))+0+$((6 * SCALE)) \) +swap -background none -layers merge +repage \) \
         -gravity center -composite -strip "$out"
 }
 
@@ -115,6 +136,8 @@ declare -a jobs=(
     "light native en_US.UTF-8 380x420 native-scheme.png colorScheme=/usr/share/color-schemes/BreezeDark.colors;backgroundOpacity=80"
     "dark native en_US.UTF-8 400x420 periodic.png vaultPath=$WORK/vaults/Periodic Vault"
     "light native en_US.UTF-8 380x300 error.png vaultPath=$WORK/vaults/Broken Vault"
+    "dark native en_US.UTF-8 980x600 year-dark.png @year"
+    "light journal en_US.UTF-8 980x600 year-light.png @year;dotSource=size"
 )
 cd "$ROOT"
 for job in "${jobs[@]}"; do

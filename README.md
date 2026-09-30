@@ -53,6 +53,10 @@ open its note in Obsidian, or click today to start today's note from your templa
   the whole year as a heatmap, like GitHub contributions, plus notes or words
   per month and per ISO week, your note and word totals and your longest
   streak. Click a day in it to open its note.
+- **One click to your note.** Click a day and its note opens in Obsidian,
+  which comes to the front instead of staying behind other windows.
+- **Gentle animations.** Months slide in, days react to hover and press and
+  new dots fade in. They follow Plasma's animation speed and turn off with it.
 - **Scrolls like Plasma's calendar.** Use two-finger scrolling on a touchpad
   (natural scrolling is respected), the mouse wheel, the keyboard or the buttons.
 - **Any size.** Resize it on the desktop from about 160 px upward, or put it in a
@@ -65,6 +69,8 @@ open its note in Obsidian, or click today to start today's note from your templa
   desktop language, or the language you choose for the widget.
 
 ![Designs and colors](docs/screenshots/tour.gif)
+
+![Year Overview: the whole year as a heatmap, with notes per month and per ISO week](docs/screenshots/year-dark.png)
 
 ## Works with your Obsidian setup
 
@@ -191,6 +197,8 @@ the way of moving the widget. On older Qt, dragging with the mouse also scrolls.
 | Custom accent color, round days | Periodic Notes with weekly notes |
 | ![A broken daily-notes.json is reported and the widget keeps working](docs/screenshots/error.png) | ![Turkish desktop: names and the first day of the week follow the desktop](docs/screenshots/native-dark-tr.png) |
 | A broken config file is reported | Follows the desktop language |
+| ![Year Overview in the Journal design with Breeze Light](docs/screenshots/year-light.png) | ![Plasma Native design with Breeze Light](docs/screenshots/native-light.png) |
+| Year Overview in Breeze Light | Plasma Native in Breeze Light |
 
 ## Supported date formats
 
