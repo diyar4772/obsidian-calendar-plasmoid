@@ -1,0 +1,28 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "147314598+diyar4772@users.noreply.github.com",
+                "Name": "Samed Yolcu"
+            }
+        ],
+        "BugReportUrl": "https://github.com/diyar4772/obsidian-calendar-plasmoid/issues",
+        "Category": "Date and Time",
+        "Description": "Your Obsidian daily notes on the Plasma desktop. Works alongside the Calendar plugin.",
+        "Description[tr]": "Obsidian günlük notlarınız Plasma masaüstünde. Calendar eklentisiyle birlikte çalışır.",
+        "FormFactors": [
+            "desktop",
+            "horizontal",
+            "vertical"
+        ],
+        "Icon": "view-calendar-day",
+        "Id": "io.github.diyar4772.obsidiancalendar",
+        "License": "GPL-2.0-or-later",
+        "Name": "Calendar for Obsidian",
+        "Name[tr]": "Obsidian için Takvim",
+        "Version": "0.1.0",
+        "Website": "https://github.com/diyar4772/obsidian-calendar-plasmoid"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

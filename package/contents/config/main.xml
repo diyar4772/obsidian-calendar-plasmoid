@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="vaultPath" type="String">
+      <label>Absolute path of the Obsidian vault.</label>
+      <default></default>
+    </entry>
+    <entry name="refreshInterval" type="Int">
+      <label>Seconds between rescans of the vault.</label>
+      <default>60</default>
+      <min>10</min>
+      <max>3600</max>
+    </entry>
+  </group>
+
+  <!-- Overrides: when a "custom" flag is off, the value detected from the vault is used. -->
+  <group name="Notes">
+    <entry name="customDaily" type="Bool">
+      <default>false</default>
+    </entry>
+    <entry name="dailyFolder" type="String">
+      <default></default>
+    </entry>
+    <entry name="dailyFormat" type="String">
+      <default>YYYY-MM-DD</default>
+    </entry>
+    <entry name="customWeekly" type="Bool">
+      <default>false</default>
+    </entry>
+    <entry name="weeklyFolder" type="String">
+      <default></default>
+    </entry>
+    <entry name="weeklyFormat" type="String">
+      <default>gggg-[W]ww</default>
+    </entry>
+    <entry name="noteLanguage" type="String">
+      <label>Language of note names: empty for automatic, or "en" / "tr".</label>
+      <default></default>
+    </entry>
+    <entry name="emptyDayAction" type="String">
+      <label>What clicking a past or future day without a note does: "none" or "create".</label>
+      <default>none</default>
+    </entry>
+  </group>
+
+  <group name="Appearance">
+    <entry name="designVariant" type="String">
+      <label>Visual direction while both are being evaluated.</label>
+      <default>native</default>
+    </entry>
+    <entry name="weekStart" type="Int">
+      <label>First day of the week, 0 = Sunday; -1 to follow the Calendar plugin or the desktop.</label>
+      <default>-1</default>
+      <min>-1</min>
+      <max>6</max>
+    </entry>
+    <entry name="weekNumbers" type="String">
+      <label>"auto" (Calendar plugin setting), "on" or "off".</label>
+      <default>auto</default>
+    </entry>
+    <entry name="isoWeekNumbers" type="Bool">
+      <default>false</default>
+    </entry>
+    <entry name="dotSource" type="String">
+      <label>"words" (like the Calendar plugin), "size" or "none".</label>
+      <default>words</default>
+    </entry>
+    <entry name="wordsPerDot" type="Int">
+      <label>Words per dot; -1 to follow the Calendar plugin.</label>
+      <default>-1</default>
+      <min>-1</min>
+    </entry>
+    <entry name="showFooter" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showDateInPanel" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="translucentBackground" type="Bool">
+      <default>false</default>
+    </entry>
+  </group>
+</kcfg>
