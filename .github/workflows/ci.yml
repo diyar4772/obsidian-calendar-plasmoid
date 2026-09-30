@@ -20,8 +20,8 @@ jobs:
     # Ubuntu's /bin/sh is dash, so the shell-quoting tests also run under dash.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: npm test
@@ -30,8 +30,8 @@ jobs:
     name: REUSE licensing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: fsfe/reuse-action@v5
+      - uses: actions/checkout@v7
+      - uses: fsfe/reuse-action@v6
 
   lint:
     name: qmllint and translations
@@ -43,7 +43,7 @@ jobs:
           dnf install -y --setopt=install_weak_deps=False
           nodejs qt6-qtdeclarative-devel kf6-kirigami libplasma plasma5support
           kf6-kcmutils kf6-kdeclarative kf6-ksvg gettext diffutils findutils
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: QMLLINT=/usr/lib64/qt6/bin/qmllint scripts/lint.sh
 
   smoke:
@@ -57,7 +57,7 @@ jobs:
           nodejs plasma-sdk plasma-desktop plasma5support plasma-breeze
           kf6-kirigami kf6-kcmutils kf6-kdeclarative kf6-ksvg kf6-kpackage libplasma
           qt6-qtdeclarative mesa-dri-drivers findutils dbus-daemon
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: scripts/smoke-test.sh
 
   package:
@@ -69,7 +69,7 @@ jobs:
       - name: Install build tools
         # libplasma provides the Plasma/Applet package structure for kpackagetool6.
         run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage libplasma
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: scripts/build-plasmoid.sh
       - name: Check that the package installs
         run: |
@@ -77,7 +77,7 @@ jobs:
           kpackagetool6 -t Plasma/Applet -i build/*.plasmoid
           test -f "$XDG_DATA_HOME/plasma/plasmoids/io.github.diyar4772.obsidiancalendar/metadata.json"
           test -f "$XDG_DATA_HOME/plasma/plasmoids/io.github.diyar4772.obsidiancalendar/contents/locale/tr/LC_MESSAGES/plasma_applet_io.github.diyar4772.obsidiancalendar.mo"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: plasmoid
           path: build/*.plasmoid

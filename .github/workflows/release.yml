@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Install build tools
         run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage libplasma
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check that the tag matches metadata.json
         run: |
           version=$(node -p 'require("./package/metadata.json").KPlugin.Version')
@@ -41,7 +41,7 @@ jobs:
             on { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: build/*.plasmoid
           body_path: release-notes.md
