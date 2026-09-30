@@ -1,0 +1,14 @@
+{
+  "name": "obsidian-calendar-plasmoid",
+  "private": true,
+  "description": "Your Obsidian daily notes on the Plasma desktop. Works alongside the Calendar plugin.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "fixtures": "node scripts/make-fixtures.mjs"
+  }
+}

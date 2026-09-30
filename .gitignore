@@ -1,0 +1,16 @@
+# Build output
+/build/
+*.plasmoid
+package/contents/locale/
+
+# Generated demo vaults (run: npm run fixtures)
+/tests/fixtures/
+
+# Editors and desktop metadata
+.directory
+.vscode/
+.idea/
+*.swp
+*~
+
+node_modules/
