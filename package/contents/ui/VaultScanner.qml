@@ -26,7 +26,7 @@ QtObject {
 
     // State: "unconfigured", "loading", "ready" or "error"
     property string status: vaultPath === "" ? "unconfigured" : "loading"
-    // For "error": "no-vault", "not-a-vault" or "command-failed"
+    // For "error": "no-vault", "not-a-vault", "timeout" or "command-failed"
     property string errorCode: ""
     property string errorDetail: ""
     // Config problems ({ code, file, detail }); the calendar still works.
@@ -137,11 +137,23 @@ QtObject {
         });
     }
 
+    // Fingerprint of everything the calendar shows, so a rescan that found
+    // nothing new doesn't rebuild the grid (and drop focus and tooltips).
+    property string lastFingerprint: ""
+
+    function fingerprint() {
+        return JSON.stringify([settings, problems, dailyFolderMissing, dailyFiles, weeklyFiles, dotSource]);
+    }
+
     function finish() {
         busy = false;
         status = "ready";
         errorCode = "";
-        revision++;
+        const current = fingerprint();
+        if (current !== lastFingerprint) {
+            lastFingerprint = current;
+            revision++;
+        }
         if (wordsWanted) {
             loadWords(wordsWanted.y, wordsWanted.m);
         }
@@ -152,6 +164,7 @@ QtObject {
 
     function fail(code, detail) {
         busy = false;
+        lastFingerprint = "";
         status = "error";
         errorCode = code;
         errorDetail = detail || "";
@@ -275,6 +288,17 @@ QtObject {
     }
 
     property CommandRunner runner: CommandRunner {}
+
+    // A command that never returns (a sleeping network or USB drive) must not
+    // leave the widget reading forever: give up and say so.
+    property Timer watchdog: Timer {
+        interval: 20000
+        running: scanner.busy
+        onTriggered: {
+            scanner.generation++;
+            scanner.fail("timeout", scanner.vaultPath);
+        }
+    }
 
     property Timer debounce: Timer {
         interval: 250

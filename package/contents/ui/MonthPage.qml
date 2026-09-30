@@ -83,6 +83,14 @@ Item {
         return result;
     }
 
+    // The day that takes keyboard focus on Tab: today if it's in this
+    // month, otherwise the 1st.
+    readonly property bool containsToday: today !== undefined && today.y === year && today.m === month
+
+    function isTabStop(cell) {
+        return containsToday ? cell.isToday : (cell.inMonth && cell.date.d === 1);
+    }
+
     function focusCell(index) {
         const loader = repeater.itemAt(Math.max(0, Math.min(cells.length - 1, index))) as Loader;
         if (loader && loader.item) {
@@ -153,7 +161,7 @@ Item {
                         ownHighlight: page.style.ownHighlight === true
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
-                        activeFocusOnTab: page.active && cellLoader.modelData.isToday
+                        activeFocusOnTab: page.active && page.isTabStop(cellLoader.modelData)
                     }
                 }
                 Component {
@@ -164,7 +172,7 @@ Item {
                         shape: page.style.tileShape || "rounded"
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
-                        activeFocusOnTab: page.active && cellLoader.modelData.isToday
+                        activeFocusOnTab: page.active && page.isTabStop(cellLoader.modelData)
                     }
                 }
                 Component {

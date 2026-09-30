@@ -381,6 +381,16 @@ msgid "Browse…"
 msgstr ""
 
 #, kde-format
+msgctxt "@label:listbox"
+msgid "Or pick a vault:"
+msgstr ""
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Vaults Obsidian knows…"
+msgstr ""
+
+#, kde-format
 msgctxt "@info"
 msgid ""
 "Enter a path that starts with / or ~/, or use Browse… to choose the folder."
@@ -607,6 +617,11 @@ msgstr ""
 
 #, kde-format
 msgctxt "@info"
+msgid "The vault didn't respond"
+msgstr ""
+
+#, kde-format
+msgctxt "@info"
 msgid "Couldn't read the vault"
 msgstr ""
 
@@ -623,6 +638,13 @@ msgstr ""
 #, kde-format
 msgctxt "@info %1 is a folder path"
 msgid "%1 has no .obsidian folder. Choose the vault's top folder."
+msgstr ""
+
+#, kde-format
+msgctxt "@info %1 is a folder path"
+msgid ""
+"Reading %1 took too long. If it's on a network or external drive, check that "
+"it's available."
 msgstr ""
 
 #, kde-format
@@ -710,4 +732,11 @@ msgstr ""
 #, kde-format
 msgctxt "@action"
 msgid "Rescan Vault"
+msgstr ""
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Couldn't open Obsidian. Check that it's installed and handles obsidian:// "
+"links."
 msgstr ""

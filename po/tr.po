@@ -4,7 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: io.github.diyar4772.obsidiancalendar\n"
-"Report-Msgid-Bugs-To: https://github.com/diyar4772/obsidian-calendar-plasmoid/issues\n"
+"Report-Msgid-Bugs-To: https://github.com/diyar4772/obsidian-calendar-"
+"plasmoid/issues\n"
 "PO-Revision-Date: 2026-09-30 16:00+0300\n"
 "Last-Translator: Samed Yolcu\n"
 "Language-Team: Turkish\n"
@@ -98,7 +99,8 @@ msgstr "Plasma Yerel"
 #, kde-format
 msgctxt "@info"
 msgid "Like Plasma's calendar, with word-count dots like the Calendar plugin"
-msgstr "Plasma takvimi gibi; Calendar eklentisindeki gibi kelime sayısı noktalarıyla"
+msgstr ""
+"Plasma takvimi gibi; Calendar eklentisindeki gibi kelime sayısı noktalarıyla"
 
 #, kde-format
 msgctxt "@option:radio design"
@@ -155,7 +157,9 @@ msgctxt "@info"
 msgid ""
 "A color too close to the background is made lighter or darker so it stays "
 "visible."
-msgstr "Arka plana çok yakın bir renk, görünür kalması için açılır ya da koyulaştırılır."
+msgstr ""
+"Arka plana çok yakın bir renk, görünür kalması için açılır ya da "
+"koyulaştırılır."
 
 #, kde-format
 msgctxt "@label:listbox"
@@ -197,7 +201,9 @@ msgctxt "@info"
 msgid ""
 "With its own color scheme, the widget draws a background in that scheme's "
 "colors."
-msgstr "Kendi renk şeması seçildiğinde widget, arka planı o şemanın renkleriyle çizer."
+msgstr ""
+"Kendi renk şeması seçildiğinde widget, arka planı o şemanın renkleriyle "
+"çizer."
 
 #, kde-format
 msgctxt "@title:group"
@@ -252,7 +258,9 @@ msgstr "Kare"
 #, kde-format
 msgctxt "@info"
 msgid "Resize the widget on the desktop by dragging its edges in edit mode."
-msgstr "Widget'ı masaüstünde düzenleme kipinde kenarlarından sürükleyerek yeniden boyutlandırın."
+msgstr ""
+"Widget'ı masaüstünde düzenleme kipinde kenarlarından sürükleyerek yeniden "
+"boyutlandırın."
 
 #, kde-format
 msgctxt "@label:listbox"
@@ -269,7 +277,9 @@ msgctxt "@info"
 msgid ""
 "Automatic uses the Calendar plugin's setting, or the desktop's first day of "
 "the week."
-msgstr "Otomatik, Calendar eklentisinin ayarını ya da masaüstünün haftanın ilk gününü kullanır."
+msgstr ""
+"Otomatik, Calendar eklentisinin ayarını ya da masaüstünün haftanın ilk "
+"gününü kullanır."
 
 #, kde-format
 msgctxt "@label:listbox"
@@ -301,7 +311,9 @@ msgctxt "@info"
 msgid ""
 "Automatic shows week numbers when “Show week number” is on in the Calendar "
 "plugin."
-msgstr "Otomatik, Calendar eklentisinde “Show week number” açıksa hafta numaralarını gösterir."
+msgstr ""
+"Otomatik, Calendar eklentisinde “Show week number” açıksa hafta numaralarını "
+"gösterir."
 
 #, kde-format
 msgctxt "@title:group"
@@ -344,7 +356,10 @@ msgid ""
 "Like the Calendar plugin: one dot per this many words, up to five. Counts "
 "are approximate: frontmatter is skipped and only the beginning of very long "
 "notes is read."
-msgstr "Calendar eklentisindeki gibi: bu kadar kelime başına bir nokta, en fazla beş. Sayılar yaklaşıktır: ön bilgi (frontmatter) atlanır ve çok uzun notların yalnızca başı okunur."
+msgstr ""
+"Calendar eklentisindeki gibi: bu kadar kelime başına bir nokta, en fazla "
+"beş. Sayılar yaklaşıktır: ön bilgi (frontmatter) atlanır ve çok uzun "
+"notların yalnızca başı okunur."
 
 #, kde-format
 msgctxt "@label"
@@ -377,10 +392,22 @@ msgid "Browse…"
 msgstr "Göz At…"
 
 #, kde-format
+msgctxt "@label:listbox"
+msgid "Or pick a vault:"
+msgstr "Ya da bir kasa seçin:"
+
+#, kde-format
+msgctxt "@item:inlistbox"
+msgid "Vaults Obsidian knows…"
+msgstr "Obsidian'ın bildiği kasalar…"
+
+#, kde-format
 msgctxt "@info"
 msgid ""
 "Enter a path that starts with / or ~/, or use Browse… to choose the folder."
-msgstr "/ ya da ~/ ile başlayan bir yol girin veya klasörü seçmek için Göz At… düğmesini kullanın."
+msgstr ""
+"/ ya da ~/ ile başlayan bir yol girin veya klasörü seçmek için Göz At… "
+"düğmesini kullanın."
 
 #, kde-format
 msgctxt "@info"
@@ -388,7 +415,10 @@ msgid ""
 "The widget only reads the vault. Daily and weekly note settings are taken "
 "from Obsidian (core Daily notes, Periodic Notes and Calendar plugins); you "
 "can change them on the Notes page."
-msgstr "Widget kasayı yalnızca okur. Günlük ve haftalık not ayarları Obsidian'dan alınır (çekirdek Daily notes, Periodic Notes ve Calendar eklentileri); bunları Notlar sayfasından değiştirebilirsiniz."
+msgstr ""
+"Widget kasayı yalnızca okur. Günlük ve haftalık not ayarları Obsidian'dan "
+"alınır (çekirdek Daily notes, Periodic Notes ve Calendar eklentileri); "
+"bunları Notlar sayfasından değiştirebilirsiniz."
 
 #, kde-format
 msgctxt "@label:spinbox"
@@ -492,7 +522,9 @@ msgctxt "@info"
 msgid ""
 "Read from the vault saved on the General page. After choosing another vault, "
 "apply the change to update this."
-msgstr "Genel sayfasında kaydedilen kasadan okunur. Başka bir kasa seçtikten sonra güncellemek için değişikliği uygulayın."
+msgstr ""
+"Genel sayfasında kaydedilen kasadan okunur. Başka bir kasa seçtikten sonra "
+"güncellemek için değişikliği uygulayın."
 
 #, kde-format
 msgctxt "@option:check"
@@ -540,7 +572,11 @@ msgid ""
 "Automatic follows the Calendar plugin or the desktop language. Only matters "
 "for formats with month or day names (MMMM, dddd…); the week start isn't "
 "affected. Other languages use English names, like Obsidian's default."
-msgstr "Otomatik, Calendar eklentisini ya da masaüstü dilini izler. Yalnızca ay ya da gün adı içeren biçimlerde (MMMM, dddd…) önemlidir; hafta başlangıcını etkilemez. Diğer diller, Obsidian'ın varsayılanı gibi İngilizce adları kullanır."
+msgstr ""
+"Otomatik, Calendar eklentisini ya da masaüstü dilini izler. Yalnızca ay ya "
+"da gün adı içeren biçimlerde (MMMM, dddd…) önemlidir; hafta başlangıcını "
+"etkilemez. Diğer diller, Obsidian'ın varsayılanı gibi İngilizce adları "
+"kullanır."
 
 #, kde-format
 msgctxt "@label:listbox"
@@ -562,7 +598,9 @@ msgctxt "@info"
 msgid ""
 "Today always opens or creates today's note with your template. Notes created "
 "for other days start empty: Obsidian doesn't apply templates to them."
-msgstr "Bugün her zaman bugünün notunu şablonunuzla açar ya da oluşturur. Diğer günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
+msgstr ""
+"Bugün her zaman bugünün notunu şablonunuzla açar ya da oluşturur. Diğer "
+"günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
 
 #, kde-format
 msgctxt "@info:tooltip"
@@ -603,6 +641,11 @@ msgstr "Bir Obsidian kasası değil"
 
 #, kde-format
 msgctxt "@info"
+msgid "The vault didn't respond"
+msgstr "Kasa yanıt vermedi"
+
+#, kde-format
+msgctxt "@info"
 msgid "Couldn't read the vault"
 msgstr "Kasa okunamadı"
 
@@ -620,6 +663,13 @@ msgstr "%1 yok ya da açılamıyor."
 msgctxt "@info %1 is a folder path"
 msgid "%1 has no .obsidian folder. Choose the vault's top folder."
 msgstr "%1 içinde .obsidian klasörü yok. Kasanın en üst klasörünü seçin."
+
+#, kde-format
+msgctxt "@info %1 is a folder path"
+msgid ""
+"Reading %1 took too long. If it's on a network or external drive, check that "
+"it's available."
+msgstr "%1 okunması çok uzun sürdü. Ağ ya da harici bir sürücüdeyse erişilebilir olduğunu denetleyin."
 
 #, kde-format
 msgctxt "@action:button"
@@ -706,5 +756,11 @@ msgstr "Kasayı Obsidian'da Aç"
 #, kde-format
 msgctxt "@action"
 msgid "Rescan Vault"
-
 msgstr "Kasayı Yeniden Tara"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Couldn't open Obsidian. Check that it's installed and handles obsidian:// "
+"links."
+msgstr "Obsidian açılamadı. Kurulu olduğunu ve obsidian:// bağlantılarını açtığını denetleyin."

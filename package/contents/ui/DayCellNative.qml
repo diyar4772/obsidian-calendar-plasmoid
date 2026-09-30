@@ -47,7 +47,7 @@ DayCell {
         Rectangle {
             anchors.fill: parent
             visible: cell.ownHighlight && (cell.cellData.isToday || cell.hovered || cell.activeFocus)
-            radius: Kirigami.Units.cornerRadius
+            radius: (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
             color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b,
                            cell.cellData.isToday ? 0.3 : cell.hovered ? 0.18 : 0.08)
             Behavior on color {

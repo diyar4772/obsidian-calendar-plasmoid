@@ -20,6 +20,9 @@ Item {
     property bool inPanel: false
     // A vault path was entered but isn't absolute.
     property bool pathInvalid: false
+    // Why the last click couldn't open Obsidian ("" when it worked).
+    property string actionError: ""
+    signal actionErrorDismissed()
 
     // Colors from ColorSchemeLoader, or null to follow Plasma.
     property var schemeColors: null
@@ -130,6 +133,21 @@ Item {
                 scanner: full.scanner
             }
 
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                visible: full.actionError !== ""
+                type: Kirigami.MessageType.Error
+                showCloseButton: true
+                text: full.actionError
+                onVisibleChanged: if (!visible) full.actionErrorDismissed()
+
+                Timer {
+                    running: parent.visible
+                    interval: 10000
+                    onTriggered: full.actionErrorDismissed()
+                }
+            }
+
             CalendarView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -164,6 +182,7 @@ Item {
                     switch (full.scanner.errorCode) {
                     case "no-vault": return i18nc("@info", "Vault folder not found");
                     case "not-a-vault": return i18nc("@info", "Not an Obsidian vault");
+                    case "timeout": return i18nc("@info", "The vault didn't respond");
                     default: return i18nc("@info", "Couldn't read the vault");
                     }
                 }
@@ -181,6 +200,7 @@ Item {
                     switch (full.scanner.errorCode) {
                     case "no-vault": return i18nc("@info %1 is a folder path", "%1 doesn't exist or can't be opened.", full.scanner.errorDetail);
                     case "not-a-vault": return i18nc("@info %1 is a folder path", "%1 has no .obsidian folder. Choose the vault's top folder.", full.scanner.errorDetail);
+                    case "timeout": return i18nc("@info %1 is a folder path", "Reading %1 took too long. If it's on a network or external drive, check that it's available.", full.scanner.errorDetail);
                     default: return full.scanner.errorDetail;
                     }
                 }

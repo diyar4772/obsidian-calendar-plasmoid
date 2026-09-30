@@ -41,7 +41,7 @@ PlasmaComponents.AbstractButton {
         Rectangle {
             anchors.fill: parent
             visible: cell.variant === "native" && cell.ownHighlight && cell.hovered
-            radius: Kirigami.Units.cornerRadius
+            radius: (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
             color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
         }
         Rectangle {

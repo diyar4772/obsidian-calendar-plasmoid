@@ -12,6 +12,7 @@ import QtQuick.Layouts
 import org.kde.kcmutils as KCM
 import org.kde.kirigami as Kirigami
 
+import "../code/obsidianconfig.js" as Config
 import "../code/paths.js" as Paths
 
 KCM.SimpleKCM {
@@ -21,6 +22,26 @@ KCM.SimpleKCM {
     property alias cfg_refreshInterval: refreshInterval.value
 
     readonly property string homePath: Paths.localPath(StandardPaths.writableLocation(StandardPaths.HomeLocation).toString(), "")
+
+    // Vaults listed in Obsidian's own obsidian.json: [{ path, name }]
+    property var knownVaults: []
+
+    CommandRunner {
+        id: runner
+    }
+
+    Component.onCompleted: {
+        const configDir = Paths.localPath(StandardPaths.writableLocation(StandardPaths.GenericConfigLocation).toString(), "");
+        const files = [Paths.joinPath(configDir, "obsidian/obsidian.json")]
+            .concat(Config.OBSIDIAN_JSON.map(rel => Paths.joinPath(homePath, rel)));
+        const command = Paths.readFilesCommand(files);
+        if (command !== null) {
+            runner.run(command, (exitCode, stdout) => {
+                const contents = Paths.parseReadOutput(stdout);
+                page.knownVaults = Config.knownVaults(Object.keys(contents).map(k => contents[k]));
+            });
+        }
+    }
 
     Kirigami.FormLayout {
         RowLayout {
@@ -38,6 +59,24 @@ KCM.SimpleKCM {
                 icon.name: "document-open-folder"
                 text: i18nc("@action:button", "Browse…")
                 onClicked: folderDialog.open()
+            }
+        }
+
+        QQC2.ComboBox {
+            id: knownBox
+            Kirigami.FormData.label: i18nc("@label:listbox", "Or pick a vault:")
+            visible: page.knownVaults.length > 0
+            Layout.minimumWidth: Kirigami.Units.gridUnit * 16
+            textRole: "text"
+            valueRole: "value"
+            model: [{ text: i18nc("@item:inlistbox", "Vaults Obsidian knows…"), value: "" }]
+                .concat(page.knownVaults.map(v => ({ text: v.name + " — " + v.path, value: v.path })))
+            onActivated: {
+                if (currentValue !== "") {
+                    page.cfg_vaultPath = currentValue;
+                    vaultField.text = currentValue;
+                }
+                currentIndex = 0;
             }
         }
 

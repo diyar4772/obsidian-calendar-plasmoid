@@ -31,7 +31,7 @@ DayCell {
         height: cell.shape === "circle" ? side : Math.min(cell.height, cell.width * 1.25)
         x: (cell.width - width) / 2
         y: (cell.height - height) / 2
-        radius: cell.shape === "circle" ? side / 2 : cell.shape === "square" ? 0 : Kirigami.Units.cornerRadius
+        radius: cell.shape === "circle" ? side / 2 : cell.shape === "square" ? 0 : (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
         color: {
             if (cell.cellData.hasNote) {
                 return Qt.rgba(cell.accent.r, cell.accent.g, cell.accent.b, cell.tint);

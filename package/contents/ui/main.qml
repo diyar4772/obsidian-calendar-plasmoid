@@ -91,6 +91,8 @@ PlasmoidItem {
         today: root.today
         inPanel: root.inPanel
         pathInvalid: root.cfg.vaultPath.trim() !== "" && root.scanner.vaultPath === ""
+        actionError: root.actionError
+        onActionErrorDismissed: root.actionError = ""
         schemeColors: root.scheme.colors
         customAccent: root.cfg.accentMode === "custom"
         accentColor: root.cfg.customAccent
@@ -122,7 +124,7 @@ PlasmoidItem {
             text: i18nc("@action", "Open Vault in Obsidian")
             icon.name: "document-open-folder"
             enabled: root.scanner.status === "ready"
-            onTriggered: Qt.openUrlExternally(Paths.vaultUri(root.scanner.vaultName))
+            onTriggered: root.openUri(Paths.vaultUri(root.scanner.vaultName))
         },
         PlasmaCore.Action {
             text: i18nc("@action", "Rescan Vault")
@@ -131,6 +133,17 @@ PlasmoidItem {
             onTriggered: root.scanner.refresh()
         }
     ]
+
+    // Shown in the calendar when an obsidian:// link couldn't be opened.
+    property string actionError: ""
+
+    function openUri(uri) {
+        if (Qt.openUrlExternally(uri)) {
+            actionError = "";
+        } else {
+            actionError = i18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
+        }
+    }
 
     // Opens a day's note in Obsidian. Today without a note goes through
     // obsidian://daily so Obsidian applies the daily note template.
@@ -141,11 +154,11 @@ PlasmoidItem {
         const rel = scanner.dailyPath(date);
         const absolute = Paths.joinPath(scanner.dailyFolderPath, rel);
         if (scanner.hasNote(date)) {
-            Qt.openUrlExternally(Paths.openUri(absolute));
+            root.openUri(Paths.openUri(absolute));
         } else if (Dates.equals(date, today) && scanner.settings.dailyUriAvailable) {
-            Qt.openUrlExternally(Paths.dailyUri(scanner.vaultName));
+            root.openUri(Paths.dailyUri(scanner.vaultName));
         } else if (Dates.equals(date, today) || cfg.emptyDayAction === "create") {
-            Qt.openUrlExternally(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.daily.folder, rel)));
+            root.openUri(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.daily.folder, rel)));
         }
     }
 
@@ -155,9 +168,9 @@ PlasmoidItem {
         }
         const rel = scanner.weeklyPath(weekStart);
         if (scanner.hasWeeklyNote(weekStart)) {
-            Qt.openUrlExternally(Paths.openUri(Paths.joinPath(scanner.weeklyFolderPath, rel)));
+            root.openUri(Paths.openUri(Paths.joinPath(scanner.weeklyFolderPath, rel)));
         } else if (cfg.emptyDayAction === "create") {
-            Qt.openUrlExternally(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.weekly.folder, rel)));
+            root.openUri(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.weekly.folder, rel)));
         }
     }
 
