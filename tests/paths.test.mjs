@@ -90,6 +90,7 @@ test("URIs percent-encode spaces, slashes and non-ASCII", () => {
     assert.equal(P.openUri("/home/u/Masaüstü/Örnek Vault/70 - Journal/2024-03-09.md"),
         "obsidian://open?path=%2Fhome%2Fu%2FMasa%C3%BCst%C3%BC%2F%C3%96rnek%20Vault%2F70%20-%20Journal%2F2024-03-09.md");
     assert.equal(P.dailyUri("Örnek Vault"), "obsidian://daily?vault=%C3%96rnek%20Vault");
+    assert.equal(P.vaultUri("Örnek Vault"), "obsidian://open?vault=%C3%96rnek%20Vault");
     assert.equal(P.newUri("Örnek Vault", "70 - Journal/71 - Daily/2024-03-09.md"),
         "obsidian://new?vault=%C3%96rnek%20Vault&file=70%20-%20Journal%2F71%20-%20Daily%2F2024-03-09.md");
     assert.equal(P.openUri("/v/a&b=c?#%.md"), "obsidian://open?path=%2Fv%2Fa%26b%3Dc%3F%23%25.md");

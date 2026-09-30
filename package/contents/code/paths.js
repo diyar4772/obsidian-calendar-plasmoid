@@ -188,6 +188,11 @@ function openUri(absolutePath) {
     return "obsidian://open?path=" + encodeURIComponent(absolutePath);
 }
 
+// Opens (switches to) a vault.
+function vaultUri(name) {
+    return "obsidian://open?vault=" + encodeURIComponent(name);
+}
+
 // Opens today's note, creating it from the template if needed. Requires the
 // core Daily notes plugin.
 function dailyUri(name) {
