@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // End-to-end: generate the fixture vaults, then run the same pipeline as the
 // widget (config command -> detect/resolve -> list -> format dates -> read).
 

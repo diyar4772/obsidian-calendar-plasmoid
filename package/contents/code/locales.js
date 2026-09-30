@@ -1,5 +1,8 @@
 .pragma library
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Locale data for the moment.js tokens the formatter supports.
 //
 // Obsidian formats note names with moment.js, so month/day names and week

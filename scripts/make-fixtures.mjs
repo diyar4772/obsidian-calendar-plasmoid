@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
 // Generates fictional Obsidian vaults for tests, demos and screenshots.
 //
 //   node scripts/make-fixtures.mjs [--out DIR] [--today YYYY-MM-DD]

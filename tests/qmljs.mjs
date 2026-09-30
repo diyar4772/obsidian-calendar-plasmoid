@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Loads QML JavaScript resources (`.pragma library` files) in Node.
 //
 // QML JS files aren't ES modules: they start with `.pragma library`, pull in

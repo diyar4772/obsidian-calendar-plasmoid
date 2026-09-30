@@ -1,6 +1,9 @@
 .pragma library
 .import "paths.js" as Paths
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // KDE color schemes (*.colors, as in /usr/share/color-schemes), so the widget
 // can use a different scheme than the desktop, e.g. Breeze Light on a dark
 // desktop. Only reads files; nothing is changed system-wide.

@@ -2,6 +2,9 @@
 .import "dateformat.js" as DateFormat
 .import "locales.js" as Locales
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Resolves daily/weekly note settings the way Obsidian's plugins do
 // (see obsidian-daily-notes-interface), then applies the widget's overrides.
 //

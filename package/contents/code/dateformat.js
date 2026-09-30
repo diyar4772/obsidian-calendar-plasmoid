@@ -1,6 +1,10 @@
 .pragma library
 .import "dates.js" as Dates
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-FileCopyrightText: OpenJS Foundation and other contributors (moment.js token pattern and week algorithm)
+// SPDX-License-Identifier: GPL-2.0-or-later AND MIT
+
 // A small formatter for the moment.js tokens that Obsidian users put in daily
 // and weekly note formats. Tokenization uses moment's own regular expression,
 // so brackets, backslash escapes and literal text behave the same way.

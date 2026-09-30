@@ -2,6 +2,9 @@
 .import "dateformat.js" as DateFormat
 .import "locales.js" as Locales
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Paths, shell commands and obsidian:// URIs.
 //
 // Every command here is read-only and built from a fixed template; the only

@@ -1,5 +1,9 @@
 .pragma library
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-FileCopyrightText: 2021 Liam Cain (Obsidian Calendar plugin word count pattern)
+// SPDX-License-Identifier: GPL-2.0-or-later AND MIT
+
 // Word counting compatible with the Obsidian Calendar plugin.
 //
 // countWords() builds the Calendar plugin's getWordCount() pattern verbatim

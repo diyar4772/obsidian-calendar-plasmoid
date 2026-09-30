@@ -1,5 +1,8 @@
 .pragma library
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Calendar-date arithmetic on plain {y, m, d} objects (m is 1-12).
 //
 // All math goes through a day number (days since 1970-01-01, proleptic

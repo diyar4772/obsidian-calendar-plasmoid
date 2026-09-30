@@ -2,6 +2,9 @@
 .import "dates.js" as Dates
 .import "dateformat.js" as DateFormat
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // Month grid layout.
 
 // Weekday numbers (0 = Sunday) in column order for a week starting on `weekStart`.

@@ -1,6 +1,9 @@
 .pragma library
 .import "dates.js" as Dates
 
+// SPDX-FileCopyrightText: 2026 Samed Yolcu
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 const MAX_DOTS = 5;
 
 function clamp(n, lo, hi) {
