@@ -190,6 +190,7 @@ test("overrides win and are validated", () => {
     assert.equal(res.wordsPerDot, 50);
     assert.equal(res.showWeekNumbers, false);
     assert.equal(res.locale.name, "en");
+    assert.equal(res.locale.months[0], "January");
     assert.deepEqual(res.sources, { daily: "override", weekly: "override", weekStart: "override", locale: "override" });
     assert.deepEqual(res.errors, []);
 });
@@ -219,6 +220,13 @@ test("folders and formats that leave the vault are rejected", () => {
     assert.deepEqual(codes({ dailyFormat: "YYYY/" }), ["invalid-format:daily"]);
     assert.deepEqual(codes({ dailyFormat: "[/etc/]YYYY" }), ["invalid-format:daily"]);
     assert.deepEqual(codes({ weeklyFolder: "..", weeklyFormat: "gggg-[W]ww" }), ["invalid-folder:weekly"]);
+    // Unusable values are replaced, never used
+    const res = C.resolve(det, { dailyFolder: "../x", dailyFormat: "[../]YYYY", weeklyFolder: "..", weeklyFormat: "gggg" }, L.EN);
+    assert.deepEqual(res.daily, { folder: "", format: "YYYY-MM-DD", template: "" });
+    assert.equal(res.weekly, null);
+    assert.deepEqual(C.formatProblems("[../]YYYY"), ["invalid-format"]);
+    assert.deepEqual(C.formatProblems("YYYY HH"), ["unsupported-token"]);
+    assert.deepEqual(C.formatProblems("YYYY-MM-DD"), []);
     assert.deepEqual(codes({ dailyFolder: "./Daily/." }), []);
     assert.equal(C.resolve(det, { dailyFolder: "./Daily/." }, L.EN).daily.folder, "Daily");
 });
@@ -236,6 +244,18 @@ test("unknown locale names fall back to English names without an error", () => {
     assert.equal(res.locale.dow, 1); // week start still follows the desktop
     assert.equal(res.sources.locale, "fallback");
     assert.deepEqual(res.errors, []);
+});
+
+test("the language setting changes names but not the week", () => {
+    const det = C.detect({});
+    const tr = C.resolve(det, { locale: "tr" }, L.EN);
+    assert.equal(tr.locale.months[0], "Ocak");
+    assert.deepEqual([tr.weekStart, tr.locale.dow, tr.locale.doy], [0, 0, 6]);
+    const en = C.resolve(det, { locale: "en" }, L.TR);
+    assert.equal(en.locale.months[0], "January");
+    assert.deepEqual([en.weekStart, en.locale.dow, en.locale.doy], [1, 1, 7]);
+    // Unknown names fall back to English
+    assert.equal(C.resolve(det, { locale: "xx" }, L.TR).locale.months[0], "January");
 });
 
 test("normalizeFolder()", () => {

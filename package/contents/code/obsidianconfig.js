@@ -213,17 +213,33 @@ function detect(files) {
     return result;
 }
 
-function validFormat(format, which, errors) {
-    const unsupported = DateFormat.compile(format).unsupported;
-    if (unsupported.length > 0) {
-        errors.push({ code: "unsupported-token", file: which, detail: unsupported.join(", ") });
+// Problems with a note format: [] when usable, else error codes
+// ("unsupported-token", "invalid-format").
+function formatProblems(format) {
+    const problems = [];
+    if (DateFormat.compile(format).unsupported.length > 0) {
+        problems.push("unsupported-token");
     }
     // Literal text could still walk out of the folder, e.g. "[../]YYYY".
     const sample = DateFormat.format({ y: 2000, m: 1, d: 1 }, format, Locales.EN).split("/");
-    if (format.trim() === "" || sample.indexOf("..") !== -1 || sample.indexOf(".") !== -1
+    if (String(format).trim() === "" || sample.indexOf("..") !== -1 || sample.indexOf(".") !== -1
             || sample[sample.length - 1] === "" || sample[0] === "") {
-        errors.push({ code: "invalid-format", file: which, detail: format });
+        problems.push("invalid-format");
     }
+    return problems;
+}
+
+// Validates a format; returns false when it can't be used at all.
+function validFormat(format, which, errors) {
+    const problems = formatProblems(format);
+    if (problems.indexOf("unsupported-token") !== -1) {
+        errors.push({ code: "unsupported-token", file: which, detail: DateFormat.compile(format).unsupported.join(", ") });
+    }
+    if (problems.indexOf("invalid-format") !== -1) {
+        errors.push({ code: "invalid-format", file: which, detail: format });
+        return false;
+    }
+    return true;
 }
 
 function isSet(value) {
@@ -271,32 +287,39 @@ function resolve(detected, overrides, systemLocale) {
         sources.weekly = "override";
     }
 
+    // Unusable folders and formats are reported and replaced by the
+    // defaults, so no path can point outside the notes folder.
     const folder = normalizeFolder(dailyFolder);
     if (folder === null) {
         errors.push({ code: "invalid-folder", file: "daily", detail: dailyFolder });
     }
-    validFormat(dailyFormat, "daily", errors);
+    if (!validFormat(dailyFormat, "daily", errors)) {
+        dailyFormat = DEFAULT_DAILY_FORMAT;
+    }
 
     if (weekly) {
         const weeklyFolder = normalizeFolder(weekly.folder);
         if (weeklyFolder === null) {
             errors.push({ code: "invalid-folder", file: "weekly", detail: weekly.folder });
         }
-        validFormat(weekly.format, "weekly", errors);
-        weekly = { folder: weeklyFolder || "", format: weekly.format };
+        const usable = validFormat(weekly.format, "weekly", errors) && weeklyFolder !== null;
+        weekly = usable ? { folder: weeklyFolder, format: weekly.format } : null;
     }
 
-    let base = systemLocale || Locales.EN;
-    let localeName = detected.locale;
+    const system = systemLocale || Locales.EN;
+    let base = system;
     if (isSet(o.locale) && o.locale !== "") {
-        localeName = o.locale;
+        // The widget's language setting only changes names; the week keeps
+        // following the desktop (or the week-start settings below).
+        const names = Locales.bundled(o.locale) || Locales.EN;
+        base = Object.freeze(Object.assign({}, names, { dow: system.dow, doy: system.doy }));
         sources.locale = "override";
-    }
-    if (localeName !== null) {
-        // Only bundled languages can be matched exactly; anything else uses
-        // English names, moment's default, with the current week start.
-        const bundled = Locales.bundled(localeName);
-        base = bundled || Locales.make({ name: "en", dow: base.dow, ordinal: Locales.EN.ordinal });
+    } else if (detected.locale !== null) {
+        // The Calendar plugin's locale override changes names and week rules,
+        // like moment.locale(). Only bundled languages can be matched
+        // exactly; anything else uses English names with the current week.
+        const bundled = Locales.bundled(detected.locale);
+        base = bundled || Locales.make({ name: "en", dow: system.dow, ordinal: Locales.EN.ordinal });
         if (!bundled) {
             sources.locale = "fallback";
         }

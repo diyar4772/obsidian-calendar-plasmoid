@@ -20,13 +20,16 @@ test("dotsForWords() follows the Calendar plugin", () => {
     assert.equal(S.dotsForWords(1000, NaN), 0);
 });
 
-test("dotsForSizes() spreads sizes over 1-5 on a log scale", () => {
+test("dotsForSizes() spreads sizes evenly over 1-5 by rank", () => {
     assert.deepEqual(S.dotsForSizes([]), []);
     assert.deepEqual(S.dotsForSizes([0, 0]), [1, 1]);
-    const dots = S.dotsForSizes([10, 100, 1000, 10000]);
-    assert.equal(dots[3], 5);
-    assert.ok(dots.every((n, i) => i === 0 || n >= dots[i - 1]), "monotonic");
-    assert.ok(dots.every((n) => n >= 1 && n <= 5));
+    assert.deepEqual(S.dotsForSizes([500]), [1]);
+    assert.deepEqual(S.dotsForSizes([1000, 5000]), [1, 5]);
+    assert.deepEqual(S.dotsForSizes([3000, 1000, 2000, 5000, 4000]), [3, 1, 2, 5, 4]);
+    assert.deepEqual(S.dotsForSizes([2000, 2000, 9000, 1000]), [3, 3, 5, 1]);
+    // Similar sizes (the old log scale put these all at 4-5 dots)
+    const dots = S.dotsForSizes([1200, 2500, 4100, 6800, 9900, 11000]);
+    assert.deepEqual(dots, [1, 2, 3, 3, 4, 5]);
 });
 
 test("streak() counts back from today", () => {

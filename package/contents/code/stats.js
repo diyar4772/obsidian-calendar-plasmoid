@@ -17,17 +17,19 @@ function dotsForWords(words, wordsPerDot) {
     return clamp(Math.floor(words / wordsPerDot), 1, MAX_DOTS);
 }
 
-// Alternative to word counts: 1-5 dots from file size on a log scale, relative
-// to the largest of `sizes` (usually the notes in the visible month).
+// Alternative to word counts: 1-5 dots from file size, by rank among `sizes`
+// (usually the notes in the visible month), so the smallest note gets 1 dot,
+// the largest 5 and the rest spread evenly. Equal sizes get equal dots.
 // Returns an array parallel to `sizes`.
 function dotsForSizes(sizes) {
-    let max = 0;
-    for (let i = 0; i < sizes.length; i++) {
-        max = Math.max(max, sizes[i]);
+    const sorted = sizes.slice().sort(function (a, b) { return a - b; });
+    const distinct = sorted.filter(function (s, i) { return i === 0 || s !== sorted[i - 1]; });
+    if (distinct.length <= 1) {
+        return sizes.map(function () { return 1; });
     }
-    const scale = Math.log(1 + max);
     return sizes.map(function (size) {
-        return scale > 0 ? clamp(Math.ceil(MAX_DOTS * Math.log(1 + size) / scale), 1, MAX_DOTS) : 1;
+        const rank = distinct.indexOf(size);
+        return 1 + Math.round((MAX_DOTS - 1) * rank / (distinct.length - 1));
     });
 }
 
