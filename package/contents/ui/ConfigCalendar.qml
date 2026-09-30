@@ -27,7 +27,7 @@ KCM.SimpleKCM {
             textRole: "text"
             valueRole: "value"
             model: {
-                const days = [{ text: i18nc("@item:inlistbox", "Automatic (Calendar plugin or desktop)"), value: -1 }];
+                const days = [{ text: i18nc("@item:inlistbox week start", "Automatic"), value: -1 }];
                 for (let i = 0; i < 7; i++) {
                     const day = (Qt.locale().firstDayOfWeek + i) % 7;
                     days.push({ text: Qt.locale().dayName(day, Locale.LongFormat), value: day });
@@ -37,13 +37,20 @@ KCM.SimpleKCM {
             Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_weekStart))
             onActivated: page.cfg_weekStart = currentValue
         }
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            text: i18nc("@info", "Automatic uses the Calendar plugin's setting, or the desktop's first day of the week.")
+        }
 
         QQC2.ComboBox {
             Kirigami.FormData.label: i18nc("@label:listbox", "Week numbers:")
             textRole: "text"
             valueRole: "value"
             model: [
-                { text: i18nc("@item:inlistbox", "Automatic (Calendar plugin setting)"), value: "auto" },
+                { text: i18nc("@item:inlistbox week numbers", "Automatic"), value: "auto" },
                 { text: i18nc("@item:inlistbox", "Show"), value: "on" },
                 { text: i18nc("@item:inlistbox", "Hide"), value: "off" }
             ]
@@ -53,6 +60,13 @@ KCM.SimpleKCM {
         QQC2.CheckBox {
             id: isoWeekNumbers
             text: i18nc("@option:check", "Use ISO 8601 week numbers")
+        }
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            text: i18nc("@info", "Automatic shows week numbers when “Show week number” is on in the Calendar plugin.")
             enabled: page.cfg_weekNumbers !== "off"
         }
 
@@ -66,9 +80,9 @@ KCM.SimpleKCM {
             textRole: "text"
             valueRole: "value"
             model: [
-                { text: i18nc("@item:inlistbox", "Word count (like the Calendar plugin)"), value: "words" },
-                { text: i18nc("@item:inlistbox", "File size"), value: "size" },
-                { text: i18nc("@item:inlistbox", "Nothing, just mark days with notes"), value: "none" }
+                { text: i18nc("@item:inlistbox note length", "Word count"), value: "words" },
+                { text: i18nc("@item:inlistbox note length", "File size"), value: "size" },
+                { text: i18nc("@item:inlistbox note length", "Not shown"), value: "none" }
             ]
             Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_dotSource))
             onActivated: page.cfg_dotSource = currentValue
@@ -101,7 +115,7 @@ KCM.SimpleKCM {
             font: Kirigami.Theme.smallFont
             opacity: 0.8
             visible: page.cfg_dotSource === "words"
-            text: i18nc("@info", "Counts are approximate: frontmatter is skipped and only the beginning of very long notes is read.")
+            text: i18nc("@info", "Like the Calendar plugin: one dot per this many words, up to five. Counts are approximate: frontmatter is skipped and only the beginning of very long notes is read.")
         }
 
         Kirigami.Separator {

@@ -18,6 +18,8 @@ Item {
     required property VaultScanner scanner
     required property var today
     property bool inPanel: false
+    // A vault path was entered but isn't absolute.
+    property bool pathInvalid: false
 
     // Colors from ColorSchemeLoader, or null to follow Plasma.
     property var schemeColors: null
@@ -61,14 +63,33 @@ Item {
         // Computed here, not from this item's own Kirigami.Theme, to avoid binding loops.
         readonly property color textColor: s ? s.textColor : full.Kirigami.Theme.textColor
         readonly property color backgroundColor: s ? s.backgroundColor : full.Kirigami.Theme.backgroundColor
-        readonly property color highlightColor: full.customAccent ? full.accentColor
-            : (s ? s.highlightColor : full.Kirigami.Theme.highlightColor)
+        // A custom accent too close to the background (e.g. near-black on a
+        // dark scheme) is blended toward the text color to stay visible.
+        readonly property color highlightColor: {
+            if (!full.customAccent) {
+                return s ? s.highlightColor : full.Kirigami.Theme.highlightColor;
+            }
+            return contrast(full.accentColor, backgroundColor) < 1.8
+                ? Kirigami.ColorUtils.linearInterpolation(full.accentColor, textColor, 0.5)
+                : full.accentColor;
+        }
+
+        // WCAG contrast ratio of two colors (1 to 21).
+        function luminance(c) {
+            const f = v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+        }
+        function contrast(a, b) {
+            const la = luminance(a);
+            const lb = luminance(b);
+            return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+        }
         readonly property color highlightedTextColor: {
             if (!full.customAccent) {
                 return s ? s.highlightedTextColor : full.Kirigami.Theme.highlightedTextColor;
             }
             // Readable text on the custom accent: the scheme's light or dark end.
-            const accentIsDark = Kirigami.ColorUtils.brightnessForColor(full.accentColor) === Kirigami.ColorUtils.Dark;
+            const accentIsDark = Kirigami.ColorUtils.brightnessForColor(highlightColor) === Kirigami.ColorUtils.Dark;
             const backgroundIsLight = Kirigami.ColorUtils.brightnessForColor(backgroundColor) === Kirigami.ColorUtils.Light;
             return accentIsDark === backgroundIsLight ? backgroundColor : textColor;
         }
@@ -115,8 +136,13 @@ Item {
                 Layout.fillHeight: true
                 Layout.margins: Kirigami.Units.largeSpacing
                 visible: full.scanner.status !== "ready"
-                iconName: full.scanner.status === "error" ? "dialog-warning" : "view-calendar-day"
+                // No big icon when space is short, so the text and button fit.
+                iconName: full.height < Kirigami.Units.gridUnit * 14 ? ""
+                    : (full.scanner.status === "error" || full.pathInvalid) ? "dialog-warning" : "view-calendar-day"
                 text: {
+                    if (full.pathInvalid) {
+                        return i18nc("@info", "Vault path isn't absolute");
+                    }
                     switch (full.scanner.status) {
                     case "unconfigured": return i18nc("@info", "No vault selected");
                     case "loading": return i18nc("@info", "Reading vault…");
@@ -128,6 +154,12 @@ Item {
                     }
                 }
                 explanation: {
+                    if (full.pathInvalid) {
+                        return i18nc("@info", "Enter a path that starts with / or ~/, or use Browse… to choose the folder.");
+                    }
+                    if (full.height < Kirigami.Units.gridUnit * 11) {
+                        return "";
+                    }
                     switch (full.scanner.status) {
                     case "unconfigured": return i18nc("@info", "Choose the folder of your Obsidian vault to see your daily notes.");
                     case "loading": return "";

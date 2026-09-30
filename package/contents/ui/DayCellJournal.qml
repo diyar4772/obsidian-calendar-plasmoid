@@ -18,17 +18,19 @@ DayCell {
 
     // Tint strength per dot level (0 = no note).
     readonly property var tints: [0, 0.22, 0.36, 0.52, 0.7, 0.88]
-    readonly property real tint: tints[Math.min(5, cell.cellData.dots)]
+    // A note always gets at least the first level, even when dots are off.
+    readonly property real tint: cell.cellData.hasNote ? tints[Math.max(1, Math.min(5, cell.cellData.dots))] : 0
     readonly property color accent: Kirigami.Theme.highlightColor
     readonly property bool strong: tint >= 0.6
 
     background: Rectangle {
-        // Circles are drawn square-sized in the middle of the cell.
+        // Circles are square-sized; other tiles are kept from turning into
+        // long pills when the widget is very wide or tall. Centered in the cell.
         readonly property real side: Math.min(cell.width, cell.height)
-        x: cell.shape === "circle" ? (cell.width - side) / 2 : 0
-        y: cell.shape === "circle" ? (cell.height - side) / 2 : 0
-        width: cell.shape === "circle" ? side : cell.width
-        height: cell.shape === "circle" ? side : cell.height
+        width: cell.shape === "circle" ? side : Math.min(cell.width, cell.height * 1.6)
+        height: cell.shape === "circle" ? side : Math.min(cell.height, cell.width * 1.25)
+        x: (cell.width - width) / 2
+        y: (cell.height - height) / 2
         radius: cell.shape === "circle" ? side / 2 : cell.shape === "square" ? 0 : Kirigami.Units.cornerRadius
         color: {
             if (cell.cellData.hasNote) {

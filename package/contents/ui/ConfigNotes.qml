@@ -43,6 +43,17 @@ KCM.SimpleKCM {
         dotSource: "none"
     }
 
+    // Locale the widget formats names with: what the vault and desktop say,
+    // this page's language choice and the saved week-start setting.
+    readonly property var previewLocale: {
+        let base = detector.settings ? detector.settings.locale : systemLocale;
+        if (cfg_noteLanguage !== "") {
+            base = Object.assign({}, Locales.bundled(cfg_noteLanguage) || Locales.EN, { dow: base.dow, doy: base.doy });
+        }
+        const weekStart = Plasmoid.configuration.weekStart;
+        return weekStart >= 0 ? Locales.withWeekStart(base, weekStart) : base;
+    }
+
     function sourceText(source) {
         switch (source) {
         case "periodic-notes": return i18nc("@info settings source", "Periodic Notes plugin");
@@ -74,16 +85,18 @@ KCM.SimpleKCM {
         if (format.trim() === "") {
             return "";
         }
-        const unsupported = DateFormat.compile(format).unsupported;
-        if (unsupported.length > 0) {
-            return i18nc("@info %1 lists tokens", "Unsupported tokens: %1", unsupported.join(", "));
+        const problems = Config.formatProblems(format);
+        if (problems.indexOf("unsupported-token") !== -1) {
+            return i18nc("@info %1 lists tokens", "Unsupported tokens: %1", DateFormat.compile(format).unsupported.join(", "));
+        }
+        if (problems.indexOf("invalid-format") !== -1) {
+            return i18nc("@info", "This format doesn't give a valid file name inside the folder.");
         }
         if (Config.normalizeFolder(folder) === null) {
             return i18nc("@info", "The folder must be inside the vault.");
         }
-        const locale = cfg_noteLanguage !== "" ? (Locales.bundled(cfg_noteLanguage) || systemLocale) : systemLocale;
-        return i18nc("@info %1 is a file path", "Today: %1",
-                     Paths.notePath(Config.normalizeFolder(folder), DateFormat.format(date, format, locale)));
+        return i18nc("@info %1 is a file path", "Example: %1",
+                     Paths.notePath(Config.normalizeFolder(folder), DateFormat.format(date, format, previewLocale)));
     }
 
     Kirigami.FormLayout {
@@ -97,6 +110,14 @@ KCM.SimpleKCM {
             Layout.maximumWidth: Kirigami.Units.gridUnit * 22
             wrapMode: Text.Wrap
             text: page.detectedText("daily")
+        }
+
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 22
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            text: i18nc("@info", "Read from the vault saved on the General page. After choosing another vault, apply the change to update this.")
         }
 
         QQC2.CheckBox {
@@ -154,7 +175,7 @@ KCM.SimpleKCM {
             visible: customWeekly.checked
             font: Kirigami.Theme.smallFont
             opacity: 0.8
-            text: page.preview(weeklyFolder.text, weeklyFormat.text, Dates.startOfWeek(page.today, page.systemLocale.dow))
+            text: page.preview(weeklyFolder.text, weeklyFormat.text, Dates.startOfWeek(page.today, page.previewLocale.dow))
         }
 
         Kirigami.Separator {
@@ -167,7 +188,7 @@ KCM.SimpleKCM {
             textRole: "text"
             valueRole: "value"
             model: [
-                { text: i18nc("@item:inlistbox", "Automatic (desktop language)"), value: "" },
+                { text: i18nc("@item:inlistbox note name language", "Automatic"), value: "" },
                 { text: "English", value: "en" },
                 { text: "Türkçe", value: "tr" }
             ]
@@ -179,7 +200,7 @@ KCM.SimpleKCM {
             wrapMode: Text.Wrap
             font: Kirigami.Theme.smallFont
             opacity: 0.8
-            text: i18nc("@info", "Only matters for formats with month or day names (MMMM, dddd…). Other languages use English names, like Obsidian's default.")
+            text: i18nc("@info", "Automatic follows the Calendar plugin or the desktop language. Only matters for formats with month or day names (MMMM, dddd…); the week start isn't affected. Other languages use English names, like Obsidian's default.")
         }
 
         QQC2.ComboBox {
@@ -188,7 +209,7 @@ KCM.SimpleKCM {
             valueRole: "value"
             model: [
                 { text: i18nc("@item:inlistbox", "Does nothing"), value: "none" },
-                { text: i18nc("@item:inlistbox", "Creates the note in Obsidian"), value: "create" }
+                { text: i18nc("@item:inlistbox", "Creates the note"), value: "create" }
             ]
             Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_emptyDayAction))
             onActivated: page.cfg_emptyDayAction = currentValue

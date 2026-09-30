@@ -107,6 +107,9 @@ QtObject {
     }
 
     function listDaily(gen) {
+        if (!settings) {
+            return;
+        }
         const command = Paths.listCommand(dailyFolderPath, Paths.searchDepth(settings.daily.format));
         run(command, (exitCode, stdout, stderr) => {
             if (gen !== generation) {
@@ -278,7 +281,19 @@ QtObject {
         onTriggered: scanner.refreshNow()
     }
 
+    // Results of a scan that is still running belong to the old inputs:
+    // invalidate them and start over.
+    function restart() {
+        generation++;
+        busy = false;
+        pending = false;
+        refresh();
+    }
+
     onVaultPathChanged: {
+        generation++;
+        busy = false;
+        pending = false;
         status = vaultPath === "" ? "unconfigured" : "loading";
         settings = null;
         dailyFiles = {};
@@ -286,8 +301,8 @@ QtObject {
         wordCache = {};
         refresh();
     }
-    onOverridesChanged: refresh()
-    onSystemLocaleChanged: refresh()
+    onOverridesChanged: restart()
+    onSystemLocaleChanged: restart()
     onDotSourceChanged: {
         revision++;
         if (wordsWanted) {

@@ -122,7 +122,8 @@ FocusScope {
                     Layout.fillWidth: true
                     Layout.preferredWidth: pages.cellWidth
                     horizontalAlignment: Text.AlignHCenter
-                    text: view.variant === "journal" || pages.cellWidth < Kirigami.Units.gridUnit * 2
+                    // Short names ("Pzt") when they fit; one letter is ambiguous in some languages.
+                    text: pages.cellWidth < Kirigami.Units.gridUnit * 2
                         ? view.uiLocale.dayName(modelData, Locale.NarrowFormat)
                         : view.uiLocale.dayName(modelData, Locale.ShortFormat)
                     textFormat: Text.PlainText

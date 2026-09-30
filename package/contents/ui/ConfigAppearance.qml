@@ -85,8 +85,16 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18nc("@label:listbox", "Color scheme:")
             textRole: "text"
             valueRole: "value"
-            model: [{ text: i18nc("@item:inlistbox", "Same as Plasma"), value: "" }]
-                .concat(page.schemes.map(s => ({ text: s.name, value: s.path })))
+            model: {
+                const items = [{ text: i18nc("@item:inlistbox", "Same as Plasma"), value: "" }]
+                    .concat(page.schemes.map(s => ({ text: s.name, value: s.path })));
+                // Keep a saved scheme selectable even if its file is gone.
+                const saved = page.cfg_colorScheme;
+                if (saved !== "" && !page.schemes.some(s => s.path === saved)) {
+                    items.push({ text: i18nc("@item:inlistbox %1 is a file name", "%1 (not found)", saved.substring(saved.lastIndexOf("/") + 1)), value: saved });
+                }
+                return items;
+            }
             onModelChanged: currentIndex = Math.max(0, indexOfValue(page.cfg_colorScheme))
             onActivated: page.cfg_colorScheme = currentValue
         }
@@ -99,7 +107,7 @@ KCM.SimpleKCM {
                 textRole: "text"
                 valueRole: "value"
                 model: [
-                    { text: i18nc("@item:inlistbox accent color", "From the color scheme"), value: "auto" },
+                    { text: i18nc("@item:inlistbox accent color", "Automatic"), value: "auto" },
                     { text: i18nc("@item:inlistbox accent color", "Custom"), value: "custom" }
                 ]
                 Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_accentMode))

@@ -90,6 +90,7 @@ PlasmoidItem {
         scanner: root.scanner
         today: root.today
         inPanel: root.inPanel
+        pathInvalid: root.cfg.vaultPath.trim() !== "" && root.scanner.vaultPath === ""
         schemeColors: root.scheme.colors
         customAccent: root.cfg.accentMode === "custom"
         accentColor: root.cfg.customAccent

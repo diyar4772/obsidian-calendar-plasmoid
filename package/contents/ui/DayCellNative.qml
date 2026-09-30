@@ -51,34 +51,45 @@ DayCell {
         }
     }
 
+    readonly property bool showDots: cellData.dots > 0
+    // Room for the dot row under the number
+    readonly property real dotsHeight: showDots ? dotSize * 2 : 0
+
     contentItem: Item {
-        PlasmaComponents.Label {
-            id: label
-            anchors.fill: parent
-            anchors.bottomMargin: cell.cellData.hasNote ? cell.dotSize * 2 : 0
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Math.max(Kirigami.Units.gridUnit * 0.4, Math.min(cell.height / 2.6, cell.width / 2.2) * cell.textScale)
-            font.weight: cell.cellData.isToday ? Font.DemiBold : Font.Normal
-            text: cell.text
-            textFormat: Text.PlainText
-            opacity: cell.cellData.inMonth ? 1 : 0.5
-        }
+        Column {
+            anchors.centerIn: parent
+            spacing: 0
 
-        Row {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: label.bottom
-            anchors.topMargin: -Math.round(cell.dotSize * 1.5)
-            spacing: Math.max(1, Math.round(cell.dotSize / 2))
-            opacity: label.opacity
+            PlasmaComponents.Label {
+                id: label
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                // Scaled with the text-size setting, but never taller than the cell allows.
+                font.pixelSize: Math.max(Kirigami.Units.gridUnit * 0.4,
+                    Math.min(Math.min(cell.height / 2.6, cell.width / 2.2) * cell.textScale,
+                             (cell.height - cell.dotsHeight) / 1.35,
+                             cell.width / 2))
+                font.weight: cell.cellData.isToday ? Font.DemiBold : Font.Normal
+                text: cell.text
+                textFormat: Text.PlainText
+                opacity: cell.cellData.inMonth ? 1 : 0.5
+            }
 
-            Repeater {
-                model: cell.cellData.dots
-                Rectangle {
-                    width: cell.dotSize
-                    height: width
-                    radius: width / 2
-                    color: Kirigami.Theme.highlightColor
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: cell.showDots
+                height: cell.dotsHeight
+                spacing: Math.max(1, Math.round(cell.dotSize / 2))
+                opacity: label.opacity
+
+                Repeater {
+                    model: cell.cellData.dots
+                    Rectangle {
+                        width: cell.dotSize
+                        height: width
+                        radius: width / 2
+                        color: Kirigami.Theme.highlightColor
+                    }
                 }
             }
         }

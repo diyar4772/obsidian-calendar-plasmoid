@@ -61,7 +61,9 @@ PlasmaComponents.AbstractButton {
         verticalAlignment: Text.AlignVCenter
         text: cell.text
         textFormat: Text.PlainText
-        font.pointSize: Math.max(1, Kirigami.Theme.defaultFont.pointSize * (cell.variant === "journal" ? 0.85 : 1) * cell.textScale)
+        font.pixelSize: Math.max(Kirigami.Units.gridUnit * 0.4,
+            Math.min(Kirigami.Units.gridUnit * (cell.variant === "journal" ? 0.6 : 0.7) * cell.textScale,
+                     cell.height / 1.8, cell.width / 2))
         font.italic: cell.variant === "native"
         font.weight: cell.cellData.hasNote ? Font.DemiBold : Font.Normal
         color: cell.cellData.hasNote ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
