@@ -10,10 +10,12 @@ import "../code/dates.js" as Dates
 import "../code/obsidianconfig.js" as Config
 import "../code/paths.js" as Paths
 import "../code/stats.js" as Stats
+import "../code/yearview.js" as YearView
 
 // Reads a vault through read-only shell commands and exposes what the
 // calendar needs. A scan runs: config files -> daily folder listing ->
-// weekly folder listing; word counts are read separately, per month.
+// weekly folder listing; word counts are read separately, per month (and
+// per year while the Year Overview is open).
 QtObject {
     id: scanner
 
@@ -178,6 +180,9 @@ QtObject {
         if (wordsWanted) {
             loadWords(wordsWanted.y, wordsWanted.m);
         }
+        if (yearWanted !== 0) {
+            loadYearWords(yearWanted);
+        }
         if (pending) {
             refreshNow();
         }
@@ -209,10 +214,39 @@ QtObject {
         if (!settings || dotSource !== "words" || busy) {
             return;
         }
-        const stale = [];
+        const rels = [];
         const first = Dates.startOfWeek(Dates.make(y, m, 1), settings.locale.dow);
         for (let i = 0; i < 42; i++) {
-            const rel = dailyPath(Dates.addDays(first, i));
+            rels.push(dailyPath(Dates.addDays(first, i)));
+        }
+        requestWords(rels);
+    }
+
+    // Year shown in the Year Overview window, or 0 when it's closed. Its
+    // notes are counted whatever the dot source, since the overview charts
+    // words; the month on screen is requested first and never waits for it.
+    property int yearWanted: 0
+
+    function loadYearWords(y) {
+        yearWanted = y;
+        if (!settings || busy || y === 0) {
+            return;
+        }
+        const first = Dates.make(y, 1, 1);
+        const rels = [];
+        for (let i = 0; i < Dates.daysInYear(y); i++) {
+            rels.push(dailyPath(Dates.addDays(first, i)));
+        }
+        requestWords(rels);
+    }
+
+    // Reads and counts the notes among `rels` (daily-folder relative paths)
+    // that exist and are new or changed since they were last counted, in
+    // batches so a year of notes doesn't become one huge command.
+    function requestWords(rels) {
+        const stale = [];
+        for (let i = 0; i < rels.length; i++) {
+            const rel = rels[i];
             const file = dailyFiles[rel];
             const cached = wordCache[rel];
             if (file && !wordsInFlight.hasOwnProperty(rel)
@@ -220,9 +254,12 @@ QtObject {
                 stale.push(rel);
             }
         }
-        if (stale.length === 0) {
-            return;
+        for (let i = 0; i < stale.length; i += 60) {
+            readWords(stale.slice(i, i + 60));
         }
+    }
+
+    function readWords(stale) {
         for (let i = 0; i < stale.length; i++) {
             wordsInFlight[stale[i]] = true;
         }
@@ -327,6 +364,18 @@ QtObject {
     function wordsFor(date) {
         const cached = wordCache[dailyPath(date)];
         return cached ? cached.words : -1;
+    }
+
+    // { date, hasNote, words, size } for each day of year y, as
+    // yearview.js expects; words is -1 until counted.
+    function yearEntries(y) {
+        const days = YearView.daysOfYear(y);
+        return days.map(date => {
+            const rel = dailyPath(date);
+            const file = settings && dailyFiles.hasOwnProperty(rel) ? dailyFiles[rel] : null;
+            const cached = file ? wordCache[rel] : undefined;
+            return { date: date, hasNote: file !== null, words: cached ? cached.words : -1, size: file ? file.size : 0 };
+        });
     }
 
     // { relativePath: dots } by file size for notes of month (y, m).
