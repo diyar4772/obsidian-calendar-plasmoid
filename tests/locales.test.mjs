@@ -58,3 +58,31 @@ test("forSystem() uses the desktop language when bundled, English otherwise", ()
     assert.equal(L.forSystem("ar_SA", 6).doy, 12);
     assert.equal(L.forSystem("C", 7).dow, 0);
 });
+
+test("week rules follow moment's regional locales", () => {
+    assert.deepEqual(L.weekRules("en-gb"), [1, 4]);
+    assert.deepEqual(L.weekRules("en_US.UTF-8"), [0, 6]);
+    assert.deepEqual(L.weekRules("de_AT"), [1, 4]);
+    assert.deepEqual(L.weekRules("tr"), [1, 7]);
+    assert.deepEqual(L.weekRules("ar-sa"), [0, 6]);
+    assert.equal(L.weekRules("xx"), null);
+    assert.equal(L.weekRules("constructor"), null);
+    const gb = L.forName("en-gb");
+    assert.deepEqual([gb.dow, gb.doy, gb.months[0]], [1, 4, "January"]);
+    assert.equal(L.forName("en"), L.EN);
+    assert.equal(L.forName("tr"), L.TR);
+    const de = L.forName("de");
+    assert.deepEqual([de.dow, de.doy, de.months[0]], [1, 4, "January"]);
+});
+
+test("locale lookups ignore inherited properties", () => {
+    assert.equal(L.bundled("constructor"), null);
+    assert.equal(L.bundled("__proto__"), null);
+    assert.equal(L.bundled("toString"), null);
+    assert.equal(L.forName("constructor"), L.EN);
+});
+
+test("forSystem() uses regional doy when the week start matches", () => {
+    assert.deepEqual([L.forSystem("en_AU", 0).dow, L.forSystem("en_AU", 0).doy], [0, 4]);
+    assert.deepEqual([L.forSystem("de_DE", 1).dow, L.forSystem("de_DE", 1).doy], [1, 4]);
+});

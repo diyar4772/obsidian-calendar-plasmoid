@@ -287,3 +287,23 @@ test("knownVaults() lists Obsidian's vaults, newest first", () => {
     assert.deepEqual(C.knownVaults([]), []);
     assert.ok(Array.isArray(C.OBSIDIAN_JSON));
 });
+
+test("the Calendar plugin's en-gb override uses Monday weeks", () => {
+    const res = C.resolve(C.detect({ calendar: json({ localeOverride: "en-gb" }) }), {}, L.EN);
+    assert.deepEqual([res.locale.dow, res.locale.doy, res.weekStart], [1, 4, 1]);
+    assert.equal(res.locale.months[0], "January");
+});
+
+test("hostile locale names and NUL folders are rejected", () => {
+    const res = C.resolve(C.detect({ calendar: json({ localeOverride: "constructor" }) }), {}, L.TR);
+    assert.equal(res.locale.months[0], "January");
+    assert.equal(res.locale.dow, 1);
+    assert.equal(C.normalizeFolder("Daily\u0000x"), null);
+    const nul = C.resolve(C.detect({ dailyNotes: json({ folder: "a\u0000b", format: "YYYY\u0000" }) }), {}, L.EN);
+    assert.deepEqual(nul.daily, { folder: "", format: "YYYY-MM-DD", template: "" });
+});
+
+test("formats nested deeper than the search limit are rejected", () => {
+    assert.deepEqual(C.formatProblems("[a/b/c/d/e/f/g/h/]YYYY-MM-DD"), ["invalid-format"]);
+    assert.deepEqual(C.formatProblems("[a/b/c/d/e/f/g/]YYYY-MM-DD"), []);
+});

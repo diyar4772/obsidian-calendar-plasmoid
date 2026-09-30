@@ -10,7 +10,8 @@
 
 // Parses INI text into { "Group": { key: value } }. Later groups/keys win.
 function parseIni(text) {
-    const result = {};
+    // Prototype-free maps: a "[__proto__]" group must stay a plain group.
+    const result = Object.create(null);
     let group = null;
     const lines = String(text).split(/\r?\n/);
     for (let i = 0; i < lines.length; i++) {
@@ -21,7 +22,9 @@ function parseIni(text) {
         const header = /^\[(.*)\]$/.exec(line);
         if (header) {
             group = header[1];
-            result[group] = result[group] || {};
+            if (!Object.prototype.hasOwnProperty.call(result, group)) {
+                result[group] = Object.create(null);
+            }
             continue;
         }
         const eq = line.indexOf("=");
@@ -60,7 +63,7 @@ function parseColor(value) {
 
 // Localized scheme name: Name[tr_TR], Name[tr], then Name.
 function schemeName(ini, language) {
-    const general = ini["General"] || {};
+    const general = ini["General"] || Object.create(null);
     const lang = String(language || "").replace("-", "_");
     return general["Name[" + lang + "]"] || general["Name[" + lang.split("_")[0] + "]"] || general["Name"] || "";
 }
@@ -69,10 +72,11 @@ function schemeName(ini, language) {
 // the text isn't a usable color scheme.
 function parse(text, language) {
     const ini = parseIni(text);
-    const view = ini["Colors:View"] || {};
-    const win = ini["Colors:Window"] || {};
-    const sel = ini["Colors:Selection"] || {};
-    const general = ini["General"] || {};
+    const empty = Object.create(null);
+    const view = ini["Colors:View"] || empty;
+    const win = ini["Colors:Window"] || empty;
+    const sel = ini["Colors:Selection"] || empty;
+    const general = ini["General"] || empty;
     const background = parseColor(view.BackgroundNormal) || parseColor(win.BackgroundNormal);
     const text_ = parseColor(view.ForegroundNormal) || parseColor(win.ForegroundNormal);
     if (!background || !text_) {

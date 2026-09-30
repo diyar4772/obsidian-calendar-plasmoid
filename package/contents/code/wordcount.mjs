@@ -1,10 +1,9 @@
-.pragma library
-
 // SPDX-FileCopyrightText: 2026 Samed Yolcu
 // SPDX-FileCopyrightText: 2021 Liam Cain (Obsidian Calendar plugin word count pattern)
 // SPDX-License-Identifier: GPL-2.0-or-later AND MIT
 
-// Word counting compatible with the Obsidian Calendar plugin.
+// Word counting compatible with the Obsidian Calendar plugin. An ES module,
+// so the word-count worker (wordworker.mjs) can import it.
 //
 // countWords() builds the Calendar plugin's getWordCount() pattern verbatim
 // (src/ui/utils.ts, MIT license, (c) Liam Cain): runs of letters, digits and
@@ -76,20 +75,20 @@ const WORD_RE = new RegExp(
     "(?:[0-9]+(?:(?:,|\\.)[0-9]+)*|[\\-" + SPACE_DELIMITED_CHARS + "])+|" + NON_SPACE_DELIMITED_WORDS,
     "g");
 
-function countWords(text) {
+export function countWords(text) {
     const matches = String(text).match(WORD_RE);
     return matches ? matches.length : 0;
 }
 
 // Removes a YAML frontmatter block ("---" on the first line up to the next
 // "---" or "..." line). Text without a closed block is returned unchanged.
-function stripFrontmatter(text) {
+export function stripFrontmatter(text) {
     const s = String(text).replace(/^\uFEFF/, "");
     const match = /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?(?:---|\.\.\.)[ \t]*(?:\r?\n|$)/.exec(s);
     return match ? s.substring(match[0].length) : s;
 }
 
 // Words in a note's body, without frontmatter.
-function noteWords(text) {
+export function noteWords(text) {
     return countWords(stripFrontmatter(text));
 }

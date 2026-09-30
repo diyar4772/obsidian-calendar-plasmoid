@@ -65,6 +65,12 @@ test("isValid rejects impossible dates", () => {
     assert.ok(!D.isValid(null));
 });
 
+test("JS Date conversion keeps years 0-99", () => {
+    for (const y of [1, 50, 99, 100, 1900]) {
+        assert.deepEqual(D.fromJsDate(D.toJsDate(D.make(y, 3, 9))), D.make(y, 3, 9));
+    }
+});
+
 test("JS Date conversion is safe across DST transitions", () => {
     const saved = process.env.TZ;
     try {

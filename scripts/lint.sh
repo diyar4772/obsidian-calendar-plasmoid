@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.."
 
 QMLLINT=${QMLLINT:-$(command -v qmllint6 || command -v qmllint || echo /usr/lib64/qt6/bin/qmllint)}
 "$QMLLINT" --max-warnings 0 \
-    package/contents/ui/*.qml package/contents/config/*.qml package/contents/code/*.js
+    package/contents/ui/*.qml package/contents/config/*.qml package/contents/code/*.js package/contents/code/*.mjs
 echo "qmllint: OK"
 
 node -e 'JSON.parse(require("fs").readFileSync("package/metadata.json", "utf8"))'

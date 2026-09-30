@@ -51,3 +51,22 @@ test("week numbers: locale weeks like the Calendar plugin, or ISO", () => {
         assert.ok(w.days.every((day) => load("dateformat.js").isoWeek(day).week === w.week));
     }
 });
+
+test("weekly notes: ISO formats use the row's Thursday", () => {
+    const F = load("dateformat.js");
+    const sundayRow = D.make(2026, 9, 27);
+    // Locale formats: the row start, like the Calendar plugin
+    assert.deepEqual(C.weekNoteDate(sundayRow, 0, "gggg-[W]ww"), sundayRow);
+    // ISO formats: Thursday, so label and note agree
+    const iso = C.weekNoteDate(sundayRow, 0, "GGGG-[W]WW");
+    assert.deepEqual(iso, D.make(2026, 10, 1));
+    assert.equal(F.format(iso, "GGGG-[W]WW", L.EN), "2026-W40");
+    const labels = C.monthGrid(2026, 9, L.EN, { iso: true });
+    const row = labels.find((w) => D.equals(w.start, sundayRow));
+    assert.equal(row.week, 40);
+    // Monday rows: Thursday is in the same ISO week as the row start
+    assert.equal(F.format(C.weekNoteDate(D.make(2026, 9, 28), 1, "GGGG-[W]WW"), "GGGG-[W]WW", L.EN), "2026-W40");
+    assert.equal(C.usesIsoWeeks("GGGG-[W]WW"), true);
+    assert.equal(C.usesIsoWeeks("gggg-[W]ww"), false);
+    assert.equal(C.usesIsoWeeks("[W]WW gggg"), false);
+});

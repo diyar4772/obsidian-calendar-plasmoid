@@ -47,3 +47,21 @@ function monthGrid(y, m, locale, options) {
     }
     return weeks;
 }
+
+// Whether a weekly-note format numbers weeks the ISO way (GGGG/WW) rather
+// than by locale weeks (gggg/ww).
+function usesIsoWeeks(format) {
+    const parts = DateFormat.compile(format).parts;
+    const has = function (tokens) {
+        return parts.some(function (p) { return p.token !== undefined && tokens.indexOf(p.token) !== -1; });
+    };
+    return has(["W", "WW", "GG", "GGGG"]) && !has(["w", "ww", "gg", "gggg"]);
+}
+
+// The date to format a row's weekly note with. Locale formats use the row's
+// first day, like the Calendar plugin. ISO formats use the row's Thursday,
+// the day that decides its ISO week, so a Sunday-first row labeled week 40
+// opens W40 rather than W39.
+function weekNoteDate(rowStart, weekStart, format) {
+    return usesIsoWeeks(format) ? Dates.addDays(rowStart, (4 - weekStart + 7) % 7) : rowStart;
+}

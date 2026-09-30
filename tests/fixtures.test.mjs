@@ -11,6 +11,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { load } from "./qmljs.mjs";
+import * as WordCount from "../package/contents/code/wordcount.mjs";
 import { makeFixtures, VAULTS } from "../scripts/make-fixtures.mjs";
 
 const Dates = load("dates.js");
@@ -19,7 +20,7 @@ const Locales = load("locales.js");
 const Config = load("obsidianconfig.js");
 const Paths = load("paths.js");
 const Stats = load("stats.js");
-const WordCount = load("wordcount.js");
+
 
 // Friday; the last months cross a year boundary.
 const TODAY = Dates.make(2025, 1, 3);

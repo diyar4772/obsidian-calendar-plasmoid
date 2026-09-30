@@ -108,5 +108,8 @@ function fromJsDate(jsDate) {
 
 // Builds a JS Date at local noon, which is safe to hand to Qt date formatting.
 function toJsDate(date) {
-    return new Date(date.y, date.m - 1, date.d, 12, 0, 0);
+    // The Date constructor maps years 0-99 to 1900-1999; set the year explicitly.
+    const js = new Date(2000, 0, 1, 12, 0, 0);
+    js.setFullYear(date.y, date.m - 1, date.d);
+    return js;
 }

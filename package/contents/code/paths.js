@@ -15,11 +15,22 @@
 const EXIT_NO_VAULT = 3;      // the vault path doesn't exist
 const EXIT_NOT_A_VAULT = 4;   // it exists but has no .obsidian folder
 const EXIT_NO_FOLDER = 5;     // the notes folder doesn't exist (yet)
+const EXIT_OUTSIDE_VAULT = 6; // the notes folder resolves outside the vault (symlink)
 
 // Only the beginning of each note is read to count words. The Calendar
 // plugin draws at most 5 dots, so this is plenty for any sensible
 // words-per-dot value and keeps huge notes cheap.
-const READ_LIMIT_BYTES = 262144;
+const READ_LIMIT_BYTES = 131072;
+
+// Obsidian's config files are small; anything bigger isn't read in full.
+const CONFIG_LIMIT_BYTES = 1048576;
+
+// Text from the vault or config files shown in labels and tooltips. Qt
+// renders text containing "<" as rich text (which can load remote images),
+// so the angle brackets are replaced by look-alike quotes.
+function plainText(value) {
+    return String(value).replace(/</g, "\u2039").replace(/>/g, "\u203A");
+}
 
 // Quotes a string for POSIX sh: wrap in single quotes and write each ' as '\''.
 // Returns null for strings that can't be passed to a command (NUL bytes).
@@ -113,7 +124,7 @@ function configCommand(vaultPath, files) {
     return "cd -- " + vault + " 2>/dev/null || exit " + EXIT_NO_VAULT + "; "
         + "[ -d .obsidian ] || exit " + EXIT_NOT_A_VAULT + "; "
         + "for f in " + quoted.join(" ") + "; do "
-        + "if [ -f \".obsidian/$f\" ]; then printf '%s\\0' \"$f\"; cat -- \".obsidian/$f\" | tr -d '\\000'; printf '\\0'; fi; "
+        + "if [ -f \".obsidian/$f\" ]; then printf '%s\\0' \"$f\"; head -c " + CONFIG_LIMIT_BYTES + " -- \".obsidian/$f\" | tr -d '\\000'; printf '\\0'; fi; "
         + "done; exit 0";
 }
 
@@ -123,17 +134,31 @@ function parseConfigOutput(text) {
     return parsePairs(text);
 }
 
-// Lists Markdown files under `folderPath` up to `depth` levels deep as
-// "size mtime relative/path\0" records. Hidden folders (.obsidian, .trash,
-// .git…) are skipped; symlinked folders are followed, bounded by the depth.
-function listCommand(folderPath, depth) {
+// Enters `folderPath` and checks that its real path is inside `boundaryPath`
+// (the vault), so a symlinked folder can't lead outside it.
+function enterFolder(folderPath, boundaryPath) {
     const folder = shellQuote(folderPath);
-    const maxDepth = Math.max(1, Math.min(8, Math.floor(depth) || 1));
-    if (folder === null) {
+    const boundary = shellQuote(boundaryPath === undefined ? folderPath : boundaryPath);
+    if (folder === null || boundary === null) {
         return null;
     }
-    return "cd -- " + folder + " 2>/dev/null || exit " + EXIT_NO_FOLDER + "; "
-        + "find -L . -mindepth 1 -maxdepth " + maxDepth
+    return "cd -- " + boundary + " 2>/dev/null || exit " + EXIT_NO_FOLDER + "; v=$(pwd -P); "
+        + "cd -- " + folder + " 2>/dev/null || exit " + EXIT_NO_FOLDER + "; "
+        + "case \"$(pwd -P)/\" in \"${v%/}\"/*) ;; *) exit " + EXIT_OUTSIDE_VAULT + " ;; esac; ";
+}
+
+// Lists Markdown files under `folderPath` up to `depth` levels deep as
+// "size mtime relative/path\0" records. Hidden folders (.obsidian, .trash,
+// .git…) are skipped and symlinks aren't followed, so nothing outside the
+// vault (`vaultPath`, default: the folder itself) is ever listed.
+function listCommand(folderPath, depth, vaultPath) {
+    const enter = enterFolder(folderPath, vaultPath);
+    const maxDepth = Math.max(1, Math.min(8, Math.floor(depth) || 1));
+    if (enter === null) {
+        return null;
+    }
+    return enter
+        + "find -P . -mindepth 1 -maxdepth " + maxDepth
         + " \\( -type d -name '.*' -prune \\) -o \\( -type f -name '*.md' -printf '%s %T@ %P\\0' \\)";
 }
 
@@ -143,7 +168,7 @@ function parseListOutput(text) {
     const files = {};
     const records = String(text).split("\0");
     for (let i = 0; i < records.length; i++) {
-        const match = /^(\d+) (\d+(?:\.\d+)?) ([\s\S]+)$/.exec(records[i]);
+        const match = /^(\d+) (-?\d+(?:\.\d+)?) ([\s\S]+)$/.exec(records[i]);
         if (match) {
             files[match[3]] = { size: Number(match[1]), mtime: Number(match[2]) };
         }
@@ -153,9 +178,9 @@ function parseListOutput(text) {
 
 // Prints the start of each file (relative to `folderPath`) as
 // "path\0contents\0" pairs. Unreadable files come back empty.
-function readCommand(folderPath, relativePaths) {
-    const folder = shellQuote(folderPath);
-    if (folder === null || relativePaths.length === 0) {
+function readCommand(folderPath, relativePaths, vaultPath) {
+    const enter = enterFolder(folderPath, vaultPath);
+    if (enter === null || relativePaths.length === 0) {
         return null;
     }
     const quoted = [];
@@ -166,9 +191,10 @@ function readCommand(folderPath, relativePaths) {
         }
         quoted.push(q);
     }
-    return "cd -- " + folder + " 2>/dev/null || exit " + EXIT_NO_FOLDER + "; "
+    // Symlinks are never read (listCommand doesn't return them anyway).
+    return enter
         + "for f in " + quoted.join(" ") + "; do "
-        + "printf '%s\\0' \"$f\"; head -c " + READ_LIMIT_BYTES + " -- \"$f\" 2>/dev/null | tr -d '\\000'; printf '\\0'; "
+        + "printf '%s\\0' \"$f\"; if [ -f \"$f\" ] && [ ! -L \"$f\" ]; then head -c " + READ_LIMIT_BYTES + " -- \"$f\" 2>/dev/null | tr -d '\\000'; fi; printf '\\0'; "
         + "done";
 }
 

@@ -48,6 +48,11 @@ test("shellQuote() round-trips through every shell", () => {
     }
 });
 
+test("plainText() keeps Qt from treating text as markup", () => {
+    assert.equal(P.plainText('../<img src="http://x/y">'), '../\u2039img src="http://x/y"\u203A');
+    assert.equal(P.plainText("Journal & Daily"), "Journal & Daily");
+});
+
 test("shellQuote() escapes single quotes and rejects NUL", () => {
     assert.equal(P.shellQuote("it's"), "'it'\\''s'");
     assert.equal(P.shellQuote("Örnek Vault"), "'Örnek Vault'");
@@ -109,6 +114,8 @@ test("parseListOutput() handles every byte a file name may contain", () => {
     assert.deepEqual(Object.keys(files), names);
     assert.deepEqual(files["0 1 2.md"], { size: 104, mtime: 1709643845.5 });
     assert.deepEqual(P.parseListOutput(""), {});
+    // Files dated before 1970 have negative timestamps
+    assert.deepEqual(P.parseListOutput("5 -315619200.5 2026-09-30.md\0"), { "2026-09-30.md": { size: 5, mtime: -315619200.5 } });
 });
 
 test("commands work on hostile directory names and never run injected code", (t) => {
@@ -156,12 +163,16 @@ test("commands work on hostile directory names and never run injected code", (t)
     }
 });
 
-test("listCommand() skips hidden folders but follows symlinked ones", (t) => {
-    const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
-    t.after(() => rmSync(root, { recursive: true, force: true }));
-    for (const dir of [".obsidian", ".trash", ".git/objects", "2024", "elsewhere"]) {
+test("listCommand() skips hidden folders and symlinks, and stays inside the vault", (t) => {
+    const top = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
+    t.after(() => rmSync(top, { recursive: true, force: true }));
+    const root = join(top, "vault");
+    const outside = join(top, "outside");
+    for (const dir of [".obsidian", ".trash", ".git/objects", "2024", "elsewhere", "Daily"]) {
         mkdirSync(join(root, dir), { recursive: true });
     }
+    mkdirSync(outside);
+    writeFileSync(join(outside, "private.md"), "secret words here");
     writeFileSync(join(root, "2024-01-01.md"), "a");
     writeFileSync(join(root, ".obsidian", "2024-01-02.md"), "b");
     writeFileSync(join(root, ".trash", "2024-01-03.md"), "c");
@@ -170,9 +181,22 @@ test("listCommand() skips hidden folders but follows symlinked ones", (t) => {
     writeFileSync(join(root, "elsewhere", "2024-01-06.md"), "f");
     writeFileSync(join(root, ".hidden-note.md"), "g");
     symlinkSync(join(root, "elsewhere"), join(root, "linked"));
-    const files = P.parseListOutput(run("/bin/sh", P.listCommand(root, 3)).stdout);
+    symlinkSync(join(outside, "private.md"), join(root, "2024-01-07.md"));
+    symlinkSync(outside, join(root, "escape"));
+    const files = P.parseListOutput(run("/bin/sh", P.listCommand(root, 3, root)).stdout);
     assert.deepEqual(Object.keys(files).sort(),
-        [".hidden-note.md", "2024-01-01.md", "2024/2024-01-05.md", "elsewhere/2024-01-06.md", "linked/2024-01-06.md"]);
+        [".hidden-note.md", "2024-01-01.md", "2024/2024-01-05.md", "elsewhere/2024-01-06.md"]);
+
+    // A symlinked note is never read, even when asked for
+    const read = P.parseReadOutput(run("/bin/sh", P.readCommand(root, ["2024-01-07.md", "2024-01-01.md"], root)).stdout);
+    assert.deepEqual(read, { "2024-01-07.md": "", "2024-01-01.md": "a" });
+
+    // A notes folder that is a symlink out of the vault is refused
+    assert.equal(run("/bin/sh", P.listCommand(join(root, "escape"), 1, root)).status, P.EXIT_OUTSIDE_VAULT);
+    assert.equal(run("/bin/sh", P.readCommand(join(root, "escape"), ["private.md"], root)).status, P.EXIT_OUTSIDE_VAULT);
+    // ... but symlinks inside the vault are fine as a notes folder
+    assert.equal(run("/bin/sh", P.listCommand(join(root, "linked"), 1, root)).status, 0);
+    assert.equal(run("/bin/sh", P.listCommand(join(root, "Daily"), 1, root)).status, 0);
 });
 
 test("commands report missing vault, missing .obsidian and missing folder", (t) => {

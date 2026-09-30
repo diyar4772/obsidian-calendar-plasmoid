@@ -46,8 +46,17 @@ test("parseColor()", () => {
 });
 
 test("parseIni()", () => {
-    const ini = C.parseIni("a=1\n[G]\nk = v=w\n; c\n[H]\r\nx=y\n");
-    assert.deepEqual(ini, { G: { k: "v=w" }, H: { x: "y" } });
+    const ini = C.parseIni("a=1\n[G]\nk = v=w\n; c\n[H]\r\nx=y\n[G]\nz=1\n");
+    assert.deepEqual(JSON.parse(JSON.stringify(ini)), { G: { k: "v=w", z: "1" }, H: { x: "y" } });
+});
+
+test("parseIni() can't pollute Object.prototype", () => {
+    const ini = C.parseIni("[__proto__]\nreviewProbe=present\n[constructor]\nprototype=x\n[G]\n__proto__=y\n");
+    assert.equal(({}).reviewProbe, undefined);
+    assert.equal(ini["__proto__"].reviewProbe, "present");
+    assert.equal(ini.G["__proto__"], "y");
+    assert.equal(C.parse("[__proto__]\nBackgroundNormal=1,2,3\n", "en"), null);
+    assert.equal(({}).BackgroundNormal, undefined);
 });
 
 test("parse() extracts the widget's colors and localized name", () => {

@@ -21,6 +21,8 @@
 const DEFAULT_DAILY_FORMAT = "YYYY-MM-DD";
 const DEFAULT_WEEKLY_FORMAT = "gggg-[W]ww";
 const DEFAULT_WORDS_PER_DOT = 250;
+// Deepest folder nesting a note format may produce (paths.listCommand's limit).
+const MAX_FORMAT_DEPTH = 8;
 
 // Paths relative to the vault's .obsidian folder that detect() reads.
 const FILES = {
@@ -112,6 +114,9 @@ function parseJson(text) {
 // "." segments and leading/trailing slashes. Returns null for folders that
 // would leave the vault ("..").
 function normalizeFolder(folder) {
+    if (String(folder || "").indexOf("\0") !== -1) {
+        return null;
+    }
     const parts = String(folder || "").trim().replace(/\\/g, "/").split("/");
     const out = [];
     for (let i = 0; i < parts.length; i++) {
@@ -264,7 +269,8 @@ function formatProblems(format) {
     // Literal text could still walk out of the folder, e.g. "[../]YYYY".
     const sample = DateFormat.format({ y: 2000, m: 1, d: 1 }, format, Locales.EN).split("/");
     if (String(format).trim() === "" || sample.indexOf("..") !== -1 || sample.indexOf(".") !== -1
-            || sample[sample.length - 1] === "" || sample[0] === "") {
+            || sample[sample.length - 1] === "" || sample[0] === ""
+            || sample.length > MAX_FORMAT_DEPTH || String(format).indexOf("\0") !== -1) {
         problems.push("invalid-format");
     }
     return problems;
@@ -359,9 +365,12 @@ function resolve(detected, overrides, systemLocale) {
         // The Calendar plugin's locale override changes names and week rules,
         // like moment.locale(). Only bundled languages can be matched
         // exactly; anything else uses English names with the current week.
-        const bundled = Locales.bundled(detected.locale);
-        base = bundled || Locales.make({ name: "en", dow: system.dow, ordinal: Locales.EN.ordinal });
-        if (!bundled) {
+        if (Locales.bundled(detected.locale) || Locales.weekRules(detected.locale)) {
+            base = Locales.forName(detected.locale);
+        } else {
+            base = Locales.make({ name: "en", dow: system.dow, ordinal: Locales.EN.ordinal });
+        }
+        if (!Locales.bundled(detected.locale)) {
             sources.locale = "fallback";
         }
     }
