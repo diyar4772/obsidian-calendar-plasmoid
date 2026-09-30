@@ -56,7 +56,9 @@ const BUNDLED = { en: EN, tr: TR };
 
 // First day of the week and of the year ([dow, doy]) of every moment.js 2.x
 // locale, so week numbers match Obsidian for regional locales too (en-gb
-// weeks start on Monday, en-us on Sunday). Generated from moment's locale data.
+// weeks start on Monday, en-us on Sunday). Generated from moment's locale data
+// and copied verbatim: "dv" really has dow 7 (Sunday), which the week math
+// and "% 7" everywhere else handle exactly like moment does.
 const WEEK_RULES = {
     "af": [1, 4], "am-et": [0, 6], "ar": [6, 12], "ar-dz": [0, 4], "ar-kw": [0, 12],
     "ar-ly": [6, 12], "ar-ma": [1, 4], "ar-ps": [0, 6], "ar-sa": [0, 6], "ar-tn": [1, 4],

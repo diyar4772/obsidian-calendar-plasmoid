@@ -227,7 +227,7 @@ KCM.SimpleKCM {
             wrapMode: Text.Wrap
             font: Kirigami.Theme.smallFont
             opacity: 0.8
-            text: i18nc("@info", "Today always opens or creates today's note with your template. Notes created for other days start empty: Obsidian doesn't apply templates to them.")
+            text: i18nc("@info", "Today always opens or creates today's note, with your template when the widget uses Obsidian's own daily note folder and format. Notes created for other days start empty: Obsidian doesn't apply templates to them.")
         }
     }
 }

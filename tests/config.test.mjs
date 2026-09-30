@@ -307,3 +307,14 @@ test("formats nested deeper than the search limit are rejected", () => {
     assert.deepEqual(C.formatProblems("[a/b/c/d/e/f/g/h/]YYYY-MM-DD"), ["invalid-format"]);
     assert.deepEqual(C.formatProblems("[a/b/c/d/e/f/g/]YYYY-MM-DD"), []);
 });
+
+test("dailyMatchesObsidian tells when obsidian://daily targets the same note", () => {
+    const det = C.detect({ dailyNotes: json({ folder: "/Journal/", format: "YYYY-MM-DD" }) });
+    assert.equal(C.resolve(det, {}, L.EN).dailyMatchesObsidian, true);
+    // Overriding with the same values still matches
+    assert.equal(C.resolve(det, { dailyFolder: "Journal", dailyFormat: "YYYY-MM-DD" }, L.EN).dailyMatchesObsidian, true);
+    assert.equal(C.resolve(det, { dailyFolder: "Other" }, L.EN).dailyMatchesObsidian, false);
+    assert.equal(C.resolve(det, { dailyFormat: "DD.MM.YYYY" }, L.EN).dailyMatchesObsidian, false);
+    // An unusable override falls back and so doesn't match either
+    assert.equal(C.resolve(det, { dailyFolder: "../x" }, L.EN).dailyMatchesObsidian, false);
+});

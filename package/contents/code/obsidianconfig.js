@@ -389,8 +389,14 @@ function resolve(detected, overrides, systemLocale) {
         wordsPerDot = o.wordsPerDot;
     }
 
+    // obsidian://daily creates today's note where Obsidian's own settings
+    // say; it's only usable when the widget looks in the same place.
+    const dailyMatchesObsidian = (folder || "") === (normalizeFolder(detected.daily.folder) || "")
+        && dailyFormat === detected.daily.format;
+
     return {
         daily: { folder: folder || "", format: dailyFormat, template: detected.daily.template },
+        dailyMatchesObsidian: dailyMatchesObsidian,
         weekly: weekly,
         weekStart: weekStart,
         locale: Locales.withWeekStart(base, weekStart),

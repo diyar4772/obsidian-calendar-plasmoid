@@ -215,16 +215,21 @@ QtObject {
             const rel = dailyPath(Dates.addDays(first, i));
             const file = dailyFiles[rel];
             const cached = wordCache[rel];
-            if (file && (!cached || cached.mtime !== file.mtime || cached.size !== file.size)) {
+            if (file && !wordsInFlight.hasOwnProperty(rel)
+                    && (!cached || cached.mtime !== file.mtime || cached.size !== file.size)) {
                 stale.push(rel);
             }
         }
         if (stale.length === 0) {
             return;
         }
+        for (let i = 0; i < stale.length; i++) {
+            wordsInFlight[stale[i]] = true;
+        }
         const gen = generation;
         run(Paths.readCommand(dailyFolderPath, stale, vaultPath), (exitCode, stdout, stderr) => {
             if (gen !== generation || exitCode !== 0) {
+                scanner.clearInFlight(stale);
                 return;
             }
             const id = ++wordRequest;
@@ -233,9 +238,21 @@ QtObject {
         });
     }
 
+    // Files being read or counted right now, so they aren't requested twice.
+    property var wordsInFlight: ({})
+
+    function clearInFlight(files) {
+        for (let i = 0; i < files.length; i++) {
+            delete wordsInFlight[files[i]];
+        }
+    }
+
     function wordsCounted(id, words) {
         const request = wordRequests[id];
         delete wordRequests[id];
+        if (request) {
+            clearInFlight(request.files);
+        }
         if (!request || request.generation !== generation) {
             return;
         }
@@ -377,6 +394,7 @@ QtObject {
 
     onVaultPathChanged: {
         generation++;
+        wordsInFlight = {};
         busy = false;
         pending = false;
         status = vaultPath === "" ? "unconfigured" : "loading";

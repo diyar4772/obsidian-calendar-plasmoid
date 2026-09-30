@@ -596,11 +596,10 @@ msgstr "Notu oluşturur"
 #, kde-format
 msgctxt "@info"
 msgid ""
-"Today always opens or creates today's note with your template. Notes created "
-"for other days start empty: Obsidian doesn't apply templates to them."
-msgstr ""
-"Bugün her zaman bugünün notunu şablonunuzla açar ya da oluşturur. Diğer "
-"günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
+"Today always opens or creates today's note, with your template when the "
+"widget uses Obsidian's own daily note folder and format. Notes created for "
+"other days start empty: Obsidian doesn't apply templates to them."
+msgstr "Bugün her zaman bugünün notunu açar ya da oluşturur; widget Obsidian'ın kendi günlük not klasörünü ve biçimini kullanıyorsa şablonunuzla. Diğer günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
 
 #, kde-format
 msgctxt "@info:tooltip"
@@ -717,13 +716,17 @@ msgstr "“%1” not biçimi geçerli bir dosya adı üretmiyor."
 msgctxt "@info"
 msgid ""
 "The weekly notes folder links to a place outside the vault, so it isn't read."
-msgstr "Haftalık notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden okunmuyor."
+msgstr ""
+"Haftalık notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden "
+"okunmuyor."
 
 #, kde-format
 msgctxt "@info"
 msgid ""
 "The daily notes folder links to a place outside the vault, so it isn't read."
-msgstr "Günlük notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden okunmuyor."
+msgstr ""
+"Günlük notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden "
+"okunmuyor."
 
 #, kde-format
 msgctxt "@info %1 is an error message"
