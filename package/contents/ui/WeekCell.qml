@@ -9,6 +9,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.extras as PlasmaExtras
 
+import "../code/paths.js" as Paths
+
 // Week number; clickable when a weekly-note format is configured.
 PlasmaComponents.AbstractButton {
     id: cell
@@ -25,7 +27,7 @@ PlasmaComponents.AbstractButton {
     text: String(cellData.week)
 
     Accessible.name: i18nc("@info week number", "Week %1", cellData.week)
-    Accessible.description: cellData.hasNote ? cellData.path : (cellData.clickable ? i18nc("@info:tooltip", "No weekly note") : "")
+    Accessible.description: cellData.hasNote ? Paths.plainText(cellData.path) : (cellData.clickable ? i18nc("@info:tooltip", "No weekly note") : "")
 
     PlasmaComponents.ToolTip.text: Accessible.name + (Accessible.description ? "\n" + Accessible.description : "")
     PlasmaComponents.ToolTip.visible: hovered && cellData.clickable

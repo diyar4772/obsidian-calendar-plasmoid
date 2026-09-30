@@ -7,6 +7,8 @@ import QtQuick
 
 import org.kde.kirigami as Kirigami
 
+import "../code/paths.js" as Paths
+
 // Non-fatal problems shown above the calendar: broken config files,
 // unsupported formats, a daily-notes folder that doesn't exist yet.
 Kirigami.InlineMessage {
@@ -24,27 +26,37 @@ Kirigami.InlineMessage {
         }
         if (scanner.dailyFolderMissing) {
             out.push(i18nc("@info %1 is a folder inside the vault", "The daily notes folder “%1” doesn't exist yet.",
-                           scanner.settings.daily.folder));
+                           Paths.plainText(scanner.settings.daily.folder)));
         }
         return out;
     }
 
+    // Values from the vault go through Paths.plainText(): the message label
+    // would render text with "<" as rich text.
     function problemText(p) {
+        const detail = Paths.plainText(p.detail);
+        const file = Paths.plainText(p.file);
         switch (p.code) {
         case "malformed-json":
-            return i18nc("@info %1 is a file name", "%1 isn't valid JSON, so it was ignored.", ".obsidian/" + p.file);
+            return i18nc("@info %1 is a file name", "%1 isn't valid JSON, so it was ignored.", ".obsidian/" + file);
         case "invalid-config":
-            return i18nc("@info %1 is a file name", "%1 has an unexpected structure, so it was ignored.", ".obsidian/" + p.file);
+            return i18nc("@info %1 is a file name", "%1 has an unexpected structure, so it was ignored.", ".obsidian/" + file);
         case "unsupported-token":
             return p.file === "weekly"
-                ? i18nc("@info %1 lists date format tokens", "The weekly note format uses tokens this widget doesn't support: %1", p.detail)
-                : i18nc("@info %1 lists date format tokens", "The daily note format uses tokens this widget doesn't support: %1", p.detail);
+                ? i18nc("@info %1 lists date format tokens", "The weekly note format uses tokens this widget doesn't support: %1", detail)
+                : i18nc("@info %1 lists date format tokens", "The daily note format uses tokens this widget doesn't support: %1", detail);
         case "invalid-folder":
-            return i18nc("@info %1 is a folder", "The folder “%1” is outside the vault.", p.detail);
+            return i18nc("@info %1 is a folder", "The folder “%1” is outside the vault.", detail);
         case "invalid-format":
-            return i18nc("@info %1 is a date format", "The note format “%1” doesn't produce a valid file name.", p.detail);
+            return i18nc("@info %1 is a date format", "The note format “%1” doesn't produce a valid file name.", detail);
+        case "folder-outside-vault":
+            return p.file === "weekly"
+                ? i18nc("@info", "The weekly notes folder links to a place outside the vault, so it isn't read.")
+                : i18nc("@info", "The daily notes folder links to a place outside the vault, so it isn't read.");
+        case "list-incomplete":
+            return i18nc("@info %1 is an error message", "Some notes couldn't be listed: %1", detail);
         default:
-            return p.code;
+            return Paths.plainText(p.code);
         }
     }
 

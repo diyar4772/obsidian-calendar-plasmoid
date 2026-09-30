@@ -10,6 +10,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.plasmoid
 
+import "../code/paths.js" as Paths
+
 // The calendar, or a message explaining why it can't be shown. Applies the
 // widget's own color scheme, accent color and background when set.
 Item {
@@ -198,10 +200,10 @@ Item {
                     case "loading": return "";
                     }
                     switch (full.scanner.errorCode) {
-                    case "no-vault": return i18nc("@info %1 is a folder path", "%1 doesn't exist or can't be opened.", full.scanner.errorDetail);
-                    case "not-a-vault": return i18nc("@info %1 is a folder path", "%1 has no .obsidian folder. Choose the vault's top folder.", full.scanner.errorDetail);
-                    case "timeout": return i18nc("@info %1 is a folder path", "Reading %1 took too long. If it's on a network or external drive, check that it's available.", full.scanner.errorDetail);
-                    default: return full.scanner.errorDetail;
+                    case "no-vault": return i18nc("@info %1 is a folder path", "%1 doesn't exist or can't be opened.", Paths.plainText(full.scanner.errorDetail));
+                    case "not-a-vault": return i18nc("@info %1 is a folder path", "%1 has no .obsidian folder. Choose the vault's top folder.", Paths.plainText(full.scanner.errorDetail));
+                    case "timeout": return i18nc("@info %1 is a folder path", "Reading %1 took too long. If it's on a network or external drive, check that it's available.", Paths.plainText(full.scanner.errorDetail));
+                    default: return Paths.plainText(full.scanner.errorDetail);
                     }
                 }
                 helpfulAction: full.scanner.status === "loading" ? null : configureAction

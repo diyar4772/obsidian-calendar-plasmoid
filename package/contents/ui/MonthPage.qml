@@ -56,13 +56,16 @@ Item {
         const result = [];
         for (let r = 0; r < weeks.length; r++) {
             if (showWeekNumbers) {
+                const noteDate = hasWeekly
+                    ? Calendar.weekNoteDate(weeks[r].start, locale.dow, scanner.settings.weekly.format)
+                    : weeks[r].start;
                 result.push({
                     isWeek: true,
                     week: weeks[r].week,
-                    start: weeks[r].start,
+                    start: noteDate,
                     clickable: hasWeekly,
-                    hasNote: scanner.hasWeeklyNote(weeks[r].start),
-                    path: hasWeekly ? scanner.weeklyPath(weeks[r].start) : ""
+                    hasNote: scanner.hasWeeklyNote(noteDate),
+                    path: hasWeekly ? scanner.weeklyPath(noteDate) : ""
                 });
             }
             for (let i = 0; i < 7; i++) {
@@ -81,6 +84,25 @@ Item {
             }
         }
         return result;
+    }
+
+    // The day that had keyboard focus. Rescans and word counts rebuild the
+    // cells, which destroys the focused one and leaves focus on the month
+    // list; focus then goes back to that day. Focus the user moved elsewhere
+    // is left alone.
+    property var lastFocusedDate: null
+
+    onCellsChanged: {
+        if (!active || lastFocusedDate === null) {
+            return;
+        }
+        const date = lastFocusedDate;
+        Qt.callLater(() => {
+            const focusItem = page.Window.activeFocusItem;
+            if (focusItem === null || focusItem === page.ListView.view) {
+                page.focusDate(date);
+            }
+        });
     }
 
     // The day that takes keyboard focus on Tab: today if it's in this
@@ -162,6 +184,7 @@ Item {
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
                         activeFocusOnTab: page.active && page.isTabStop(cellLoader.modelData)
+                        onActiveFocusChanged: if (activeFocus) page.lastFocusedDate = cellLoader.modelData.date
                     }
                 }
                 Component {
@@ -173,6 +196,7 @@ Item {
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
                         activeFocusOnTab: page.active && page.isTabStop(cellLoader.modelData)
+                        onActiveFocusChanged: if (activeFocus) page.lastFocusedDate = cellLoader.modelData.date
                     }
                 }
                 Component {

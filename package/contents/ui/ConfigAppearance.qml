@@ -58,6 +58,8 @@ KCM.SimpleKCM {
             }
             QQC2.Label {
                 Layout.leftMargin: Kirigami.Units.gridUnit * 1.5
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+                wrapMode: Text.Wrap
                 font: Kirigami.Theme.smallFont
                 opacity: 0.8
                 text: i18nc("@info", "Like Plasma's calendar, with word-count dots like the Calendar plugin")
@@ -69,6 +71,8 @@ KCM.SimpleKCM {
             }
             QQC2.Label {
                 Layout.leftMargin: Kirigami.Units.gridUnit * 1.5
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 20
+                wrapMode: Text.Wrap
                 font: Kirigami.Theme.smallFont
                 opacity: 0.8
                 text: i18nc("@info", "Tiles tinted by note length, like an activity heatmap")
@@ -91,11 +95,11 @@ KCM.SimpleKCM {
             valueRole: "value"
             model: {
                 const items = [{ text: i18nc("@item:inlistbox", "Same as Plasma"), value: "" }]
-                    .concat(page.schemes.map(s => ({ text: s.name, value: s.path })));
+                    .concat(page.schemes.map(s => ({ text: Paths.plainText(s.name), value: s.path })));
                 // Keep a saved scheme selectable even if its file is gone.
                 const saved = page.cfg_colorScheme;
                 if (saved !== "" && !page.schemes.some(s => s.path === saved)) {
-                    items.push({ text: i18nc("@item:inlistbox %1 is a file name", "%1 (not found)", saved.substring(saved.lastIndexOf("/") + 1)), value: saved });
+                    items.push({ text: i18nc("@item:inlistbox %1 is a file name", "%1 (not found)", Paths.plainText(saved.substring(saved.lastIndexOf("/") + 1))), value: saved });
                 }
                 return items;
             }

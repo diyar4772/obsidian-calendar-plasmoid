@@ -688,6 +688,23 @@ msgid "The note format “%1” doesn't produce a valid file name."
 msgstr ""
 
 #, kde-format
+msgctxt "@info"
+msgid ""
+"The weekly notes folder links to a place outside the vault, so it isn't read."
+msgstr ""
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"The daily notes folder links to a place outside the vault, so it isn't read."
+msgstr ""
+
+#, kde-format
+msgctxt "@info %1 is an error message"
+msgid "Some notes couldn't be listed: %1"
+msgstr ""
+
+#, kde-format
 msgctxt "@info week number"
 msgid "Week %1"
 msgstr ""

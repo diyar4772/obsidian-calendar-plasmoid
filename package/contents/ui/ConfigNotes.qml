@@ -113,6 +113,7 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18nc("@label", "Detected:")
             Layout.maximumWidth: Kirigami.Units.gridUnit * 22
             wrapMode: Text.Wrap
+            textFormat: Text.PlainText
             text: page.detectedText("daily")
         }
 
@@ -144,6 +145,7 @@ KCM.SimpleKCM {
             visible: customDaily.checked
             font: Kirigami.Theme.smallFont
             opacity: 0.8
+            textFormat: Text.PlainText
             text: page.preview(dailyFolder.text, dailyFormat.text, page.today)
         }
 
@@ -156,6 +158,7 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18nc("@label", "Detected:")
             Layout.maximumWidth: Kirigami.Units.gridUnit * 22
             wrapMode: Text.Wrap
+            textFormat: Text.PlainText
             text: page.detectedText("weekly")
         }
 
@@ -179,6 +182,7 @@ KCM.SimpleKCM {
             visible: customWeekly.checked
             font: Kirigami.Theme.smallFont
             opacity: 0.8
+            textFormat: Text.PlainText
             text: page.preview(weeklyFolder.text, weeklyFormat.text, Dates.startOfWeek(page.today, page.previewLocale.dow))
         }
 

@@ -155,7 +155,10 @@ PlasmoidItem {
         const absolute = Paths.joinPath(scanner.dailyFolderPath, rel);
         if (scanner.hasNote(date)) {
             root.openUri(Paths.openUri(absolute));
-        } else if (Dates.equals(date, today) && scanner.settings.dailyUriAvailable) {
+        } else if (Dates.equals(date, today) && scanner.settings.dailyUriAvailable
+                   && scanner.settings.sources.daily !== "override") {
+            // obsidian://daily creates the note where Obsidian's settings say,
+            // which is only where the widget looks when nothing is overridden.
             root.openUri(Paths.dailyUri(scanner.vaultName));
         } else if (Dates.equals(date, today) || cfg.emptyDayAction === "create") {
             root.openUri(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.daily.folder, rel)));

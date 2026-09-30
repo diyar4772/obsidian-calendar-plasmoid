@@ -10,7 +10,6 @@ import "../code/dates.js" as Dates
 import "../code/obsidianconfig.js" as Config
 import "../code/paths.js" as Paths
 import "../code/stats.js" as Stats
-import "../code/wordcount.js" as WordCount
 
 // Reads a vault through read-only shell commands and exposes what the
 // calendar needs. A scan runs: config files -> daily folder listing ->
@@ -106,17 +105,34 @@ QtObject {
         });
     }
 
+    // Listing problems are shown next to the calendar rather than hidden:
+    // a folder outside the vault, or find reporting errors (unreadable
+    // folders…) while still listing what it could.
+    function listProblem(exitCode, stderr, which) {
+        if (exitCode === Paths.EXIT_OUTSIDE_VAULT) {
+            return { code: "folder-outside-vault", file: which, detail: "" };
+        }
+        if (exitCode !== 0 && exitCode !== Paths.EXIT_NO_FOLDER) {
+            return { code: "list-incomplete", file: which, detail: String(stderr || "").split("\n")[0] };
+        }
+        return null;
+    }
+
     function listDaily(gen) {
         if (!settings) {
             return;
         }
-        const command = Paths.listCommand(dailyFolderPath, Paths.searchDepth(settings.daily.format));
+        const command = Paths.listCommand(dailyFolderPath, Paths.searchDepth(settings.daily.format), vaultPath);
         run(command, (exitCode, stdout, stderr) => {
             if (gen !== generation) {
                 return;
             }
             dailyFolderMissing = exitCode === Paths.EXIT_NO_FOLDER;
-            dailyFiles = dailyFolderMissing ? {} : Paths.parseListOutput(stdout);
+            dailyFiles = dailyFolderMissing || exitCode === Paths.EXIT_OUTSIDE_VAULT ? {} : Paths.parseListOutput(stdout);
+            const problem = listProblem(exitCode, stderr, "daily");
+            if (problem) {
+                problems = problems.concat([problem]);
+            }
             if (settings.weekly) {
                 listWeekly(gen);
             } else {
@@ -127,12 +143,17 @@ QtObject {
     }
 
     function listWeekly(gen) {
-        const command = Paths.listCommand(weeklyFolderPath, Paths.searchDepth(settings.weekly.format));
+        const command = Paths.listCommand(weeklyFolderPath, Paths.searchDepth(settings.weekly.format), vaultPath);
         run(command, (exitCode, stdout, stderr) => {
             if (gen !== generation) {
                 return;
             }
-            weeklyFiles = exitCode === 0 ? Paths.parseListOutput(stdout) : {};
+            weeklyFiles = exitCode === Paths.EXIT_NO_FOLDER || exitCode === Paths.EXIT_OUTSIDE_VAULT
+                ? {} : Paths.parseListOutput(stdout);
+            const problem = listProblem(exitCode, stderr, "weekly");
+            if (problem) {
+                problems = problems.concat([problem]);
+            }
             finish();
         });
     }
@@ -177,16 +198,20 @@ QtObject {
         }
     }
 
-    // Reads word counts for notes of month (y, m) and the days around it that
-    // are new or changed since they were last counted.
+    // Reads word counts for the notes shown for month (y, m), i.e. the six
+    // weeks of its grid, that are new or changed since they were last counted.
+    // Counting runs in a worker thread (wordworker.mjs).
+    property int wordRequest: 0
+    property var wordRequests: ({})
+
     function loadWords(y, m) {
         wordsWanted = { y: y, m: m };
         if (!settings || dotSource !== "words" || busy) {
             return;
         }
         const stale = [];
-        const first = Dates.addDays(Dates.make(y, m, 1), -7);
-        for (let i = 0; i < 45; i++) {
+        const first = Dates.startOfWeek(Dates.make(y, m, 1), settings.locale.dow);
+        for (let i = 0; i < 42; i++) {
             const rel = dailyPath(Dates.addDays(first, i));
             const file = dailyFiles[rel];
             const cached = wordCache[rel];
@@ -198,21 +223,52 @@ QtObject {
             return;
         }
         const gen = generation;
-        run(Paths.readCommand(dailyFolderPath, stale), (exitCode, stdout, stderr) => {
-            if (gen !== generation) {
+        run(Paths.readCommand(dailyFolderPath, stale, vaultPath), (exitCode, stdout, stderr) => {
+            if (gen !== generation || exitCode !== 0) {
                 return;
             }
-            const contents = Paths.parseReadOutput(stdout);
-            const cache = wordCache;
-            for (let i = 0; i < stale.length; i++) {
-                const file = dailyFiles[stale[i]];
-                if (file && contents.hasOwnProperty(stale[i])) {
-                    cache[stale[i]] = { size: file.size, mtime: file.mtime, words: WordCount.noteWords(contents[stale[i]]) };
-                }
-            }
-            wordCache = cache;
-            revision++;
+            const id = ++wordRequest;
+            wordRequests[id] = { generation: gen, files: stale };
+            wordWorker.sendMessage({ id: id, output: stdout });
         });
+    }
+
+    function wordsCounted(id, words) {
+        const request = wordRequests[id];
+        delete wordRequests[id];
+        if (!request || request.generation !== generation) {
+            return;
+        }
+        const cache = wordCache;
+        let changed = false;
+        for (let i = 0; i < request.files.length; i++) {
+            const rel = request.files[i];
+            const file = dailyFiles[rel];
+            // An empty read of a non-empty file failed; try again next time.
+            if (!file || !words.hasOwnProperty(rel) || (words[rel] === 0 && file.size > 0 && !readEmptyOk(rel))) {
+                continue;
+            }
+            const old = cache[rel];
+            if (!old || old.words !== words[rel]) {
+                changed = true;
+            }
+            cache[rel] = { size: file.size, mtime: file.mtime, words: words[rel] };
+        }
+        wordCache = cache;
+        if (changed) {
+            revision++;
+        }
+    }
+
+    // Notes with only frontmatter or whitespace legitimately count 0 words;
+    // those are small. Larger files reading as 0 words were unreadable.
+    function readEmptyOk(rel) {
+        return dailyFiles[rel].size < 4096;
+    }
+
+    property WorkerScript wordWorker: WorkerScript {
+        source: "../code/wordworker.mjs"
+        onMessage: message => scanner.wordsCounted(message.id, message.words)
     }
 
     // Vault-queries used by the views.
@@ -284,6 +340,11 @@ QtObject {
     }
 
     function run(command, callback) {
+        if (command === null) {
+            // A path that can't be passed to a command (e.g. contains NUL)
+            Qt.callLater(() => callback(-1, "", "invalid path"));
+            return;
+        }
         runner.run(command, callback);
     }
 

@@ -669,7 +669,9 @@ msgctxt "@info %1 is a folder path"
 msgid ""
 "Reading %1 took too long. If it's on a network or external drive, check that "
 "it's available."
-msgstr "%1 okunması çok uzun sürdü. Ağ ya da harici bir sürücüdeyse erişilebilir olduğunu denetleyin."
+msgstr ""
+"%1 okunması çok uzun sürdü. Ağ ya da harici bir sürücüdeyse erişilebilir "
+"olduğunu denetleyin."
 
 #, kde-format
 msgctxt "@action:button"
@@ -710,6 +712,23 @@ msgstr "“%1” klasörü kasanın dışında."
 msgctxt "@info %1 is a date format"
 msgid "The note format “%1” doesn't produce a valid file name."
 msgstr "“%1” not biçimi geçerli bir dosya adı üretmiyor."
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"The weekly notes folder links to a place outside the vault, so it isn't read."
+msgstr "Haftalık notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden okunmuyor."
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"The daily notes folder links to a place outside the vault, so it isn't read."
+msgstr "Günlük notlar klasörü kasanın dışında bir yere bağlantı veriyor, bu yüzden okunmuyor."
+
+#, kde-format
+msgctxt "@info %1 is an error message"
+msgid "Some notes couldn't be listed: %1"
+msgstr "Bazı notlar listelenemedi: %1"
 
 #, kde-format
 msgctxt "@info week number"
@@ -763,4 +782,6 @@ msgctxt "@info"
 msgid ""
 "Couldn't open Obsidian. Check that it's installed and handles obsidian:// "
 "links."
-msgstr "Obsidian açılamadı. Kurulu olduğunu ve obsidian:// bağlantılarını açtığını denetleyin."
+msgstr ""
+"Obsidian açılamadı. Kurulu olduğunu ve obsidian:// bağlantılarını açtığını "
+"denetleyin."

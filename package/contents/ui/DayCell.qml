@@ -9,6 +9,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents
 
 import "../code/dates.js" as Dates
+import "../code/paths.js" as Paths
 
 // Behavior shared by both day cell designs: tooltip, accessibility and
 // keyboard navigation. Subclasses provide background and contentItem.
@@ -35,9 +36,11 @@ PlasmaComponents.AbstractButton {
         if (!cellData.hasNote) {
             return cellData.isToday ? i18nc("@info:tooltip", "No note yet") : i18nc("@info:tooltip", "No note");
         }
+        // File names come from the vault: keep them from being read as markup.
+        const path = Paths.plainText(cellData.path);
         return cellData.words >= 0
-            ? i18ncp("@info:tooltip note path and word count", "%2, %1 word", "%2, %1 words", cellData.words, cellData.path)
-            : cellData.path;
+            ? i18ncp("@info:tooltip note path and word count", "%2, %1 word", "%2, %1 words", cellData.words, path)
+            : path;
     }
 
     PlasmaComponents.ToolTip.text: longDate + "\n" + Accessible.description

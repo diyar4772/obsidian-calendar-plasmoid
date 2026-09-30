@@ -70,7 +70,7 @@ KCM.SimpleKCM {
             textRole: "text"
             valueRole: "value"
             model: [{ text: i18nc("@item:inlistbox", "Vaults Obsidian knows…"), value: "" }]
-                .concat(page.knownVaults.map(v => ({ text: v.name + " — " + v.path, value: v.path })))
+                .concat(page.knownVaults.map(v => ({ text: Paths.plainText(v.name + " — " + v.path), value: v.path })))
             onActivated: {
                 if (currentValue !== "") {
                     page.cfg_vaultPath = currentValue;
