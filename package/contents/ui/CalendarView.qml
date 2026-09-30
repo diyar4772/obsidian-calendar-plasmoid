@@ -59,7 +59,7 @@ FocusScope {
     signal weekActivated(var weekStart)
 
     Accessible.role: Accessible.Pane
-    Accessible.name: i18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
+    Accessible.name: view.tr.ui18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
 
     // Follow the date at midnight when showing the current month.
     property var lastToday: today
@@ -115,11 +115,12 @@ FocusScope {
         }
     }
 
-    // Localized names follow the desktop language, like Plasma's calendar.
-    readonly property var uiLocale: Qt.locale(Qt.locale().uiLanguages[0])
+    // Names follow the widget's language setting; by default the desktop
+    // language, like Plasma's calendar.
+    readonly property Translator tr: Translator {}
 
     function monthTitle(y, m) {
-        return uiLocale.standaloneMonthName(m - 1, Locale.LongFormat);
+        return tr.nameLocale.standaloneMonthName(m - 1, Locale.LongFormat);
     }
 
     ColumnLayout {
@@ -152,8 +153,8 @@ FocusScope {
                     horizontalAlignment: Text.AlignHCenter
                     // Short names ("Pzt") when they fit; one letter is ambiguous in some languages.
                     text: pages.cellWidth < Kirigami.Units.gridUnit * 2
-                        ? view.uiLocale.dayName(modelData, Locale.NarrowFormat)
-                        : view.uiLocale.dayName(modelData, Locale.ShortFormat)
+                        ? view.tr.nameLocale.dayName(modelData, Locale.NarrowFormat)
+                        : view.tr.nameLocale.dayName(modelData, Locale.ShortFormat)
                     textFormat: Text.PlainText
                     elide: Text.ElideRight
                     font.pointSize: view.points(view.variant === "journal" ? 0.85 : 1)
@@ -280,7 +281,7 @@ FocusScope {
                 font.pointSize: view.points(view.tiny ? 1 : 1.2)
                 text: view.month.y === view.today.y
                     ? view.monthTitle(view.month.y, view.month.m)
-                    : i18nc("@title month and year, e.g. March 2025", "%1 %2", view.monthTitle(view.month.y, view.month.m), view.month.y)
+                    : view.tr.ui18nc("@title month and year, e.g. March 2025", "%1 %2", view.monthTitle(view.month.y, view.month.m), view.month.y)
                 textFormat: Text.PlainText
                 font.capitalization: Font.Capitalize
                 elide: Text.ElideRight
@@ -354,7 +355,7 @@ FocusScope {
             Item { Layout.fillWidth: true }
             FooterStat {
                 icon: "view-calendar-day"
-                text: i18ncp("@info notes in the visible month", "%1 note", "%1 notes",
+                text: view.tr.ui18ncp("@info notes in the visible month", "%1 note", "%1 notes",
                              view.scanner.revision >= 0 ? view.scanner.countInMonth(view.month.y, view.month.m) : 0)
             }
             FooterStat {
@@ -362,8 +363,8 @@ FocusScope {
                 text: {
                     const s = view.scanner.revision >= 0 ? view.scanner.streak(view.today) : { length: 0 };
                     return s.length > 0
-                        ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
-                        : i18nc("@info", "No streak yet");
+                        ? view.tr.ui18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                        : view.tr.ui18nc("@info", "No streak yet");
                 }
             }
             Item { Layout.fillWidth: true }
@@ -376,10 +377,10 @@ FocusScope {
         }
         const count = scanner.countInMonth(month.y, month.m);
         const s = scanner.streak(today);
-        return i18ncp("@info notes in the visible month", "%1 note this month", "%1 notes this month", count)
+        return view.tr.ui18ncp("@info notes in the visible month", "%1 note this month", "%1 notes this month", count)
             + " · " + (s.length > 0
-                ? i18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
-                : i18nc("@info", "No streak yet"));
+                ? view.tr.ui18ncp("@info current streak of consecutive days", "%1-day streak", "%1-day streak", s.length)
+                : view.tr.ui18nc("@info", "No streak yet"));
     }
 
     component FooterStat: RowLayout {
@@ -408,7 +409,7 @@ FocusScope {
 
         PlasmaComponents.ToolButton {
             id: previousButton
-            text: i18nc("@action:button", "Previous Month")
+            text: view.tr.ui18nc("@action:button", "Previous Month")
             icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-next" : "go-previous"
             display: PlasmaComponents.AbstractButton.IconOnly
             onClicked: view.previousMonth()
@@ -417,7 +418,7 @@ FocusScope {
             PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
         }
         PlasmaComponents.ToolButton {
-            text: i18nc("@action:button reset calendar to today", "Today")
+            text: view.tr.ui18nc("@action:button reset calendar to today", "Today")
             icon.name: parent.showTodayText ? "" : "go-jump-today"
             display: parent.showTodayText ? PlasmaComponents.AbstractButton.TextOnly : PlasmaComponents.AbstractButton.IconOnly
             enabled: !view.isCurrentMonth
@@ -427,7 +428,7 @@ FocusScope {
             PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
         }
         PlasmaComponents.ToolButton {
-            text: i18nc("@action:button", "Next Month")
+            text: view.tr.ui18nc("@action:button", "Next Month")
             icon.name: Application.layoutDirection === Qt.RightToLeft ? "go-previous" : "go-next"
             display: PlasmaComponents.AbstractButton.IconOnly
             onClicked: view.nextMonth()

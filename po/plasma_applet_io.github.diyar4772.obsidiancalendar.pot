@@ -417,6 +417,24 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, kde-format
+msgctxt "@label:listbox"
+msgid "Language:"
+msgstr ""
+
+#, kde-format
+msgctxt "@item:inlistbox language"
+msgid "System default"
+msgstr ""
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Month and day names, dates and the calendar's texts. This settings window "
+"always follows the desktop language. The language of note names is set on "
+"the Notes page."
+msgstr ""
+
+#, kde-format
 msgctxt "@title:window"
 msgid "Choose Obsidian Vault"
 msgstr ""

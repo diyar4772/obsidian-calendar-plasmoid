@@ -48,7 +48,9 @@ vaults exist for that.
 - Use `Kirigami.Theme` colors and `Kirigami.Units` sizes; no hard-coded colors or
   pixel sizes.
 - Wrap user-visible strings in `i18nc()` with a context, then run
-  `scripts/i18n.sh extract`.
+  `scripts/i18n.sh extract`. In the calendar (everything outside the settings
+  pages) use a `Translator`'s `ui18nc()` / `ui18ncp()` instead, so the
+  widget's language setting applies.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`,
   `fix:`, `docs:` …) and keep commits small.
 - Mind older Plasma 6 releases: guard QML API newer than Qt 6.6 / KDE Frameworks

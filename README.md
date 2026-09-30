@@ -56,7 +56,8 @@ open its note in Obsidian, or click today to start today's note from your templa
   scans the whole vault and never uses the network.
 - **Clear errors.** A wrong path, a missing folder or a broken config file gets
   a message that tells you what to do. The widget is never just blank.
-- **Translated.** Available in English and Turkish.
+- **Translated.** Available in English and Turkish. The calendar follows the
+  desktop language, or the language you choose for the widget.
 
 ![Designs and colors](docs/screenshots/tour.gif)
 
@@ -159,8 +160,11 @@ the way of moving the widget. On older Qt, dragging with the mouse also scrolls.
 ![Plasma Native design with the Breeze Dark color scheme on a light desktop](docs/screenshots/native-scheme.png)
 
 - **General:** the vault (type a path, browse, or pick one of the vaults listed in
-  Obsidian's own settings), and how often to look for new notes (default: every
-  60 seconds; the widget also rescans whenever it's shown).
+  Obsidian's own settings), how often to look for new notes (default: every
+  60 seconds; the widget also rescans whenever it's shown), and the language of
+  the calendar: *System default*, *English* or *Türkçe*. It changes the month
+  and day names, the dates in tooltips and the widget's texts, without touching
+  other widgets. The settings window itself always follows the desktop language.
 - **Notes:** what was detected in the vault and where it came from, an optional
   different folder and format for daily and weekly notes (with a live preview
   of today's file name), the language of month and day names in note names,
@@ -336,6 +340,14 @@ msginit -i po/plasma_applet_io.github.diyar4772.obsidiancalendar.pot -o po/<lang
 # translate po/<lang>.po, then:
 scripts/i18n.sh compile
 ```
+
+`compile` also turns the `.po` files into
+[`contents/code/catalogs.js`](package/contents/code/catalogs.js), which the
+widget uses when its language setting differs from the desktop's (Plasma loads
+one language for all widgets). To offer the new language there, add it to
+`LANGUAGES` in [`contents/code/translate.js`](package/contents/code/translate.js).
+Strings in the calendar itself use `tr.ui18nc()` / `tr.ui18ncp()` (from
+`Translator.qml`) instead of `i18nc()` / `i18ncp()`.
 
 Pull requests with new languages are very welcome.
 

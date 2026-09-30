@@ -62,16 +62,19 @@ PlasmoidItem {
         }
     }
 
-    toolTipMainText: Dates.toJsDate(today).toLocaleDateString(Qt.locale(), Locale.LongFormat)
+    // Strings and dates in the language chosen in the settings.
+    readonly property Translator tr: Translator {}
+
+    toolTipMainText: tr.longDate(Dates.toJsDate(today))
     toolTipSubText: {
         if (scanner.status !== "ready") {
-            return i18nc("@info:tooltip", "Calendar for Obsidian");
+            return tr.ui18nc("@info:tooltip", "Calendar for Obsidian");
         }
         const hasToday = scanner.revision >= 0 && scanner.hasNote(today);
         const streak = scanner.streak(today).length;
-        const noteLine = hasToday ? i18nc("@info:tooltip", "Today's note is written") : i18nc("@info:tooltip", "No note for today yet");
+        const noteLine = hasToday ? tr.ui18nc("@info:tooltip", "Today's note is written") : tr.ui18nc("@info:tooltip", "No note for today yet");
         return streak > 0
-            ? noteLine + "\n" + i18ncp("@info:tooltip", "%1-day streak", "%1-day streak", streak)
+            ? noteLine + "\n" + tr.ui18ncp("@info:tooltip", "%1-day streak", "%1-day streak", streak)
             : noteLine;
     }
 
@@ -115,19 +118,19 @@ PlasmoidItem {
 
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
-            text: i18nc("@action", "Open Today's Note")
+            text: root.tr.ui18nc("@action", "Open Today's Note")
             icon.name: "go-jump-today"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openDay(root.today)
         },
         PlasmaCore.Action {
-            text: i18nc("@action", "Open Vault in Obsidian")
+            text: root.tr.ui18nc("@action", "Open Vault in Obsidian")
             icon.name: "document-open-folder"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openUri(Paths.vaultUri(root.scanner.vaultName))
         },
         PlasmaCore.Action {
-            text: i18nc("@action", "Rescan Vault")
+            text: root.tr.ui18nc("@action", "Rescan Vault")
             icon.name: "view-refresh"
             enabled: root.scanner.vaultPath !== ""
             onTriggered: root.scanner.refresh()
@@ -146,7 +149,7 @@ PlasmoidItem {
             actionError = "";
             activateObsidian();
         } else {
-            actionError = i18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
+            actionError = tr.ui18nc("@info", "Couldn't open Obsidian. Check that it's installed and handles obsidian:// links.");
         }
     }
 

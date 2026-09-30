@@ -433,6 +433,27 @@ msgstr[0] "%1 saniye"
 msgstr[1] "%1 saniye"
 
 #, kde-format
+msgctxt "@label:listbox"
+msgid "Language:"
+msgstr "Dil:"
+
+#, kde-format
+msgctxt "@item:inlistbox language"
+msgid "System default"
+msgstr "Sistem varsayılanı"
+
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Month and day names, dates and the calendar's texts. This settings window "
+"always follows the desktop language. The language of note names is set on "
+"the Notes page."
+msgstr ""
+"Ay ve gün adları, tarihler ve takvimin metinleri. Bu ayarlar penceresi her "
+"zaman masaüstü dilini kullanır. Not adlarının dili Notlar sayfasında "
+"ayarlanır."
+
+#, kde-format
 msgctxt "@title:window"
 msgid "Choose Obsidian Vault"
 msgstr "Obsidian Kasası Seç"
@@ -599,7 +620,10 @@ msgid ""
 "Today always opens or creates today's note, with your template when the "
 "widget uses Obsidian's own daily note folder and format. Notes created for "
 "other days start empty: Obsidian doesn't apply templates to them."
-msgstr "Bugün her zaman bugünün notunu açar ya da oluşturur; widget Obsidian'ın kendi günlük not klasörünü ve biçimini kullanıyorsa şablonunuzla. Diğer günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
+msgstr ""
+"Bugün her zaman bugünün notunu açar ya da oluşturur; widget Obsidian'ın "
+"kendi günlük not klasörünü ve biçimini kullanıyorsa şablonunuzla. Diğer "
+"günler için oluşturulan notlar boş başlar: Obsidian bunlara şablon uygulamaz."
 
 #, kde-format
 msgctxt "@info:tooltip"

@@ -29,6 +29,9 @@ Item {
     // Only the page on screen takes keyboard focus.
     property bool active: false
 
+    // Shared by the day and week cells.
+    readonly property Translator tr: Translator {}
+
     signal dayActivated(var date)
     signal weekActivated(var weekStart)
     // Keyboard navigation left the grid; `date` is the day to focus.
@@ -179,6 +182,7 @@ Item {
                     id: nativeDay
                     DayCellNative {
                         cellData: cellLoader.modelData
+                        tr: page.tr
                         textScale: page.style.textScale || 1
                         ownHighlight: page.style.ownHighlight === true
                         onClicked: page.dayActivated(cellLoader.modelData.date)
@@ -191,6 +195,7 @@ Item {
                     id: journalDay
                     DayCellJournal {
                         cellData: cellLoader.modelData
+                        tr: page.tr
                         textScale: page.style.textScale || 1
                         shape: page.style.tileShape || "rounded"
                         onClicked: page.dayActivated(cellLoader.modelData.date)
@@ -203,6 +208,7 @@ Item {
                     id: weekCell
                     WeekCell {
                         cellData: cellLoader.modelData
+                        tr: page.tr
                         textScale: page.style.textScale || 1
                         ownHighlight: page.style.ownHighlight === true
                         variant: page.variant

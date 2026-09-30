@@ -20,14 +20,16 @@ PlasmaComponents.AbstractButton {
     property string variant: "native"
     property real textScale: 1
     property bool ownHighlight: false
+    // Strings in the widget's language (from MonthPage).
+    property Translator tr
 
     enabled: cellData.clickable
     hoverEnabled: true
     focusPolicy: Qt.NoFocus
     text: String(cellData.week)
 
-    Accessible.name: i18nc("@info week number", "Week %1", cellData.week)
-    Accessible.description: cellData.hasNote ? Paths.plainText(cellData.path) : (cellData.clickable ? i18nc("@info:tooltip", "No weekly note") : "")
+    Accessible.name: cell.tr.ui18nc("@info week number", "Week %1", cellData.week)
+    Accessible.description: cellData.hasNote ? Paths.plainText(cellData.path) : (cellData.clickable ? cell.tr.ui18nc("@info:tooltip", "No weekly note") : "")
 
     PlasmaComponents.ToolTip.text: Accessible.name + (Accessible.description ? "\n" + Accessible.description : "")
     PlasmaComponents.ToolTip.visible: hovered && cellData.clickable

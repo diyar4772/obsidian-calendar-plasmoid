@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Language setting (*General → Language*): System default, English or Türkçe
+  for month and day names, dates and the calendar's texts.
+
 ### Fixed
 
 - Obsidian comes to the front when a day is clicked instead of opening the

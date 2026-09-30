@@ -14,12 +14,14 @@ import org.kde.kirigami as Kirigami
 
 import "../code/obsidianconfig.js" as Config
 import "../code/paths.js" as Paths
+import "../code/translate.js" as Translate
 
 KCM.SimpleKCM {
     id: page
 
     property string cfg_vaultPath
     property alias cfg_refreshInterval: refreshInterval.value
+    property string cfg_uiLanguage
 
     readonly property string homePath: Paths.localPath(StandardPaths.writableLocation(StandardPaths.HomeLocation).toString(), "")
 
@@ -107,6 +109,25 @@ KCM.SimpleKCM {
             stepSize: 10
             textFromValue: (value, locale) => i18ncp("@item:valuesuffix", "%1 second", "%1 seconds", value)
             valueFromText: (text, locale) => parseInt(text, 10)
+        }
+
+        QQC2.ComboBox {
+            Kirigami.FormData.label: i18nc("@label:listbox", "Language:")
+            Layout.minimumWidth: Kirigami.Units.gridUnit * 10
+            textRole: "text"
+            valueRole: "value"
+            // Languages are listed by their own names.
+            model: [{ text: i18nc("@item:inlistbox language", "System default"), value: "" }]
+                .concat(Translate.LANGUAGES.map(l => ({ text: l.name, value: l.code })))
+            Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_uiLanguage))
+            onActivated: page.cfg_uiLanguage = currentValue
+        }
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            text: i18nc("@info", "Month and day names, dates and the calendar's texts. This settings window always follows the desktop language. The language of note names is set on the Notes page.")
         }
     }
 
