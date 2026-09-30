@@ -89,8 +89,9 @@ What clicking does:
 > [!TIP]
 > `obsidian://daily` needs a recent Obsidian version and the **core Daily
 > notes** plugin enabled in Obsidian. If you only use Periodic Notes, clicking
-> today creates the note at the right path, but without the template. Enabling the core plugin as well fixes
-> that; its own settings don't matter while Periodic Notes is active.
+> today creates the note at the right path, but without the template. Enabling
+> the core plugin as well fixes that; its own settings don't matter while
+> Periodic Notes is active.
 
 ## Installation
 
@@ -221,14 +222,15 @@ single-quoted, so they can't run code:
 To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.
 
-Nothing is written, nothing is sent anywhere, and the rest of your vault is never
-read. Symbolic links to notes and to folders below the notes folder aren't
+Nothing is written, nothing is sent anywhere, and the rest of your vault is
+never read. Symbolic links to notes and to folders below the notes folder aren't
 followed. The notes folder itself may be a link, but only to a place inside the
 vault, so the widget never reads outside the vault you chose. Text from your
 vault is always shown as plain text. Word counting runs in a background thread,
 so long notes don't slow the desktop down. Word counts follow the Calendar
-plugin's rules, so the dots are usually the same as in Obsidian. They can differ a little, because frontmatter isn't counted
-and only the beginning of very long notes is read.
+plugin's rules, so the dots are usually the same as in Obsidian. They can differ
+a little, because frontmatter isn't counted and only the beginning of very long
+notes is read.
 
 ## Troubleshooting
 
