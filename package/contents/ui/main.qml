@@ -1,0 +1,149 @@
+/*
+    SPDX-FileCopyrightText: 2026 Samed Yolcu
+    SPDX-License-Identifier: GPL-2.0-or-later
+*/
+
+import QtCore
+import QtQuick
+
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasmoid
+
+import "../code/dates.js" as Dates
+import "../code/locales.js" as Locales
+import "../code/paths.js" as Paths
+
+PlasmoidItem {
+    id: root
+
+    readonly property var cfg: Plasmoid.configuration
+    readonly property bool inPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal
+        || Plasmoid.formFactor === PlasmaCore.Types.Vertical
+
+    // Today as { y, m, d }; checked every minute so the view rolls over at midnight.
+    property var today: Dates.fromJsDate(new Date())
+
+    readonly property VaultScanner scanner: VaultScanner {
+        vaultPath: Paths.localPath(root.cfg.vaultPath,
+            Paths.localPath(StandardPaths.writableLocation(StandardPaths.HomeLocation).toString(), ""))
+        systemLocale: Locales.forSystem(Qt.locale().name, Qt.locale().firstDayOfWeek)
+        dotSource: root.cfg.dotSource
+        overrides: ({
+            dailyFolder: root.cfg.customDaily ? root.cfg.dailyFolder : null,
+            dailyFormat: root.cfg.customDaily ? root.cfg.dailyFormat : null,
+            weeklyFolder: root.cfg.customWeekly ? root.cfg.weeklyFolder : null,
+            weeklyFormat: root.cfg.customWeekly ? root.cfg.weeklyFormat : null,
+            weekStart: root.cfg.weekStart >= 0 ? root.cfg.weekStart : null,
+            wordsPerDot: root.cfg.wordsPerDot >= 0 ? root.cfg.wordsPerDot : null,
+            showWeekNumbers: root.cfg.weekNumbers === "auto" ? null : root.cfg.weekNumbers === "on",
+            locale: root.cfg.noteLanguage !== "" ? root.cfg.noteLanguage : null
+        })
+    }
+
+    Plasmoid.icon: inPanel ? "view-calendar-day-symbolic" : "view-calendar-day"
+    Plasmoid.backgroundHints: (cfg.translucentBackground ? PlasmaCore.Types.TranslucentBackground : PlasmaCore.Types.DefaultBackground)
+        | PlasmaCore.Types.ConfigurableBackground
+
+    toolTipMainText: Dates.toJsDate(today).toLocaleDateString(Qt.locale(), Locale.LongFormat)
+    toolTipSubText: {
+        if (scanner.status !== "ready") {
+            return i18nc("@info:tooltip", "Calendar for Obsidian");
+        }
+        const hasToday = scanner.revision >= 0 && scanner.hasNote(today);
+        const streak = scanner.streak(today).length;
+        const noteLine = hasToday ? i18nc("@info:tooltip", "Today's note is written") : i18nc("@info:tooltip", "No note for today yet");
+        return streak > 0
+            ? noteLine + "\n" + i18ncp("@info:tooltip", "%1-day streak", "%1-day streak", streak)
+            : noteLine;
+    }
+
+    switchWidth: Kirigami.Units.gridUnit * 10
+    switchHeight: Kirigami.Units.gridUnit * 10
+    preferredRepresentation: inPanel ? compactRepresentation : fullRepresentation
+
+    compactRepresentation: CompactRepresentation {
+        scanner: root.scanner
+        today: root.today
+        expanded: root.expanded
+        description: root.toolTipMainText
+        onToggled: root.expanded = !root.expanded
+    }
+    fullRepresentation: FullRepresentation {
+        scanner: root.scanner
+        today: root.today
+        inPanel: root.inPanel
+        onDayActivated: date => root.openDay(date)
+        onWeekActivated: weekStart => root.openWeek(weekStart)
+    }
+
+    onExpandedChanged: {
+        if (root.expanded) {
+            scanner.refresh();
+        }
+    }
+
+    Plasmoid.contextualActions: [
+        PlasmaCore.Action {
+            text: i18nc("@action", "Open Today's Note")
+            icon.name: "go-jump-today"
+            enabled: root.scanner.status === "ready"
+            onTriggered: root.openDay(root.today)
+        },
+        PlasmaCore.Action {
+            text: i18nc("@action", "Rescan Vault")
+            icon.name: "view-refresh"
+            enabled: root.scanner.vaultPath !== ""
+            onTriggered: root.scanner.refresh()
+        }
+    ]
+
+    // Opens a day's note in Obsidian. Today without a note goes through
+    // obsidian://daily so Obsidian applies the daily note template.
+    function openDay(date) {
+        if (scanner.status !== "ready") {
+            return;
+        }
+        const rel = scanner.dailyPath(date);
+        const absolute = Paths.joinPath(scanner.dailyFolderPath, rel);
+        if (scanner.hasNote(date)) {
+            Qt.openUrlExternally(Paths.openUri(absolute));
+        } else if (Dates.equals(date, today) && scanner.settings.dailyUriAvailable) {
+            Qt.openUrlExternally(Paths.dailyUri(scanner.vaultName));
+        } else if (Dates.equals(date, today) || cfg.emptyDayAction === "create") {
+            Qt.openUrlExternally(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.daily.folder, rel)));
+        }
+    }
+
+    function openWeek(weekStart) {
+        if (scanner.status !== "ready" || !scanner.settings.weekly) {
+            return;
+        }
+        const rel = scanner.weeklyPath(weekStart);
+        if (scanner.hasWeeklyNote(weekStart)) {
+            Qt.openUrlExternally(Paths.openUri(Paths.joinPath(scanner.weeklyFolderPath, rel)));
+        } else if (cfg.emptyDayAction === "create") {
+            Qt.openUrlExternally(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.weekly.folder, rel)));
+        }
+    }
+
+    Timer {
+        interval: 60000
+        repeat: true
+        running: true
+        onTriggered: {
+            const now = Dates.fromJsDate(new Date());
+            if (!Dates.equals(now, root.today)) {
+                root.today = now;
+                root.scanner.refresh();
+            }
+        }
+    }
+
+    Timer {
+        interval: Math.max(10, root.cfg.refreshInterval) * 1000
+        repeat: true
+        running: root.scanner.vaultPath !== ""
+        onTriggered: root.scanner.refresh()
+    }
+}
