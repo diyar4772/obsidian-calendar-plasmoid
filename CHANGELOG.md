@@ -20,8 +20,9 @@ First release.
   by file size.
 - Week-number column that opens weekly notes.
 - Click a day to open its note; today without a note goes through
-  `obsidian://daily` so Obsidian applies the template; creating empty notes for
-  other days is optional.
+  `obsidian://daily` so Obsidian applies the template (when the widget uses
+  Obsidian's daily folder and format); creating empty notes for other days is
+  optional.
 - Two designs: Plasma Native and Journal (heatmap tiles).
 - Appearance settings: any installed KDE color scheme for the widget, custom
   accent color with automatic contrast, Plasma/translucent/solid/no background

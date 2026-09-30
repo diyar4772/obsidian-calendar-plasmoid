@@ -82,14 +82,14 @@ What clicking does:
 | You click | What happens |
 | --- | --- |
 | A day with a note | Opens the note (`obsidian://open?path=…`) |
-| Today, without a note | Creates today's note from your template (`obsidian://daily`) |
+| Today, without a note | Creates today's note from your template (`obsidian://daily`). With a different folder or format set in the widget, it creates the note there without the template. |
 | Another day without a note | Nothing (default), or creates an empty note if you choose *Creates the note* |
 | A week number | Opens that week's note, when weekly notes are set up |
 
 > [!TIP]
 > `obsidian://daily` needs a recent Obsidian version and the **core Daily
-> notes** plugin enabled in Obsidian. If you only use Periodic Notes, clicking today creates the note at the
-> right path, but without the template. Enabling the core plugin as well fixes
+> notes** plugin enabled in Obsidian. If you only use Periodic Notes, clicking
+> today creates the note at the right path, but without the template. Enabling the core plugin as well fixes
 > that; its own settings don't matter while Periodic Notes is active.
 
 ## Installation
@@ -211,7 +211,7 @@ The widget runs a few fixed, **read-only** shell commands through Plasma's
 `executable` data engine. The vault path and file names are always passed
 single-quoted, so they can't run code:
 
-1. `cat` the few JSON files it needs from `.obsidian`,
+1. read (`head`) the few JSON files it needs from `.obsidian`,
 2. `find` the Markdown files under the daily notes folder, only as deep as your
    format can go and skipping hidden folders such as `.obsidian` and `.trash`,
    printing NUL-separated names so any file name is safe,
@@ -222,11 +222,12 @@ To offer your vaults in the settings, it also reads Obsidian's own vault list
 (`obsidian.json`) when you open them.
 
 Nothing is written, nothing is sent anywhere, and the rest of your vault is never
-read. Symbolic links aren't followed, and a notes folder that links to a place
-outside the vault is refused, so the widget never reads outside the vault you
-chose. Text from your vault is always shown as plain text. Word counting runs in
-a background thread, so long notes don't slow the desktop down. Word counts follow the Calendar plugin's rules, so the dots are usually the
-same as in Obsidian. They can differ a little, because frontmatter isn't counted
+read. Symbolic links to notes and to folders below the notes folder aren't
+followed. The notes folder itself may be a link, but only to a place inside the
+vault, so the widget never reads outside the vault you chose. Text from your
+vault is always shown as plain text. Word counting runs in a background thread,
+so long notes don't slow the desktop down. Word counts follow the Calendar
+plugin's rules, so the dots are usually the same as in Obsidian. They can differ a little, because frontmatter isn't counted
 and only the beginning of very long notes is read.
 
 ## Troubleshooting
@@ -326,7 +327,8 @@ Everything is plain QML and JavaScript. There's nothing to compile.
 package/                  the Plasma package (what gets installed)
 ├── metadata.json
 └── contents/
-    ├── code/             logic as QML JavaScript libraries (.pragma library)
+    ├── code/             logic as QML JavaScript libraries (.pragma library), plus
+    │                     the word counter as an ES module used by a WorkerScript
     ├── config/           KConfigXT schema and settings pages
     └── ui/               QML views, the vault scanner, settings pages
 po/                       translations

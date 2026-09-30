@@ -55,7 +55,7 @@ A month calendar of the daily notes in your Obsidian vault, for the desktop or a
 • Scrolls like Plasma's own calendar: touchpad, mouse wheel, keyboard.
 • English and Turkish.
 
-Privacy: the widget only reads files. To find your notes it runs a few fixed, read-only commands (cat, find, head) on your vault folder; this is why Discover says it runs executables. Nothing is written and nothing leaves your computer.
+Privacy: the widget only reads files. To find your notes it runs a few fixed, read-only commands (find, head) on your vault folder; this is why Discover says it runs executables. Nothing is written and nothing leaves your computer.
 
 Needs KDE Plasma 6 and Obsidian. Unofficial community project, not affiliated with Obsidian or the authors of the Calendar and Periodic Notes plugins.
 
