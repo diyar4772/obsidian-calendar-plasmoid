@@ -38,6 +38,16 @@ for (const kv of spec.split(";").filter(Boolean)) {
 }
 fs.writeFileSync(file, xml);
 JS
+    # Optionally open the Year Overview window once the vault is read.
+    if [ -n "${3:-}" ]; then
+        node - "$run/pkg/contents/ui/main.qml" <<'JS'
+const fs = require("fs");
+const file = process.argv[2];
+const qml = fs.readFileSync(file, "utf8").trimEnd();
+fs.writeFileSync(file, qml.slice(0, qml.lastIndexOf("}"))
+    + "    Timer { interval: 3000; running: true; onTriggered: root.openYearOverview() }\n}\n");
+JS
+    fi
     XDG_DATA_HOME="$run/data" kpackagetool6 -t Plasma/Applet -i "$run/pkg" >/dev/null
     XDG_DATA_HOME="$run/data" XDG_CONFIG_HOME="$run/cfg" HOME="$run" \
         QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
@@ -59,6 +69,7 @@ JS
 
 V="$WORK/vaults"
 run native-example "vaultPath=$V/Örnek Vault;designVariant=native"
+run year-overview "vaultPath=$V/Örnek Vault;dotSource=size" year
 run journal-periodic "vaultPath=$V/Periodic Vault;designVariant=journal;tileShape=circle"
 run broken "vaultPath=$V/Broken Vault;dotSource=size"
 run missing "vaultPath=/nonexistent/vault"
