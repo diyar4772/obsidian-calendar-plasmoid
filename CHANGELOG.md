@@ -29,8 +29,10 @@ First release.
 - Notes this month and current streak.
 - Scrolling like Plasma's calendar (touchpad, wheel, keyboard, buttons),
   keyboard navigation across months, accessible names and tooltips.
+- Vault picker listing the vaults Obsidian knows (native, Flatpak and Snap).
 - Clear messages for a missing vault, a folder without `.obsidian`, a relative
-  path, broken config files and unsupported formats.
+  path, a vault that doesn't respond, links Obsidian couldn't open, broken
+  config files and unsupported formats.
 - English and Turkish translations.
 
 [Unreleased]: https://github.com/diyar4772/obsidian-calendar-plasmoid/compare/v0.1.0...HEAD
