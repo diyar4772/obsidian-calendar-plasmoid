@@ -28,6 +28,21 @@ FocusScope {
     property string variant: "native"         // "native" or "journal"
     property bool showFooter: true
     property bool isoWeekNumbers: false
+    // { textScale, density, tileShape, ownHighlight }
+    property var style: ({})
+
+    readonly property real textScale: style.textScale || 1
+    readonly property real densityFactor: style.density === "compact" ? 0.5 : style.density === "comfortable" ? 1.75 : 1
+    // Small sizes drop the "Today" label and the footer.
+    readonly property bool narrow: width < Kirigami.Units.gridUnit * 14
+    readonly property bool roomForFooter: height >= Kirigami.Units.gridUnit * 12
+    // Very small: no navigation buttons (wheel and touchpad still work).
+    readonly property bool tiny: width < Kirigami.Units.gridUnit * 11 || height < Kirigami.Units.gridUnit * 11
+
+    // Point sizes relative to the desktop font, times the text-size setting.
+    function points(factor) {
+        return Math.max(1, Kirigami.Theme.defaultFont.pointSize * factor * textScale);
+    }
 
     // Month on screen, { y, m }
     property var month: ({ y: today.y, m: today.m })
@@ -81,7 +96,7 @@ FocusScope {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: view.variant === "journal" ? Kirigami.Units.largeSpacing : Kirigami.Units.smallSpacing
+        spacing: (view.variant === "journal" ? Kirigami.Units.largeSpacing : Kirigami.Units.smallSpacing) * view.densityFactor
 
         Loader {
             Layout.fillWidth: true
@@ -107,12 +122,12 @@ FocusScope {
                     Layout.fillWidth: true
                     Layout.preferredWidth: pages.cellWidth
                     horizontalAlignment: Text.AlignHCenter
-                    text: view.variant === "journal"
+                    text: view.variant === "journal" || pages.cellWidth < Kirigami.Units.gridUnit * 2
                         ? view.uiLocale.dayName(modelData, Locale.NarrowFormat)
                         : view.uiLocale.dayName(modelData, Locale.ShortFormat)
                     textFormat: Text.PlainText
                     elide: Text.ElideRight
-                    font.pixelSize: view.variant === "journal" ? Kirigami.Theme.smallFont.pixelSize : Kirigami.Theme.defaultFont.pixelSize
+                    font.pointSize: view.points(view.variant === "journal" ? 0.85 : 1)
                     font.weight: view.variant === "journal" ? Font.DemiBold : Font.Normal
                     opacity: view.variant === "journal" ? 0.6 : 0.75
                 }
@@ -124,7 +139,7 @@ FocusScope {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: Kirigami.Units.gridUnit * 6
+            Layout.minimumHeight: Kirigami.Units.gridUnit * 3
 
             readonly property real cellWidth: width / (7 + (view.showWeekNumbers ? 1 : 0))
             property bool dragHandled: false
@@ -151,6 +166,7 @@ FocusScope {
                 variant: view.variant
                 locale: view.locale
                 showWeekNumbers: view.showWeekNumbers
+                style: view.style
                 isoWeekNumbers: view.isoWeekNumbers
                 year: Dates.addMonths(Dates.make(view.month.y, view.month.m, 1), index - 1).y
                 month: Dates.addMonths(Dates.make(view.month.y, view.month.m, 1), index - 1).m
@@ -204,7 +220,7 @@ FocusScope {
 
         Loader {
             Layout.fillWidth: true
-            active: view.showFooter && view.settings !== null
+            active: view.showFooter && view.settings !== null && view.roomForFooter
             visible: active
             sourceComponent: view.variant === "journal" ? journalFooter : nativeFooter
         }
@@ -222,6 +238,7 @@ FocusScope {
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 level: 2
+                font.pointSize: view.points(view.tiny ? 1 : 1.2)
                 text: view.month.y === view.today.y
                     ? view.monthTitle(view.month.y, view.month.m)
                     : i18nc("@title month and year, e.g. March 2025", "%1 %2", view.monthTitle(view.month.y, view.month.m), view.month.y)
@@ -230,7 +247,8 @@ FocusScope {
                 elide: Text.ElideRight
             }
             NavButtons {
-                showTodayText: true
+                visible: !view.tiny
+                showTodayText: !view.narrow
             }
         }
     }
@@ -240,7 +258,7 @@ FocusScope {
 
         PlasmaComponents.Label {
             horizontalAlignment: Text.AlignHCenter
-            font: Kirigami.Theme.smallFont
+            font.pointSize: view.points(0.85)
             opacity: 0.75
             elide: Text.ElideRight
             textFormat: Text.PlainText
@@ -263,15 +281,17 @@ FocusScope {
 
                 PlasmaComponents.Label {
                     Layout.fillWidth: true
+                    visible: !view.tiny
                     text: String(view.month.y)
                     textFormat: Text.PlainText
-                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                    font.pointSize: view.points(0.85)
                     font.weight: Font.DemiBold
                     color: Kirigami.Theme.highlightColor
                 }
                 Kirigami.Heading {
                     Layout.fillWidth: true
                     level: 1
+                    font.pointSize: view.points(view.tiny ? 1 : view.narrow ? 1.2 : 1.5)
                     text: view.monthTitle(view.month.y, view.month.m)
                     textFormat: Text.PlainText
                     font.capitalization: Font.Capitalize
@@ -280,6 +300,7 @@ FocusScope {
                 }
             }
             NavButtons {
+                visible: !view.tiny
                 showTodayText: false
             }
         }
@@ -325,15 +346,15 @@ FocusScope {
 
         Kirigami.Icon {
             source: parent.icon
-            implicitWidth: Kirigami.Units.iconSizes.small
-            implicitHeight: Kirigami.Units.iconSizes.small
+            implicitWidth: Math.round(Kirigami.Units.iconSizes.small * view.textScale)
+            implicitHeight: implicitWidth
             color: Kirigami.Theme.highlightColor
             isMask: true
         }
         PlasmaComponents.Label {
             text: parent.text
             textFormat: Text.PlainText
-            font: Kirigami.Theme.smallFont
+            font.pointSize: view.points(0.85)
             opacity: 0.8
         }
     }

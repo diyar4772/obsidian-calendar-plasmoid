@@ -41,9 +41,26 @@ PlasmoidItem {
         })
     }
 
+    // The widget's own color scheme (null: follow Plasma).
+    readonly property ColorSchemeLoader scheme: ColorSchemeLoader {
+        path: root.cfg.colorScheme
+    }
+
+    // A widget color scheme needs a matching background, so Plasma's is
+    // replaced by one drawn in the scheme's colors.
+    readonly property string backgroundMode: cfg.background === "none" ? "none"
+        : (scheme.colors !== null || cfg.background === "custom") ? "custom"
+        : cfg.background
+
     Plasmoid.icon: inPanel ? "view-calendar-day-symbolic" : "view-calendar-day"
-    Plasmoid.backgroundHints: (cfg.translucentBackground ? PlasmaCore.Types.TranslucentBackground : PlasmaCore.Types.DefaultBackground)
-        | PlasmaCore.Types.ConfigurableBackground
+    Plasmoid.backgroundHints: {
+        switch (backgroundMode) {
+        case "translucent": return PlasmaCore.Types.TranslucentBackground | PlasmaCore.Types.ConfigurableBackground;
+        case "custom": return PlasmaCore.Types.NoBackground;
+        case "none": return PlasmaCore.Types.ShadowBackground;
+        default: return PlasmaCore.Types.DefaultBackground | PlasmaCore.Types.ConfigurableBackground;
+        }
+    }
 
     toolTipMainText: Dates.toJsDate(today).toLocaleDateString(Qt.locale(), Locale.LongFormat)
     toolTipSubText: {
@@ -58,8 +75,8 @@ PlasmoidItem {
             : noteLine;
     }
 
-    switchWidth: Kirigami.Units.gridUnit * 10
-    switchHeight: Kirigami.Units.gridUnit * 10
+    switchWidth: Kirigami.Units.gridUnit * 7
+    switchHeight: Kirigami.Units.gridUnit * 7
     preferredRepresentation: inPanel ? compactRepresentation : fullRepresentation
 
     compactRepresentation: CompactRepresentation {
@@ -73,6 +90,16 @@ PlasmoidItem {
         scanner: root.scanner
         today: root.today
         inPanel: root.inPanel
+        schemeColors: root.scheme.colors
+        customAccent: root.cfg.accentMode === "custom"
+        accentColor: root.cfg.customAccent
+        drawBackground: root.backgroundMode === "custom" && !(root.inPanel && root.scheme.colors === null)
+        backgroundOpacity: root.cfg.backgroundOpacity / 100
+        style: ({
+            textScale: root.cfg.textScale / 100,
+            density: root.cfg.density,
+            tileShape: root.cfg.tileShape
+        })
         onDayActivated: date => root.openDay(date)
         onWeekActivated: weekStart => root.openWeek(weekStart)
     }

@@ -18,6 +18,9 @@ PlasmaComponents.AbstractButton {
     // { date, inMonth, isToday, hasNote, dots, words, path }
     property var cellData
 
+    // Text-size setting as a factor
+    property real textScale: 1
+
     // Arrow keys: -1/+1 for left/right, -7/+7 for up/down.
     signal moveFocus(int step)
 

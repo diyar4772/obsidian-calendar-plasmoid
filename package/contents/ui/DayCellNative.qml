@@ -15,7 +15,10 @@ import org.kde.plasma.extras as PlasmaExtras
 DayCell {
     id: cell
 
-    readonly property real dotSize: Math.max(2, Math.min(Kirigami.Units.smallSpacing * 1.25, height / 9))
+    // Draw the highlight ourselves (custom colors) instead of with Plasma's theme.
+    property bool ownHighlight: false
+
+    readonly property real dotSize: Math.max(1.5, Math.min(Kirigami.Units.smallSpacing * 1.25, height / 9))
 
     background: Item {
         // Keyboard focus frame, as in Plasma's DayDelegate
@@ -34,8 +37,17 @@ DayCell {
         PlasmaExtras.Highlight {
             anchors.fill: parent
             hovered: true
-            visible: opacity > 0
+            visible: !cell.ownHighlight && opacity > 0
             opacity: cell.cellData.isToday ? 1 : cell.hovered ? 0.3 : cell.activeFocus ? 0.1 : 0
+        }
+        Rectangle {
+            anchors.fill: parent
+            visible: cell.ownHighlight && (cell.cellData.isToday || cell.hovered || cell.activeFocus)
+            radius: Kirigami.Units.cornerRadius
+            color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b,
+                           cell.cellData.isToday ? 0.3 : cell.hovered ? 0.18 : 0.08)
+            border.width: cell.cellData.isToday ? 1 : 0
+            border.color: Kirigami.Theme.highlightColor
         }
     }
 
@@ -46,7 +58,7 @@ DayCell {
             anchors.bottomMargin: cell.cellData.hasNote ? cell.dotSize * 2 : 0
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, Math.min(cell.height / 2.6, cell.width / 2.2))
+            font.pixelSize: Math.max(Kirigami.Units.gridUnit * 0.4, Math.min(cell.height / 2.6, cell.width / 2.2) * cell.textScale)
             font.weight: cell.cellData.isToday ? Font.DemiBold : Font.Normal
             text: cell.text
             textFormat: Text.PlainText

@@ -13,6 +13,9 @@ import org.kde.plasma.components as PlasmaComponents
 DayCell {
     id: cell
 
+    // "rounded", "circle" or "square"
+    property string shape: "rounded"
+
     // Tint strength per dot level (0 = no note).
     readonly property var tints: [0, 0.22, 0.36, 0.52, 0.7, 0.88]
     readonly property real tint: tints[Math.min(5, cell.cellData.dots)]
@@ -20,7 +23,13 @@ DayCell {
     readonly property bool strong: tint >= 0.6
 
     background: Rectangle {
-        radius: Kirigami.Units.cornerRadius
+        // Circles are drawn square-sized in the middle of the cell.
+        readonly property real side: Math.min(cell.width, cell.height)
+        x: cell.shape === "circle" ? (cell.width - side) / 2 : 0
+        y: cell.shape === "circle" ? (cell.height - side) / 2 : 0
+        width: cell.shape === "circle" ? side : cell.width
+        height: cell.shape === "circle" ? side : cell.height
+        radius: cell.shape === "circle" ? side / 2 : cell.shape === "square" ? 0 : Kirigami.Units.cornerRadius
         color: {
             if (cell.cellData.hasNote) {
                 return Qt.rgba(cell.accent.r, cell.accent.g, cell.accent.b, cell.tint);
@@ -41,7 +50,7 @@ DayCell {
     contentItem: PlasmaComponents.Label {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(cell.height / 2.8, cell.width / 2.4))
+        font.pixelSize: Math.max(Kirigami.Units.gridUnit * 0.4, Math.min(cell.height / 2.8, cell.width / 2.4) * cell.textScale)
         font.weight: cell.cellData.isToday ? Font.Bold : (cell.cellData.hasNote ? Font.DemiBold : Font.Normal)
         text: cell.text
         textFormat: Text.PlainText

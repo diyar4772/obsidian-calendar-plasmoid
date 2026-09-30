@@ -23,6 +23,7 @@ Item {
     property var locale
     property bool showWeekNumbers: false
     property bool isoWeekNumbers: false
+    property var style: ({})
     property int year
     property int month
     // Only the page on screen takes keyboard focus.
@@ -32,7 +33,14 @@ Item {
     signal weekActivated(var weekStart)
 
     readonly property int columns: 7 + (showWeekNumbers ? 1 : 0)
-    readonly property real spacing: variant === "journal" ? Math.round(Kirigami.Units.smallSpacing / 2) : 0
+    readonly property real spacing: {
+        if (variant === "journal") {
+            return style.density === "compact" ? 1
+                : style.density === "comfortable" ? Kirigami.Units.smallSpacing
+                : Math.round(Kirigami.Units.smallSpacing / 2);
+        }
+        return style.density === "comfortable" ? Math.round(Kirigami.Units.smallSpacing / 2) : 0;
+    }
 
     // Flat list of cells, row by row: an optional week cell, then seven days.
     readonly property var cells: {
@@ -130,6 +138,8 @@ Item {
                     id: nativeDay
                     DayCellNative {
                         cellData: cellLoader.modelData
+                        textScale: page.style.textScale || 1
+                        ownHighlight: page.style.ownHighlight === true
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
                         activeFocusOnTab: page.active && cellLoader.modelData.isToday
@@ -139,6 +149,8 @@ Item {
                     id: journalDay
                     DayCellJournal {
                         cellData: cellLoader.modelData
+                        textScale: page.style.textScale || 1
+                        shape: page.style.tileShape || "rounded"
                         onClicked: page.dayActivated(cellLoader.modelData.date)
                         onMoveFocus: step => page.moveFocus(cellLoader.index, step)
                         activeFocusOnTab: page.active && cellLoader.modelData.isToday
@@ -148,6 +160,8 @@ Item {
                     id: weekCell
                     WeekCell {
                         cellData: cellLoader.modelData
+                        textScale: page.style.textScale || 1
+                        ownHighlight: page.style.ownHighlight === true
                         variant: page.variant
                         onClicked: page.weekActivated(cellLoader.modelData.start)
                     }

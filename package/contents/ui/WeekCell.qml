@@ -16,6 +16,8 @@ PlasmaComponents.AbstractButton {
     // { week, start, clickable, hasNote, path }
     property var cellData
     property string variant: "native"
+    property real textScale: 1
+    property bool ownHighlight: false
 
     enabled: cellData.clickable
     hoverEnabled: true
@@ -32,9 +34,15 @@ PlasmaComponents.AbstractButton {
     background: Item {
         PlasmaExtras.Highlight {
             anchors.fill: parent
-            visible: cell.variant === "native" && opacity > 0
+            visible: cell.variant === "native" && !cell.ownHighlight && opacity > 0
             hovered: true
             opacity: cell.hovered ? 0.3 : 0
+        }
+        Rectangle {
+            anchors.fill: parent
+            visible: cell.variant === "native" && cell.ownHighlight && cell.hovered
+            radius: Kirigami.Units.cornerRadius
+            color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.18)
         }
         Rectangle {
             visible: cell.variant === "journal" && (cell.cellData.hasNote || cell.hovered)
@@ -53,7 +61,7 @@ PlasmaComponents.AbstractButton {
         verticalAlignment: Text.AlignVCenter
         text: cell.text
         textFormat: Text.PlainText
-        font.pixelSize: cell.variant === "journal" ? Kirigami.Theme.smallFont.pixelSize : Kirigami.Theme.defaultFont.pixelSize
+        font.pointSize: Math.max(1, Kirigami.Theme.defaultFont.pointSize * (cell.variant === "journal" ? 0.85 : 1) * cell.textScale)
         font.italic: cell.variant === "native"
         font.weight: cell.cellData.hasNote ? Font.DemiBold : Font.Normal
         color: cell.cellData.hasNote ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
