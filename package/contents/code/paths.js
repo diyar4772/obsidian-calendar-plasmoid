@@ -63,6 +63,11 @@ function localPath(input, home) {
     return joinPath(path);
 }
 
+// file:// URL for an absolute path, percent-encoding each segment.
+function fileUrl(path) {
+    return "file://" + String(path).split("/").map(encodeURIComponent).join("/");
+}
+
 // Obsidian identifies a vault by its folder name.
 function vaultName(vaultPath) {
     const parts = joinPath(vaultPath).split("/");

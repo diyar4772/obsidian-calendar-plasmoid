@@ -68,6 +68,12 @@ test("localPath() accepts paths, ~ and file:// URLs", () => {
     assert.equal(P.localPath("", "/home/u"), "");
 });
 
+test("fileUrl() round-trips through localPath()", () => {
+    const path = "/home/u/Masaüstü/Örnek Vault/it's #1 ?%";
+    assert.equal(P.fileUrl("/home/u/Örnek Vault"), "file:///home/u/%C3%96rnek%20Vault");
+    assert.equal(P.localPath(P.fileUrl(path), "/home/u"), path);
+});
+
 test("vaultName()", () => {
     assert.equal(P.vaultName("/home/u/Masaüstü/Örnek Vault"), "Örnek Vault");
     assert.equal(P.vaultName("/home/u/Vault/"), "Vault");
