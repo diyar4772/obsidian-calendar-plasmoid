@@ -49,7 +49,7 @@
 
   <group name="Appearance">
     <entry name="designVariant" type="String">
-      <label>Visual direction while both are being evaluated.</label>
+      <label>"native" (like Plasma's calendar, word dots) or "journal" (heatmap tiles).</label>
       <default>native</default>
     </entry>
     <entry name="weekStart" type="Int">
@@ -80,8 +80,39 @@
     <entry name="showDateInPanel" type="Bool">
       <default>true</default>
     </entry>
-    <entry name="translucentBackground" type="Bool">
-      <default>false</default>
+    <entry name="colorScheme" type="String">
+      <label>Path of a KDE color scheme (*.colors) for the widget; empty to follow Plasma.</label>
+      <default></default>
+    </entry>
+    <entry name="accentMode" type="String">
+      <label>"auto" (Plasma or color scheme accent) or "custom".</label>
+      <default>auto</default>
+    </entry>
+    <entry name="customAccent" type="Color">
+      <default>#3daee9</default>
+    </entry>
+    <entry name="background" type="String">
+      <label>"plasma", "translucent", "custom" (drawn by the widget, uses backgroundOpacity) or "none".</label>
+      <default>plasma</default>
+    </entry>
+    <entry name="backgroundOpacity" type="Int">
+      <default>85</default>
+      <min>0</min>
+      <max>100</max>
+    </entry>
+    <entry name="textScale" type="Int">
+      <label>Text size in percent.</label>
+      <default>100</default>
+      <min>70</min>
+      <max>160</max>
+    </entry>
+    <entry name="density" type="String">
+      <label>"compact", "normal" or "comfortable".</label>
+      <default>normal</default>
+    </entry>
+    <entry name="tileShape" type="String">
+      <label>Journal design day shape: "rounded", "circle" or "square".</label>
+      <default>rounded</default>
     </entry>
   </group>
 </kcfg>

@@ -19,7 +19,8 @@ KCM.SimpleKCM {
 
     property string cfg_vaultPath
     property alias cfg_refreshInterval: refreshInterval.value
-    property string cfg_designVariant
+
+    readonly property string homePath: Paths.localPath(StandardPaths.writableLocation(StandardPaths.HomeLocation).toString(), "")
 
     Kirigami.FormLayout {
         RowLayout {
@@ -40,35 +41,33 @@ KCM.SimpleKCM {
             }
         }
 
+        QQC2.Label {
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 24
+            wrapMode: Text.Wrap
+            font: Kirigami.Theme.smallFont
+            opacity: 0.8
+            text: i18nc("@info", "The widget only reads the vault. Daily and weekly note settings are taken from Obsidian (core Daily notes, Periodic Notes and Calendar plugins); you can change them on the Notes page.")
+        }
+
+        Item {
+            Kirigami.FormData.isSection: true
+        }
+
         QQC2.SpinBox {
             id: refreshInterval
-            Kirigami.FormData.label: i18nc("@label:spinbox", "Rescan every:")
+            Kirigami.FormData.label: i18nc("@label:spinbox", "Check for new notes every:")
             from: 10
             to: 3600
             stepSize: 10
             textFromValue: (value, locale) => i18ncp("@item:valuesuffix", "%1 second", "%1 seconds", value)
             valueFromText: (text, locale) => parseInt(text, 10)
         }
-
-        QQC2.ComboBox {
-            Kirigami.FormData.label: i18nc("@label:listbox", "Design:")
-            textRole: "text"
-            valueRole: "value"
-            model: [
-                { text: i18nc("@item:inlistbox design direction", "Plasma Native"), value: "native" },
-                { text: i18nc("@item:inlistbox design direction", "Journal"), value: "journal" }
-            ]
-            Component.onCompleted: currentIndex = Math.max(0, indexOfValue(page.cfg_designVariant))
-            onActivated: page.cfg_designVariant = currentValue
-        }
     }
 
     Dialogs.FolderDialog {
         id: folderDialog
         title: i18nc("@title:window", "Choose Obsidian Vault")
-        currentFolder: page.cfg_vaultPath !== ""
-            ? "file://" + page.cfg_vaultPath
-            : StandardPaths.writableLocation(StandardPaths.HomeLocation)
+        currentFolder: Paths.fileUrl(Paths.localPath(page.cfg_vaultPath, page.homePath) || page.homePath)
         onAccepted: {
             page.cfg_vaultPath = Paths.localPath(selectedFolder.toString(), "");
             vaultField.text = page.cfg_vaultPath;
