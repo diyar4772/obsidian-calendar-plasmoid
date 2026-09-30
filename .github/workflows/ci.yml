@@ -56,7 +56,7 @@ jobs:
           dnf install -y --setopt=install_weak_deps=False
           nodejs plasma-sdk plasma-desktop plasma5support plasma-breeze
           kf6-kirigami kf6-kcmutils kf6-kdeclarative kf6-ksvg kf6-kpackage libplasma
-          qt6-qtdeclarative mesa-dri-drivers findutils
+          qt6-qtdeclarative mesa-dri-drivers findutils dbus-daemon
       - uses: actions/checkout@v4
       - run: scripts/smoke-test.sh
 

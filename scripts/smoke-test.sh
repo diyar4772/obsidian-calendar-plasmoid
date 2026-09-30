@@ -6,6 +6,13 @@
 # vaults and both designs, and fails on any QML error or warning from the
 # package. Used by CI; needs plasmoidviewer (plasma-sdk) and kpackagetool6.
 set -euo pipefail
+
+# plasmoidviewer needs a session bus (missing in CI containers).
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && command -v dbus-run-session >/dev/null; then
+    exec dbus-run-session -- "$0" "$@"
+fi
+export LANG=${LANG:-C.UTF-8} LC_ALL=${LC_ALL:-C.UTF-8}
+
 cd "$(dirname "$0")/.."
 ROOT=$PWD
 WORK=$(mktemp -d)
