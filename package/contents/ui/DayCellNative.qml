@@ -53,6 +53,7 @@ DayCell {
     }
 
     readonly property bool showDots: cellData.dots > 0
+    readonly property bool tinyDots: dotSize < 2
     // Room for the dot row under the number
     readonly property real dotsHeight: showDots ? dotSize * 2 : 0
 
@@ -76,9 +77,21 @@ DayCell {
                 opacity: cell.cellData.inMonth ? 1 : 0.5
             }
 
+            // Too small for separate dots: a bar whose length shows the
+            // level, like Plasma's calendar does for many events.
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: cell.showDots && cell.tinyDots
+                width: Math.max(2, cell.width * 0.14 * cell.cellData.dots)
+                height: 2
+                radius: 1
+                color: Kirigami.Theme.highlightColor
+                opacity: label.opacity
+            }
+
             Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                visible: cell.showDots
+                visible: cell.showDots && !cell.tinyDots
                 height: cell.dotsHeight
                 spacing: Math.max(1, Math.round(cell.dotSize / 2))
                 opacity: label.opacity
