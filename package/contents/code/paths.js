@@ -18,10 +18,6 @@ const EXIT_NO_FOLDER = 5;     // the notes folder doesn't exist (yet)
 // words-per-dot value and keeps huge notes cheap.
 const READ_LIMIT_BYTES = 262144;
 
-// Config files the config command reads, relative to .obsidian.
-const CONFIG_FILES = ["daily-notes.json", "core-plugins.json", "community-plugins.json",
-                      "plugins/periodic-notes/data.json", "plugins/calendar/data.json"];
-
 // Quotes a string for POSIX sh: wrap in single quotes and write each ' as '\''.
 // Returns null for strings that can't be passed to a command (NUL bytes).
 function shellQuote(value) {
@@ -91,16 +87,24 @@ function searchDepth(format) {
     return sample.split("/").filter(function (s) { return s !== ""; }).length || 1;
 }
 
-// Lists the vault's config files as "name\0contents\0" pairs.
-function configCommand(vaultPath) {
+// Prints the existing ones of `files` (paths relative to the vault's
+// .obsidian folder) as "name\0contents\0" pairs.
+function configCommand(vaultPath, files) {
     const vault = shellQuote(vaultPath);
     if (vault === null) {
         return null;
     }
-    const files = CONFIG_FILES.map(shellQuote).join(" ");
+    const quoted = [];
+    for (let i = 0; i < files.length; i++) {
+        const q = shellQuote(files[i]);
+        if (q === null) {
+            return null;
+        }
+        quoted.push(q);
+    }
     return "cd -- " + vault + " 2>/dev/null || exit " + EXIT_NO_VAULT + "; "
         + "[ -d .obsidian ] || exit " + EXIT_NOT_A_VAULT + "; "
-        + "for f in " + files + "; do "
+        + "for f in " + quoted.join(" ") + "; do "
         + "if [ -f \".obsidian/$f\" ]; then printf '%s\\0' \"$f\"; cat -- \".obsidian/$f\" | tr -d '\\000'; printf '\\0'; fi; "
         + "done; exit 0";
 }
@@ -108,14 +112,7 @@ function configCommand(vaultPath) {
 // Parses configCommand() output into { "daily-notes.json": "...", ... }.
 // Files that don't exist are absent.
 function parseConfigOutput(text) {
-    const result = {};
-    const fields = String(text).split("\0");
-    for (let i = 0; i + 1 < fields.length; i += 2) {
-        if (CONFIG_FILES.indexOf(fields[i]) !== -1) {
-            result[fields[i]] = fields[i + 1];
-        }
-    }
-    return result;
+    return parsePairs(text);
 }
 
 // Lists Markdown files under `folderPath` up to `depth` levels deep as
@@ -167,6 +164,11 @@ function readCommand(folderPath, relativePaths) {
 
 // Parses readCommand() output into { "relative/path.md": "contents" }.
 function parseReadOutput(text) {
+    return parsePairs(text);
+}
+
+// "name\0value\0name\0value\0" -> { name: value }
+function parsePairs(text) {
     const result = {};
     const fields = String(text).split("\0");
     for (let i = 0; i + 1 < fields.length; i += 2) {

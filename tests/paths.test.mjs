@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { load } from "./qmljs.mjs";
 
 const P = load("paths.js");
+const CONFIG_FILES = load("obsidianconfig.js").configFiles();
 
 // Every shell the command might run under.
 const SHELLS = ["/bin/sh", "/bin/bash", "/bin/dash", "/usr/bin/dash"].filter(existsSync);
@@ -117,7 +118,7 @@ test("commands work on hostile directory names and never run injected code", (t)
             writeFileSync(join(folder, "2024", "03", "2024-03-10.md"), "nested");
             writeFileSync(join(folder, "ignored.txt"), "not markdown");
 
-            const config = run(shell, P.configCommand(vault));
+            const config = run(shell, P.configCommand(vault, CONFIG_FILES));
             assert.equal(config.status, 0, `${shell} ${name}`);
             assert.deepEqual(P.parseConfigOutput(config.stdout), {
                 "daily-notes.json": '{"folder": "70 - Journal/71 - Daily"}',
@@ -150,8 +151,8 @@ test("commands report missing vault, missing .obsidian and missing folder", (t) 
     t.after(() => rmSync(root, { recursive: true, force: true }));
     mkdirSync(join(root, "not a vault"));
 
-    assert.equal(run("/bin/sh", P.configCommand(join(root, "missing"))).status, P.EXIT_NO_VAULT);
-    assert.equal(run("/bin/sh", P.configCommand(join(root, "not a vault"))).status, P.EXIT_NOT_A_VAULT);
+    assert.equal(run("/bin/sh", P.configCommand(join(root, "missing"), CONFIG_FILES)).status, P.EXIT_NO_VAULT);
+    assert.equal(run("/bin/sh", P.configCommand(join(root, "not a vault"), CONFIG_FILES)).status, P.EXIT_NOT_A_VAULT);
     assert.equal(run("/bin/sh", P.listCommand(join(root, "missing"), 1)).status, P.EXIT_NO_FOLDER);
     assert.equal(run("/bin/sh", P.readCommand(join(root, "missing"), ["a.md"])).status, P.EXIT_NO_FOLDER);
 });
@@ -166,7 +167,8 @@ test("NUL bytes inside files can't break parsing", (t) => {
 });
 
 test("builders refuse NUL in paths and clamp depth", () => {
-    assert.equal(P.configCommand("/a\0b"), null);
+    assert.equal(P.configCommand("/a\0b", CONFIG_FILES), null);
+    assert.equal(P.configCommand("/a", ["x\0"]), null);
     assert.equal(P.listCommand("/a\0b", 1), null);
     assert.equal(P.readCommand("/a", ["x\0.md"]), null);
     assert.equal(P.readCommand("/a", []), null);

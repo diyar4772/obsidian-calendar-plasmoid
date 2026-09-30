@@ -28,6 +28,22 @@ const FILES = {
     calendar: "plugins/calendar/data.json"
 };
 
+// Relative paths of FILES, for paths.configCommand().
+function configFiles() {
+    return Object.keys(FILES).map(function (k) { return FILES[k]; });
+}
+
+// Turns { "daily-notes.json": text, ... } (paths.parseConfigOutput()) into
+// the keyed form detect() takes.
+function filesByKey(byPath) {
+    const files = {};
+    const keys = Object.keys(FILES);
+    for (let i = 0; i < keys.length; i++) {
+        files[keys[i]] = byPath.hasOwnProperty(FILES[keys[i]]) ? byPath[FILES[keys[i]]] : null;
+    }
+    return files;
+}
+
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
 function isObject(value) {
