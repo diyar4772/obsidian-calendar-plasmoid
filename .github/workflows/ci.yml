@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 Samed Yolcu
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (Node)
+    # Ubuntu's /bin/sh is dash, so the shell-quoting tests also run under dash.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+
+  lint:
+    name: qmllint and translations
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install Qt, KDE QML modules and gettext
+        run: >
+          dnf install -y --setopt=install_weak_deps=False
+          nodejs qt6-qtdeclarative-devel kf6-kirigami libplasma plasma5support
+          kf6-kcmutils kf6-kdeclarative kf6-ksvg gettext diffutils findutils
+      - uses: actions/checkout@v4
+      - run: QMLLINT=/usr/lib64/qt6/bin/qmllint scripts/lint.sh
+
+  package:
+    name: Build .plasmoid
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install build tools
+        run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage
+      - uses: actions/checkout@v4
+      - run: scripts/build-plasmoid.sh
+      - name: Check that the package installs
+        run: |
+          export XDG_DATA_HOME=$(mktemp -d)
+          kpackagetool6 -t Plasma/Applet -i build/*.plasmoid
+          test -f "$XDG_DATA_HOME/plasma/plasmoids/io.github.diyar4772.obsidiancalendar/metadata.json"
+          test -f "$XDG_DATA_HOME/plasma/plasmoids/io.github.diyar4772.obsidiancalendar/contents/locale/tr/LC_MESSAGES/plasma_applet_io.github.diyar4772.obsidiancalendar.mo"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plasmoid
+          path: build/*.plasmoid

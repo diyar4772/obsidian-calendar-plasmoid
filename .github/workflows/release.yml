@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2026 Samed Yolcu
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install build tools
+        run: dnf install -y --setopt=install_weak_deps=False nodejs gettext zip unzip kf6-kpackage
+      - uses: actions/checkout@v4
+      - name: Check that the tag matches metadata.json
+        run: |
+          version=$(node -p 'require("./package/metadata.json").KPlugin.Version')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match metadata.json version $version" >&2
+            exit 1
+          fi
+      - run: npm test
+      - run: scripts/build-plasmoid.sh
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[.*\]: / { exit }
+            on { print }
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: build/*.plasmoid
+          body_path: release-notes.md
