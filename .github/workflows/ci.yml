@@ -26,6 +26,13 @@ jobs:
           node-version: 22
       - run: npm test
 
+  reuse:
+    name: REUSE licensing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v5
+
   lint:
     name: qmllint and translations
     runs-on: ubuntu-latest
@@ -39,9 +46,23 @@ jobs:
       - uses: actions/checkout@v4
       - run: QMLLINT=/usr/lib64/qt6/bin/qmllint scripts/lint.sh
 
+  smoke:
+    name: Load the widget (offscreen)
+    runs-on: ubuntu-latest
+    container: fedora:44
+    steps:
+      - name: Install Plasma, plasmoidviewer and Breeze
+        run: >
+          dnf install -y --setopt=install_weak_deps=False
+          nodejs plasma-sdk plasma-desktop plasma5support plasma-breeze
+          kf6-kirigami kf6-kcmutils kf6-kdeclarative kf6-ksvg kf6-kpackage libplasma
+          qt6-qtdeclarative mesa-dri-drivers findutils
+      - uses: actions/checkout@v4
+      - run: scripts/smoke-test.sh
+
   package:
     name: Build .plasmoid
-    needs: [test, lint]
+    needs: [test, lint, smoke]
     runs-on: ubuntu-latest
     container: fedora:44
     steps:
