@@ -1,0 +1,260 @@
+#!/usr/bin/env node
+// Generates fictional Obsidian vaults for tests, demos and screenshots.
+//
+//   node scripts/make-fixtures.mjs [--out DIR] [--today YYYY-MM-DD]
+//
+// Note dates are relative to "today", so the demo always looks alive. Output
+// is deterministic for a given date. Existing fixture vaults in the output
+// directory are replaced; nothing else there is touched.
+
+import { mkdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { load } from "../tests/qmljs.mjs";
+
+const Dates = load("dates.js");
+const DateFormat = load("dateformat.js");
+const Locales = load("locales.js");
+
+export const VAULTS = {
+    example: "Örnek Vault",
+    periodic: "Periodic Vault",
+    defaults: "Defaults Vault",
+    broken: "Broken Vault"
+};
+
+const DEFAULT_OUT = resolve(dirname(fileURLToPath(import.meta.url)), "../tests/fixtures");
+
+// Small seeded PRNG (mulberry32) so every run gives the same vaults.
+function random(seed) {
+    let a = seed >>> 0;
+    return () => {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+const WORDS = ("morning coffee walk notes idea project meeting review plan garden book chapter "
+    + "reading writing focus rest energy weather rain sunny calm busy quiet friends family "
+    + "code design sketch music practice run tired happy grateful learned tomorrow week goal "
+    + "sabah kahve yürüyüş fikir proje toplantı kitap okuma yazma odak dinlenme hava yağmur "
+    + "güneşli sakin yoğun arkadaşlar aile tasarım müzik koşu yorgun mutlu minnettar yarın hedef").split(" ");
+
+function sentence(rnd, words) {
+    const out = [];
+    for (let i = 0; i < words; i++) {
+        out.push(WORDS[Math.floor(rnd() * WORDS.length)]);
+    }
+    out[0] = out[0].charAt(0).toUpperCase() + out[0].slice(1);
+    return out.join(" ") + ".";
+}
+
+// A daily note with roughly `words` words of placeholder text.
+function dailyNote(rnd, date, words, withFrontmatter) {
+    const lines = [];
+    if (withFrontmatter) {
+        lines.push("---", `date: ${Dates.key(date)}`, "tags: [daily]", `mood: ${["good", "okay", "great"][Math.floor(rnd() * 3)]}`, "---", "");
+    }
+    lines.push(`# ${DateFormat.format(date, "dddd, MMMM Do YYYY", Locales.EN)}`, "");
+    let written = 0;
+    const sections = ["## Log", "## Notes", "## Tomorrow"];
+    let section = 0;
+    while (written < words) {
+        if (section < sections.length && (written === 0 || rnd() < 0.25)) {
+            lines.push(sections[section++], "");
+        }
+        if (rnd() < 0.3) {
+            lines.push(`- [${rnd() < 0.5 ? "x" : " "}] ${sentence(rnd, 4)}`);
+            written += 5;
+        } else {
+            const n = Math.min(words - written, 8 + Math.floor(rnd() * 30));
+            lines.push(sentence(rnd, Math.max(n, 1)), "");
+            written += Math.max(n, 1);
+        }
+    }
+    return lines.join("\n") + "\n";
+}
+
+function write(path, content, date) {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+    if (date) {
+        const t = new Date(date.y, date.m - 1, date.d, 21, 30);
+        utimesSync(path, t, t);
+    }
+}
+
+function writeJson(path, value) {
+    write(path, JSON.stringify(value, null, 2) + "\n");
+}
+
+// Dot levels (1-5 at 250 words per dot) cycle so any ten consecutive notes
+// show every level, shorter notes being more common.
+const LEVELS = [1, 2, 1, 3, 2, 4, 1, 5, 3, 2];
+
+// A word count for the i-th note. Level n >= 2 needs n * 250 words
+// (floor(words / 250) dots); targets stay well inside each range since
+// headings and list markers add a few words.
+function wordCount(rnd, i) {
+    const level = LEVELS[i % LEVELS.length];
+    return level === 1 ? 30 + Math.floor(rnd() * 400) : level * 250 + 30 + Math.floor(rnd() * 150);
+}
+
+// Days with notes: a streak of `streak` days ending `streakEnd` days before
+// today, plus scattered earlier days.
+function noteDays(rnd, today, span, density, streak, streakEnd) {
+    const days = [];
+    for (let back = span; back >= 0; back--) {
+        const inStreak = back >= streakEnd && back < streakEnd + streak;
+        const beforeStreak = back > streakEnd + streak; // leave a gap before the streak
+        if (inStreak || (beforeStreak && rnd() < density)) {
+            days.push(Dates.addDays(today, -back));
+        }
+    }
+    return days;
+}
+
+function obsidianBase(vault, core, community) {
+    writeJson(join(vault, ".obsidian", "app.json"), {});
+    if (core) writeJson(join(vault, ".obsidian", "core-plugins.json"), core);
+    if (community) writeJson(join(vault, ".obsidian", "community-plugins.json"), community);
+}
+
+function welcome(vault, text) {
+    write(join(vault, "Welcome.md"), `# Welcome\n\n${text}\n\nThis is a fictional demo vault generated by scripts/make-fixtures.mjs.\n`);
+}
+
+// Core Daily notes with a folder containing spaces and dashes, Calendar plugin.
+function exampleVault(vault, today) {
+    const rnd = random(1);
+    const folder = "70 - Journal/71 - Daily";
+    obsidianBase(vault, { "file-explorer": true, "daily-notes": true, templates: true }, ["calendar"]);
+    writeJson(join(vault, ".obsidian", "daily-notes.json"), { folder, format: "YYYY-MM-DD", template: "Templates/Daily" });
+    writeJson(join(vault, ".obsidian", "plugins", "calendar", "data.json"), {
+        shouldConfirmBeforeCreate: true, weekStart: "locale", wordsPerDot: 250, showWeeklyNote: true,
+        weeklyNoteFormat: "", weeklyNoteTemplate: "", weeklyNoteFolder: "", localeOverride: "system-default"
+    });
+    welcome(vault, "Daily notes live in *70 - Journal/71 - Daily* (core Daily notes plugin).");
+    write(join(vault, "Templates", "Daily.md"), "# {{date:dddd, MMMM Do YYYY}}\n\n## Log\n\n## Notes\n\n## Tomorrow\n");
+    write(join(vault, "Projeler", "Çalışma planı.md"), "# Çalışma planı\n\nNot a daily note.\n");
+    write(join(vault, folder, "Fikirler.md"), "Ideas that aren't a daily note, in the daily folder.\n");
+
+    const days = noteDays(rnd, today, 92, 0.55, 12, 0);
+    days.forEach((date, i) => {
+        const name = DateFormat.format(date, "YYYY-MM-DD", Locales.EN);
+        write(join(vault, folder, `${name}.md`), dailyNote(rnd, date, wordCount(rnd, i), rnd() < 0.5), date);
+    });
+    return days;
+}
+
+// Periodic Notes (daily + weekly) with a nested daily format. The core
+// Daily notes settings differ on purpose: Periodic Notes must win.
+function periodicVault(vault, today) {
+    const rnd = random(2);
+    obsidianBase(vault, { "daily-notes": false }, ["periodic-notes", "calendar"]);
+    writeJson(join(vault, ".obsidian", "daily-notes.json"), { folder: "Old Daily", format: "DD.MM.YYYY" });
+    writeJson(join(vault, ".obsidian", "plugins", "periodic-notes", "data.json"), {
+        showGettingStartedBanner: false, hasMigratedDailyNoteSettings: true, hasMigratedWeeklyNoteSettings: true,
+        daily: { format: "YYYY/MM/YYYY-MM-DD", folder: "Journal/Daily", template: "", enabled: true },
+        weekly: { format: "gggg-[W]ww", folder: "Journal/Weekly", template: "", enabled: true },
+        monthly: { format: "", folder: "", template: "", enabled: false }
+    });
+    writeJson(join(vault, ".obsidian", "plugins", "calendar", "data.json"), {
+        shouldConfirmBeforeCreate: true, weekStart: "monday", wordsPerDot: 100, showWeeklyNote: true,
+        weeklyNoteFormat: "", weeklyNoteTemplate: "", weeklyNoteFolder: "", localeOverride: "system-default"
+    });
+    welcome(vault, "Uses Periodic Notes: daily notes in Journal/Daily/YYYY/MM, weekly notes in Journal/Weekly.");
+
+    // Today has no note yet; the streak ends yesterday.
+    const days = noteDays(rnd, today, 75, 0.5, 6, 1);
+    days.forEach((date, i) => {
+        // wordsPerDot is 100 in this vault
+        const name = DateFormat.format(date, "YYYY/MM/YYYY-MM-DD", Locales.EN);
+        write(join(vault, "Journal", "Daily", `${name}.md`), dailyNote(rnd, date, Math.floor(wordCount(rnd, i) * 0.4), false), date);
+    });
+
+    const locale = Locales.withWeekStart(Locales.EN, 1);
+    const weeks = [];
+    for (let i = 0; i < 10; i++) {
+        if (i === 2 || i === 5) continue; // a few missing weeks
+        const start = Dates.startOfWeek(Dates.addDays(today, -7 * i), 1);
+        const name = DateFormat.format(start, "gggg-[W]ww", locale);
+        write(join(vault, "Journal", "Weekly", `${name}.md`), `# Week ${name}\n\n${sentence(rnd, 40)}\n`, start);
+        weeks.push(start);
+    }
+    return { days, weeks };
+}
+
+// No daily-notes.json: vault root and YYYY-MM-DD.
+function defaultsVault(vault, today) {
+    const rnd = random(3);
+    obsidianBase(vault, null, null);
+    welcome(vault, "No daily-notes.json: daily notes are in the vault root with the default format.");
+    const days = noteDays(rnd, today, 60, 0.4, 3, 0);
+    days.forEach((date, i) => {
+        write(join(vault, `${Dates.key(date)}.md`), dailyNote(rnd, date, wordCount(rnd, i), false), date);
+    });
+    return days;
+}
+
+// Malformed daily-notes.json: the widget must show an error.
+function brokenVault(vault, today) {
+    const rnd = random(4);
+    obsidianBase(vault, { "daily-notes": true }, []);
+    write(join(vault, ".obsidian", "daily-notes.json"), '{\n  "folder": "Daily",\n  "format": "YYYY-MM-DD",\n');
+    welcome(vault, "daily-notes.json is malformed on purpose.");
+    const days = [0, 1, 3, 4, 8].map((back) => Dates.addDays(today, -back));
+    for (const date of days) {
+        write(join(vault, "Daily", `${Dates.key(date)}.md`), dailyNote(rnd, date, 60, false), date);
+    }
+    return days;
+}
+
+// Creates all fixture vaults in `outDir` for `today` ({y, m, d}).
+// Returns what was generated, for tests.
+export function makeFixtures(outDir, today) {
+    mkdirSync(outDir, { recursive: true });
+    const path = (key) => {
+        const p = join(outDir, VAULTS[key]);
+        rmSync(p, { recursive: true, force: true });
+        return p;
+    };
+    return {
+        example: { path: path("example"), days: exampleVault(join(outDir, VAULTS.example), today) },
+        periodic: { path: path("periodic"), ...periodicVault(join(outDir, VAULTS.periodic), today) },
+        defaults: { path: path("defaults"), days: defaultsVault(join(outDir, VAULTS.defaults), today) },
+        broken: { path: path("broken"), days: brokenVault(join(outDir, VAULTS.broken), today) }
+    };
+}
+
+function parseArgs(argv) {
+    const args = { out: DEFAULT_OUT, today: Dates.fromJsDate(new Date()) };
+    for (let i = 0; i < argv.length; i++) {
+        if (argv[i] === "--out") {
+            args.out = resolve(argv[++i]);
+        } else if (argv[i] === "--today") {
+            const [y, m, d] = String(argv[++i]).split("-").map(Number);
+            args.today = Dates.make(y, m, d);
+            if (!Dates.isValid(args.today)) throw new Error(`Invalid --today date: ${argv[i]}`);
+        } else {
+            throw new Error(`Unknown argument: ${argv[i]}\nUsage: make-fixtures.mjs [--out DIR] [--today YYYY-MM-DD]`);
+        }
+    }
+    return args;
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+    try {
+        const args = parseArgs(process.argv.slice(2));
+        const result = makeFixtures(args.out, args.today);
+        for (const vault of Object.values(result)) {
+            console.log(`${vault.path}  (${vault.days.length} daily notes)`);
+        }
+    } catch (e) {
+        console.error(e.message);
+        process.exit(1);
+    }
+}
