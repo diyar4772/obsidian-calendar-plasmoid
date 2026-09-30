@@ -76,6 +76,11 @@ msgstr[1] ""
 
 #, kde-format
 msgctxt "@action:button"
+msgid "Year Overview"
+msgstr ""
+
+#, kde-format
+msgctxt "@action:button"
 msgid "Previous Month"
 msgstr ""
 
@@ -716,6 +721,114 @@ msgid "No weekly note"
 msgstr ""
 
 #, kde-format
+msgctxt "@title:window"
+msgid "Year Overview"
+msgstr ""
+
+#, kde-format
+msgctxt "@info %2 is the formatted number"
+msgid "%2 word"
+msgid_plural "%2 words"
+msgstr[0] ""
+msgstr[1] ""
+
+#, kde-format
+msgctxt "@info"
+msgid "%1 note"
+msgid_plural "%1 notes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, kde-format
+msgctxt "@info year summary"
+msgid "counting words…"
+msgstr ""
+
+#, kde-format
+msgctxt "@info"
+msgid "Current streak: %1 day"
+msgid_plural "Current streak: %1 days"
+msgstr[0] ""
+msgstr[1] ""
+
+#, kde-format
+msgctxt "@info"
+msgid "Longest streak: %1 day"
+msgid_plural "Longest streak: %1 days"
+msgstr[0] ""
+msgstr[1] ""
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Previous Year"
+msgstr ""
+
+#, kde-format
+msgctxt "@action:button"
+msgid "This Year"
+msgstr ""
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Next Year"
+msgstr ""
+
+#, kde-format
+msgctxt "@info:tooltip a note whose words aren't counted yet"
+msgid "Note"
+msgstr ""
+
+#, kde-format
+msgctxt "@info heatmap legend: shorter notes"
+msgid "Less"
+msgstr ""
+
+#, kde-format
+msgctxt "@info heatmap legend: longer notes"
+msgid "More"
+msgstr ""
+
+#, kde-format
+msgctxt "@title"
+msgid "Words per Month and Week"
+msgstr ""
+
+#, kde-format
+msgctxt "@title"
+msgid "Notes per Month and Week"
+msgstr ""
+
+#, kde-format
+msgctxt "@option:radio chart values"
+msgid "Notes"
+msgstr ""
+
+#, kde-format
+msgctxt "@option:radio chart values"
+msgid "Words"
+msgstr ""
+
+#, kde-format
+msgctxt "@title chart"
+msgid "Per month"
+msgstr ""
+
+#, kde-format
+msgctxt "@title chart"
+msgid "Per ISO week"
+msgstr ""
+
+#, kde-format
+msgctxt "@info:tooltip %1 week number, %2 date the week starts"
+msgid "Week %1, from %2"
+msgstr ""
+
+#, kde-format
+msgctxt "@info largest value in a chart"
+msgid "max %1"
+msgstr ""
+
+#, kde-format
 msgctxt "@info:tooltip"
 msgid "Calendar for Obsidian"
 msgstr ""
@@ -745,6 +858,11 @@ msgstr ""
 #, kde-format
 msgctxt "@action"
 msgid "Open Vault in Obsidian"
+msgstr ""
+
+#, kde-format
+msgctxt "@action"
+msgid "Year Overview"
 msgstr ""
 
 #, kde-format

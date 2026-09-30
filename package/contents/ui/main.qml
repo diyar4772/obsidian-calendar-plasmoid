@@ -105,6 +105,7 @@ PlasmoidItem {
         })
         onDayActivated: date => root.openDay(date)
         onWeekActivated: weekStart => root.openWeek(weekStart)
+        onYearOverviewRequested: root.openYearOverview()
     }
 
     onExpandedChanged: {
@@ -125,6 +126,12 @@ PlasmoidItem {
             icon.name: "document-open-folder"
             enabled: root.scanner.status === "ready"
             onTriggered: root.openUri(Paths.vaultUri(root.scanner.vaultName))
+        },
+        PlasmaCore.Action {
+            text: i18nc("@action", "Year Overview")
+            icon.name: "office-chart-bar"
+            enabled: root.scanner.status === "ready"
+            onTriggered: root.openYearOverview()
         },
         PlasmaCore.Action {
             text: i18nc("@action", "Rescan Vault")
@@ -163,6 +170,22 @@ PlasmoidItem {
         } else if (Dates.equals(date, today) || cfg.emptyDayAction === "create") {
             root.openUri(Paths.newUri(scanner.vaultName, Paths.joinPath(scanner.settings.daily.folder, rel)));
         }
+    }
+
+    // The Year Overview window, created the first time it's opened.
+    Loader {
+        id: yearOverview
+        active: false
+        sourceComponent: YearOverview {
+            scanner: root.scanner
+            today: root.today
+            onDayActivated: date => root.openDay(date)
+        }
+    }
+
+    function openYearOverview() {
+        yearOverview.active = true;
+        (yearOverview.item as YearOverview).open(root.today.y);
     }
 
     function openWeek(weekStart) {

@@ -38,6 +38,7 @@ Item {
 
     signal dayActivated(var date)
     signal weekActivated(var weekStart)
+    signal yearOverviewRequested()
 
     readonly property bool ownColors: schemeColors !== null || customAccent
 
@@ -47,6 +48,16 @@ Item {
     Layout.preferredHeight: Kirigami.Units.gridUnit * 20
 
     onVisibleChanged: if (visible) scanner.refresh()
+
+    // Double-clicking the month title or anywhere around the days opens the
+    // Year Overview. It lies under the calendar, whose day cells take their
+    // own clicks, so opening a note stays a single click without delay.
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton
+        enabled: full.scanner.status === "ready"
+        onDoubleClicked: full.yearOverviewRequested()
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -163,6 +174,7 @@ Item {
                 focus: true
                 onDayActivated: date => full.dayActivated(date)
                 onWeekActivated: weekStart => full.weekActivated(weekStart)
+                onYearOverviewRequested: full.yearOverviewRequested()
             }
 
             PlasmaExtras.PlaceholderMessage {

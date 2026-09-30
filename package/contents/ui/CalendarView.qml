@@ -57,6 +57,7 @@ FocusScope {
 
     signal dayActivated(var date)
     signal weekActivated(var weekStart)
+    signal yearOverviewRequested()
 
     Accessible.role: Accessible.Pane
     Accessible.name: i18nc("@info accessible name, %1 month %2 year", "Calendar, %1 %2", monthTitle(month.y, month.m), month.y)
@@ -405,6 +406,17 @@ FocusScope {
     component NavButtons: RowLayout {
         property bool showTodayText
         spacing: 0
+
+        PlasmaComponents.ToolButton {
+            visible: !view.narrow
+            text: i18nc("@action:button", "Year Overview")
+            icon.name: "office-chart-bar"
+            display: PlasmaComponents.AbstractButton.IconOnly
+            onClicked: view.yearOverviewRequested()
+            PlasmaComponents.ToolTip.text: text
+            PlasmaComponents.ToolTip.visible: hovered
+            PlasmaComponents.ToolTip.delay: Kirigami.Units.toolTipDelay
+        }
 
         PlasmaComponents.ToolButton {
             id: previousButton

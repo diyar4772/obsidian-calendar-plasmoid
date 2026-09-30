@@ -73,6 +73,11 @@ msgstr[1] "Bu ay %1 not"
 
 #, kde-format
 msgctxt "@action:button"
+msgid "Year Overview"
+msgstr "Yıl Özeti"
+
+#, kde-format
+msgctxt "@action:button"
 msgid "Previous Month"
 msgstr "Önceki Ay"
 
@@ -744,6 +749,114 @@ msgid "No weekly note"
 msgstr "Haftalık not yok"
 
 #, kde-format
+msgctxt "@title:window"
+msgid "Year Overview"
+msgstr "Yıl Özeti"
+
+#, kde-format
+msgctxt "@info %2 is the formatted number"
+msgid "%2 word"
+msgid_plural "%2 words"
+msgstr[0] "%2 kelime"
+msgstr[1] "%2 kelime"
+
+#, kde-format
+msgctxt "@info"
+msgid "%1 note"
+msgid_plural "%1 notes"
+msgstr[0] "%1 not"
+msgstr[1] "%1 not"
+
+#, kde-format
+msgctxt "@info year summary"
+msgid "counting words…"
+msgstr "kelimeler sayılıyor…"
+
+#, kde-format
+msgctxt "@info"
+msgid "Current streak: %1 day"
+msgid_plural "Current streak: %1 days"
+msgstr[0] "Güncel seri: %1 gün"
+msgstr[1] "Güncel seri: %1 gün"
+
+#, kde-format
+msgctxt "@info"
+msgid "Longest streak: %1 day"
+msgid_plural "Longest streak: %1 days"
+msgstr[0] "En uzun seri: %1 gün"
+msgstr[1] "En uzun seri: %1 gün"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Previous Year"
+msgstr "Önceki Yıl"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "This Year"
+msgstr "Bu Yıl"
+
+#, kde-format
+msgctxt "@action:button"
+msgid "Next Year"
+msgstr "Sonraki Yıl"
+
+#, kde-format
+msgctxt "@info:tooltip a note whose words aren't counted yet"
+msgid "Note"
+msgstr "Not"
+
+#, kde-format
+msgctxt "@info heatmap legend: shorter notes"
+msgid "Less"
+msgstr "Az"
+
+#, kde-format
+msgctxt "@info heatmap legend: longer notes"
+msgid "More"
+msgstr "Çok"
+
+#, kde-format
+msgctxt "@title"
+msgid "Words per Month and Week"
+msgstr "Aylara ve Haftalara Göre Kelimeler"
+
+#, kde-format
+msgctxt "@title"
+msgid "Notes per Month and Week"
+msgstr "Aylara ve Haftalara Göre Notlar"
+
+#, kde-format
+msgctxt "@option:radio chart values"
+msgid "Notes"
+msgstr "Notlar"
+
+#, kde-format
+msgctxt "@option:radio chart values"
+msgid "Words"
+msgstr "Kelimeler"
+
+#, kde-format
+msgctxt "@title chart"
+msgid "Per month"
+msgstr "Aylara göre"
+
+#, kde-format
+msgctxt "@title chart"
+msgid "Per ISO week"
+msgstr "ISO haftalarına göre"
+
+#, kde-format
+msgctxt "@info:tooltip %1 week number, %2 date the week starts"
+msgid "Week %1, from %2"
+msgstr "%1. hafta, başlangıç: %2"
+
+#, kde-format
+msgctxt "@info largest value in a chart"
+msgid "max %1"
+msgstr "en çok %1"
+
+#, kde-format
 msgctxt "@info:tooltip"
 msgid "Calendar for Obsidian"
 msgstr "Obsidian için Takvim"
@@ -774,6 +887,11 @@ msgstr "Bugünün Notunu Aç"
 msgctxt "@action"
 msgid "Open Vault in Obsidian"
 msgstr "Kasayı Obsidian'da Aç"
+
+#, kde-format
+msgctxt "@action"
+msgid "Year Overview"
+msgstr "Yıl Özeti"
 
 #, kde-format
 msgctxt "@action"
