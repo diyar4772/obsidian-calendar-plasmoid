@@ -9,6 +9,14 @@
   },
   "scripts": {
     "test": "node --test \"tests/*.test.mjs\"",
-    "fixtures": "node scripts/make-fixtures.mjs"
+    "lint": "scripts/lint.sh",
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "i18n": "scripts/i18n.sh",
+    "screenshots": "scripts/screenshots.sh",
+    "build": "scripts/build-plasmoid.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diyar4772/obsidian-calendar-plasmoid.git"
   }
 }
