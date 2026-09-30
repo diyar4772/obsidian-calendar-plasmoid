@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { load } from "./qmljs.mjs";
@@ -156,6 +156,25 @@ test("commands work on hostile directory names and never run injected code", (t)
     }
 });
 
+test("listCommand() skips hidden folders but follows symlinked ones", (t) => {
+    const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    for (const dir of [".obsidian", ".trash", ".git/objects", "2024", "elsewhere"]) {
+        mkdirSync(join(root, dir), { recursive: true });
+    }
+    writeFileSync(join(root, "2024-01-01.md"), "a");
+    writeFileSync(join(root, ".obsidian", "2024-01-02.md"), "b");
+    writeFileSync(join(root, ".trash", "2024-01-03.md"), "c");
+    writeFileSync(join(root, ".git", "objects", "2024-01-04.md"), "d");
+    writeFileSync(join(root, "2024", "2024-01-05.md"), "e");
+    writeFileSync(join(root, "elsewhere", "2024-01-06.md"), "f");
+    writeFileSync(join(root, ".hidden-note.md"), "g");
+    symlinkSync(join(root, "elsewhere"), join(root, "linked"));
+    const files = P.parseListOutput(run("/bin/sh", P.listCommand(root, 3)).stdout);
+    assert.deepEqual(Object.keys(files).sort(),
+        [".hidden-note.md", "2024-01-01.md", "2024/2024-01-05.md", "elsewhere/2024-01-06.md", "linked/2024-01-06.md"]);
+});
+
 test("commands report missing vault, missing .obsidian and missing folder", (t) => {
     const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
     t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -174,6 +193,18 @@ test("NUL bytes inside files can't break parsing", (t) => {
     writeFileSync(join(root, "b.md"), "three");
     const out = run("/bin/sh", P.readCommand(root, ["a.md", "b.md"])).stdout;
     assert.deepEqual(P.parseReadOutput(out), { "a.md": "onetwo", "b.md": "three" });
+});
+
+test("readFilesCommand() prints only existing files", (t) => {
+    const root = mkdtempSync(join(tmpdir(), "obsidian-calendar-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const a = join(root, "it's a.json");
+    writeFileSync(a, '{"vaults":{}}');
+    const out = run("/bin/sh", P.readFilesCommand([a, join(root, "missing.json")]));
+    assert.equal(out.status, 0);
+    assert.deepEqual(P.parseReadOutput(out.stdout), { [a]: '{"vaults":{}}' });
+    assert.equal(P.readFilesCommand([]), null);
+    assert.equal(P.readFilesCommand(["a\0b"]), null);
 });
 
 test("builders refuse NUL in paths and clamp depth", () => {

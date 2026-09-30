@@ -31,6 +31,44 @@ const FILES = {
     calendar: "plugins/calendar/data.json"
 };
 
+// Where Obsidian keeps its list of vaults (obsidian.json), relative to the
+// home folder, for the native, Flatpak and Snap builds. The native path uses
+// the config folder, which the caller resolves (usually ~/.config).
+const OBSIDIAN_JSON = [
+    ".var/app/md.obsidian.Obsidian/config/obsidian/obsidian.json",
+    "snap/obsidian/current/.config/obsidian/obsidian.json"
+];
+
+// Vaults Obsidian knows, from the contents of obsidian.json files:
+// [{ path, name }], most recently opened first, without duplicates.
+// Unreadable or malformed files are ignored.
+function knownVaults(texts) {
+    const found = {};
+    for (let i = 0; i < texts.length; i++) {
+        const parsed = parseJson(texts[i]);
+        if (parsed.error !== undefined || !isObject(parsed.value) || !isObject(parsed.value.vaults)) {
+            continue;
+        }
+        const vaults = parsed.value.vaults;
+        const ids = Object.keys(vaults);
+        for (let j = 0; j < ids.length; j++) {
+            const vault = vaults[ids[j]];
+            if (!isObject(vault) || typeof vault.path !== "string" || vault.path.charAt(0) !== "/") {
+                continue;
+            }
+            const path = vault.path.replace(/\/+$/, "") || "/";
+            const ts = typeof vault.ts === "number" ? vault.ts : 0;
+            if (!found.hasOwnProperty(path) || found[path].ts < ts) {
+                found[path] = { path: path, name: path.substring(path.lastIndexOf("/") + 1), ts: ts };
+            }
+        }
+    }
+    return Object.keys(found)
+        .map(function (k) { return found[k]; })
+        .sort(function (a, b) { return b.ts - a.ts || a.name.localeCompare(b.name); })
+        .map(function (v) { return { path: v.path, name: v.name }; });
+}
+
 // Relative paths of FILES, for paths.configCommand().
 function configFiles() {
     return Object.keys(FILES).map(function (k) { return FILES[k]; });

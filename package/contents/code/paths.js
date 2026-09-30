@@ -124,7 +124,8 @@ function parseConfigOutput(text) {
 }
 
 // Lists Markdown files under `folderPath` up to `depth` levels deep as
-// "size mtime relative/path\0" records.
+// "size mtime relative/path\0" records. Hidden folders (.obsidian, .trash,
+// .git…) are skipped; symlinked folders are followed, bounded by the depth.
 function listCommand(folderPath, depth) {
     const folder = shellQuote(folderPath);
     const maxDepth = Math.max(1, Math.min(8, Math.floor(depth) || 1));
@@ -132,7 +133,8 @@ function listCommand(folderPath, depth) {
         return null;
     }
     return "cd -- " + folder + " 2>/dev/null || exit " + EXIT_NO_FOLDER + "; "
-        + "find -L . -mindepth 1 -maxdepth " + maxDepth + " -type f -name '*.md' -printf '%s %T@ %P\\0'";
+        + "find -L . -mindepth 1 -maxdepth " + maxDepth
+        + " \\( -type d -name '.*' -prune \\) -o \\( -type f -name '*.md' -printf '%s %T@ %P\\0' \\)";
 }
 
 // Parses listCommand() output into { "relative/path.md": { size, mtime } },
@@ -168,6 +170,24 @@ function readCommand(folderPath, relativePaths) {
         + "for f in " + quoted.join(" ") + "; do "
         + "printf '%s\\0' \"$f\"; head -c " + READ_LIMIT_BYTES + " -- \"$f\" 2>/dev/null | tr -d '\\000'; printf '\\0'; "
         + "done";
+}
+
+// Prints the existing ones of `absolutePaths` as "path\0contents\0" pairs.
+function readFilesCommand(absolutePaths) {
+    const quoted = [];
+    for (let i = 0; i < absolutePaths.length; i++) {
+        const q = shellQuote(absolutePaths[i]);
+        if (q === null) {
+            return null;
+        }
+        quoted.push(q);
+    }
+    if (quoted.length === 0) {
+        return null;
+    }
+    return "for f in " + quoted.join(" ") + "; do "
+        + "if [ -f \"$f\" ]; then printf '%s\\0' \"$f\"; head -c " + READ_LIMIT_BYTES + " -- \"$f\" | tr -d '\\000'; printf '\\0'; fi; "
+        + "done; exit 0";
 }
 
 // Parses readCommand() output into { "relative/path.md": "contents" }.

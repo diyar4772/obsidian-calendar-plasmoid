@@ -269,3 +269,21 @@ test("normalizeFolder()", () => {
     assert.equal(C.normalizeFolder(null), "");
     assert.equal(C.normalizeFolder("a/../b"), null);
 });
+
+test("knownVaults() lists Obsidian's vaults, newest first", () => {
+    const native = json({ vaults: {
+        a1: { path: "/home/u/Notes", ts: 100, open: true },
+        b2: { path: "/home/u/Masaüstü/Örnek Vault/", ts: 300 },
+        c3: { path: "relative/ignored", ts: 999 },
+        d4: { ts: 5 },
+        e5: "junk"
+    } });
+    const flatpak = json({ vaults: { x: { path: "/home/u/Notes", ts: 400 }, y: { path: "/mnt/usb/Work" } } });
+    assert.deepEqual(C.knownVaults([native, flatpak, "{broken", null, json([]), json({ vaults: [] })]), [
+        { path: "/home/u/Notes", name: "Notes" },
+        { path: "/home/u/Masaüstü/Örnek Vault", name: "Örnek Vault" },
+        { path: "/mnt/usb/Work", name: "Work" }
+    ]);
+    assert.deepEqual(C.knownVaults([]), []);
+    assert.ok(Array.isArray(C.OBSIDIAN_JSON));
+});
