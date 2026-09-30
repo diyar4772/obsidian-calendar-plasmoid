@@ -47,12 +47,18 @@ Item {
         return style.density === "comfortable" ? Math.round(Kirigami.Units.smallSpacing / 2) : 0;
     }
 
+    // What this page last showed, so only changes animate: date key ->
+    // dots (-1: no note), and "today" -> the key of today once it was seen.
+    // Mutated in place, so reading it doesn't make `cells` depend on it.
+    readonly property var shown: ({})
+
     // Flat list of cells, row by row: an optional week cell, then seven days.
     readonly property var cells: {
         if (!locale || year === 0) {
             return [];
         }
         const revision = scanner.revision; // re-evaluate when the vault changes
+        const visibleNow = page.visible; // today's intro waits until the page is seen
         const weeks = Calendar.monthGrid(year, month, locale, { fixedRows: true, iso: isoWeekNumbers });
         const sizeDots = scanner.dotSource === "size" ? scanner.monthSizeDots(year, month) : null;
         const hasWeekly = scanner.settings !== null && scanner.settings.weekly !== null;
@@ -74,13 +80,21 @@ Item {
             for (let i = 0; i < 7; i++) {
                 const date = weeks[r].days[i];
                 const hasNote = scanner.hasNote(date);
+                const dots = hasNote ? scanner.dotsFor(date, sizeDots) : 0;
+                const key = Dates.key(date);
+                const before = shown[key];
+                const isToday = Dates.equals(date, today);
                 result.push({
                     isWeek: false,
                     date: date,
                     inMonth: date.m === month,
-                    isToday: Dates.equals(date, today),
+                    isToday: isToday,
                     hasNote: hasNote,
-                    dots: hasNote ? scanner.dotsFor(date, sizeDots) : 0,
+                    dots: dots,
+                    // Dots changed since the last build: fade them in.
+                    fresh: before !== undefined && before !== (hasNote ? dots : -1),
+                    prevDots: before,
+                    todayFresh: isToday && visibleNow && shown.today !== key,
                     words: hasNote ? scanner.wordsFor(date) : -1,
                     path: scanner.settings ? scanner.dailyPath(date) : ""
                 });
@@ -96,6 +110,16 @@ Item {
     property var lastFocusedDate: null
 
     onCellsChanged: {
+        for (let i = 0; i < cells.length; i++) {
+            const c = cells[i];
+            if (!c.isWeek) {
+                const key = Dates.key(c.date);
+                shown[key] = c.hasNote ? c.dots : -1;
+                if (c.todayFresh) {
+                    shown.today = key;
+                }
+            }
+        }
         if (!active || lastFocusedDate === null) {
             return;
         }

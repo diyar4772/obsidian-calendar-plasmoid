@@ -10,6 +10,10 @@ All notable changes to this project are documented here. The format follows
 
 - Language setting (*General → Language*): System default, English or Türkçe
   for month and day names, dates and the calendar's texts.
+- Subtle animations: jumping to today slides and fades the month in, the
+  month title fades, days and week numbers react to hover and press, new
+  word-count dots and heatmap tints fade in, and today's marker settles in
+  when first shown. They follow Plasma's animation speed.
 
 ### Fixed
 

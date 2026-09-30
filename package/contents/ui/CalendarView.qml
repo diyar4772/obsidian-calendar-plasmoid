@@ -72,9 +72,7 @@ FocusScope {
 
     // Keyboard focus moved past the grid: show that month and focus the day.
     function focusDate(date) {
-        if (date.y !== month.y || date.m !== month.m) {
-            month = { y: date.y, m: date.m };
-        }
+        jumpTo(date.y, date.m);
         Qt.callLater(() => {
             const page = pages.currentItem as MonthPage;
             if (page) {
@@ -92,7 +90,18 @@ FocusScope {
         pages.incrementCurrentIndex();
     }
     function goToToday() {
-        month = { y: today.y, m: today.m };
+        jumpTo(today.y, today.m);
+    }
+    // Months that aren't reached by scrolling slide in from the direction
+    // they're in and fade in (Previous/Next scroll the list instead).
+    function jumpTo(y, m) {
+        if (y === month.y && m === month.m) {
+            return;
+        }
+        const later = y * 12 + m > month.y * 12 + month.m;
+        month = { y: y, m: m };
+        jumpAnimation.distance = (later ? 1 : -1) * Kirigami.Units.gridUnit * 1.5;
+        jumpAnimation.restart();
     }
     function shiftMonth(delta) {
         const d = Dates.addMonths(Dates.make(month.y, month.m, 1), delta);
@@ -174,6 +183,10 @@ FocusScope {
             readonly property real cellWidth: width / (7 + (view.showWeekNumbers ? 1 : 0))
             property bool dragHandled: false
 
+            // Offset and opacity of the pages while jumping to a month
+            property real jumpOffset: 0
+            property real jumpOpacity: 1
+
             clip: true
             model: 3
             currentIndex: 1
@@ -200,6 +213,8 @@ FocusScope {
 
                 width: pages.width
                 height: pages.height
+                transform: Translate { y: pages.jumpOffset }
+                opacity: pages.jumpOpacity
                 scanner: view.scanner
                 today: view.today
                 variant: view.variant
@@ -266,6 +281,36 @@ FocusScope {
         }
     }
 
+    ParallelAnimation {
+        id: jumpAnimation
+        property real distance: 0
+        NumberAnimation {
+            target: pages
+            property: "jumpOffset"
+            from: jumpAnimation.distance
+            to: 0
+            duration: Kirigami.Units.longDuration
+            easing.type: Easing.OutCubic
+        }
+        NumberAnimation {
+            target: pages
+            property: "jumpOpacity"
+            from: 0.2
+            to: 1
+            duration: Kirigami.Units.longDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    // The month title fades in when it changes.
+    component FadingTitle: NumberAnimation {
+        property: "opacity"
+        from: 0.25
+        to: 1
+        duration: Kirigami.Units.longDuration
+        easing.type: Easing.OutCubic
+    }
+
     // --- Plasma Native ------------------------------------------------------
 
     Component {
@@ -275,9 +320,15 @@ FocusScope {
             spacing: 0
 
             Kirigami.Heading {
+                id: nativeTitle
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 level: 2
+                onTextChanged: nativeFade.restart()
+                FadingTitle {
+                    id: nativeFade
+                    target: nativeTitle
+                }
                 font.pointSize: view.points(view.tiny ? 1 : 1.2)
                 text: view.month.y === view.today.y
                     ? view.monthTitle(view.month.y, view.month.m)
@@ -315,9 +366,17 @@ FocusScope {
             spacing: Kirigami.Units.smallSpacing
 
             ColumnLayout {
+                id: journalTitle
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 spacing: 0
+
+                readonly property string title: view.monthTitle(view.month.y, view.month.m) + " " + view.month.y
+                onTitleChanged: journalFade.restart()
+                FadingTitle {
+                    id: journalFade
+                    target: journalTitle
+                }
 
                 PlasmaComponents.Label {
                     Layout.fillWidth: true

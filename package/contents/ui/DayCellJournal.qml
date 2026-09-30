@@ -19,7 +19,15 @@ DayCell {
     // Tint strength per dot level (0 = no note).
     readonly property var tints: [0, 0.22, 0.36, 0.52, 0.7, 0.88]
     // A note always gets at least the first level, even when dots are off.
-    readonly property real tint: cell.cellData.hasNote ? tints[Math.max(1, Math.min(5, cell.cellData.dots))] : 0
+    readonly property real tint: level(cell.cellData.hasNote ? cell.cellData.dots : -1)
+    // The tint before the last scan, blended into the new one as it arrives.
+    readonly property real shownTint: reveal === 1 ? tint
+        : level(cellData.prevDots === undefined ? -1 : cellData.prevDots) * (1 - reveal) + tint * reveal
+
+    // Dots of a note (-1: no note) as a tint strength
+    function level(dots) {
+        return dots < 0 ? 0 : tints[Math.max(1, Math.min(5, dots))];
+    }
     readonly property color accent: Kirigami.Theme.highlightColor
     readonly property bool strong: tint >= 0.6
 
@@ -31,10 +39,12 @@ DayCell {
         height: cell.shape === "circle" ? side : Math.min(cell.height, cell.width * 1.25)
         x: (cell.width - width) / 2
         y: (cell.height - height) / 2
+        // Today's ring settles in the first time the page shows it.
+        scale: cell.cellData.isToday ? 0.7 + 0.3 * cell.todayIntro : 1
         radius: cell.shape === "circle" ? side / 2 : cell.shape === "square" ? 0 : (Kirigami.Units.cornerRadius ?? Kirigami.Units.smallSpacing)
         color: {
-            if (cell.cellData.hasNote) {
-                return Qt.rgba(cell.accent.r, cell.accent.g, cell.accent.b, cell.tint);
+            if (cell.shownTint > 0) {
+                return Qt.rgba(cell.accent.r, cell.accent.g, cell.accent.b, cell.shownTint);
             }
             const t = Kirigami.Theme.textColor;
             return cell.cellData.inMonth ? Qt.rgba(t.r, t.g, t.b, cell.hovered ? 0.1 : 0.045) : "transparent";
@@ -45,6 +55,7 @@ DayCell {
             : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.3)
 
         Behavior on color {
+            enabled: cell.reveal === 1
             ColorAnimation { duration: Kirigami.Units.shortDuration }
         }
     }

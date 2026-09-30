@@ -34,6 +34,39 @@ PlasmaComponents.AbstractButton {
     focusPolicy: Qt.StrongFocus
     text: String(cellData.date.d)
 
+    // Animations follow Plasma's animation speed: Kirigami's durations
+    // are 0 when animations are turned off.
+
+    // Press feedback
+    scale: down ? 0.92 : 1
+    Behavior on scale {
+        NumberAnimation {
+            duration: Kirigami.Units.shortDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
+    // Goes from 0 to 1 when the note's dots changed since the page last
+    // showed this day (a scan or word count arrived), so they fade in.
+    property real reveal: 1
+    NumberAnimation on reveal {
+        running: cell.cellData.fresh === true
+        from: 0
+        to: 1
+        duration: Kirigami.Units.veryLongDuration
+        easing.type: Easing.OutCubic
+    }
+
+    // Goes from 0 to 1 the first time the page shows today.
+    property real todayIntro: 1
+    NumberAnimation on todayIntro {
+        running: cell.cellData.todayFresh === true
+        from: 0
+        to: 1
+        duration: Kirigami.Units.veryLongDuration
+        easing.type: Easing.OutBack
+    }
+
     Accessible.name: longDate
     Accessible.description: {
         if (!cellData.hasNote) {
